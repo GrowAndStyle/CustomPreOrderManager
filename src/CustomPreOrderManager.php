@@ -131,7 +131,7 @@ class CustomPreOrderManager extends Plugin
                     ],
                     'translated' => true,
                 ],
-                'position' => 100,
+                'position' => 0,
                 'relations' => [
                     $relationData,
                 ],
