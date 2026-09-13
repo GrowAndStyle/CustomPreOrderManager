@@ -6,7 +6,7 @@
     <services>
         <!-- DAL Entity Definitions -->
         <service id="CustomPreOrderManager\Core\Content\PreOrderWaitlist\PreOrderWaitlistDefinition">
-            <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.definition" entity="custom_preorder_waitlist"/>
         </service>
     </services>
 </container>
