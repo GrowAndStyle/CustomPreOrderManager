@@ -1,26 +1,13 @@
 {% sw_extends '@Storefront/storefront/component/delivery-information.html.twig' %}
 
 {% block component_delivery_information %}
-    {% set currentProduct = page.product is defined ? page.product : (product is defined ? product : null) %}
-    {% set isPreOrder = currentProduct.customFields.custom_preorder_active|default(false) %}
-    {% set hasStock = currentProduct.stock > 0 %}
+    {% set isPreOrder = page.product.customFields.custom_preorder_active|default(false) %}
+    {% set hasStock = page.product.stock > 0 %}
 
     {% if isPreOrder and not hasStock %}
-        {% set releaseText = currentProduct.customFields.custom_preorder_release_text|default(null) %}
-        {% set releaseDate = currentProduct.customFields.custom_preorder_release_date|default(null) %}
-        {% set inboundStock = currentProduct.customFields.custom_preorder_inbound_stock|default(0) %}
-        {% set soldCount = currentProduct.customFields.custom_preorder_sold_count|default(0) %}
-        {% set remainingQuota = inboundStock - soldCount %}
-        {% set enableScarcity = config('CustomPreOrderManager.config.enableScarcity') %}
-        {% set lowStockThreshold = config('CustomPreOrderManager.config.lowStockThreshold') %}
-
-        {% if enableScarcity is null %}
-            {% set enableScarcity = true %}
-        {% endif %}
-        {% if lowStockThreshold is null %}
-            {% set lowStockThreshold = 5 %}
-        {% endif %}
-
+        {% set releaseText = page.product.customFields.custom_preorder_release_text %}
+        {% set releaseDate = page.product.customFields.custom_preorder_release_date %}
+        
         <div class="product-delivery-information preorder-delivery-box">
             <span class="delivery-status-indicator is-preorder"></span>
             <span class="preorder-delivery-text">
@@ -33,22 +20,6 @@
                 {% endif %}
             </span>
         </div>
-
-        {% if enableScarcity and inboundStock > 0 and remainingQuota > 0 %}
-            <div class="preorder-scarcity-container">
-                {% if remainingQuota <= lowStockThreshold %}
-                    <div class="preorder-scarcity-urgent">
-                        <span>🔥</span>
-                        <span>{{ "custom-preorder.badge.almostSoldOut"|trans({'%count%': remainingQuota}) }}</span>
-                    </div>
-                {% else %}
-                    <div class="preorder-scarcity-info">
-                        <span>ℹ️</span>
-                        <span>{{ "custom-preorder.badge.remaining"|trans({'%remaining%': remainingQuota, '%total%': inboundStock}) }}</span>
-                    </div>
-                {% endif %}
-            </div>
-        {% endif %}
     {% else %}
         {{ parent() }}
     {% endif %}

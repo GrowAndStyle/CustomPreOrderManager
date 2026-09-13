@@ -1,28 +1,27 @@
 {% sw_extends '@Storefront/storefront/page/product-detail/buy-widget-form.html.twig' %}
 
 {% block page_product_detail_buy_button %}
-    {% set currentProduct = page.product is defined ? page.product : (product is defined ? product : null) %}
-    {% set isPreOrder = currentProduct.customFields.custom_preorder_active|default(false) %}
-    {% set hasStock = currentProduct and currentProduct.stock > 0 %}
-    {% set inboundStock = currentProduct.customFields.custom_preorder_inbound_stock|default(0) %}
-    {% set soldCount = currentProduct.customFields.custom_preorder_sold_count|default(0) %}
+    {% set isPreOrder = page.product.customFields.custom_preorder_active|default(false) %}
+    {% set hasStock = page.product.stock > 0 %}
+    {% set inboundStock = page.product.customFields.custom_preorder_inbound_stock|default(0) %}
+    {% set soldCount = page.product.customFields.custom_preorder_sold_count|default(0) %}
     {% set remainingQuota = inboundStock - soldCount %}
 
     {# Vorbestell-Modus greift NUR wenn aktiv und physischer Bestand <= 0 #}
-    {% if currentProduct and isPreOrder and not hasStock %}
+    {% if isPreOrder and not hasStock %}
         {% if inboundStock > 0 and remainingQuota <= 0 %}
             {# Kontingent erschöpft -> Wartelisten-Button (öffnet Modal) #}
-            <button class="btn btn-secondary btn-buy btn-preorder-waitlist w-100"
+            <button class="btn btn-secondary btn-block btn-buy btn-preorder-waitlist"
                     type="button"
                     data-preorder-waitlist="true"
-                    data-product-id="{{ currentProduct.id }}"
+                    data-product-id="{{ page.product.id }}"
                     data-bs-toggle="modal"
                     data-bs-target="#preorderWaitlistModal">
                 {{ "custom-preorder.button.notifyMe"|trans }}
             </button>
         {% else %}
             {# Normaler Vorbestell-Button #}
-            <button class="btn btn-primary btn-buy btn-preorder w-100"
+            <button class="btn btn-primary btn-block btn-buy btn-preorder"
                     title="{{ "custom-preorder.button.preOrder"|trans }}"
                     aria-label="{{ "custom-preorder.button.preOrder"|trans }}">
                 <span class="btn-preorder-icon me-2">📅</span>
@@ -31,21 +30,6 @@
         {% endif %}
     {% else %}
         {# Standard Shopware-Kaufen-Button #}
-        {{ parent() }}
-    {% endif %}
-{% endblock %}
-
-{% block page_product_detail_buy_quantity_container %}
-    {% set currentProduct = page.product is defined ? page.product : (product is defined ? product : null) %}
-    {% set isPreOrder = currentProduct.customFields.custom_preorder_active|default(false) %}
-    {% set hasStock = currentProduct and currentProduct.stock > 0 %}
-    {% set inboundStock = currentProduct.customFields.custom_preorder_inbound_stock|default(0) %}
-    {% set soldCount = currentProduct.customFields.custom_preorder_sold_count|default(0) %}
-    {% set remainingQuota = inboundStock - soldCount %}
-
-    {% if currentProduct and isPreOrder and not hasStock and inboundStock > 0 and remainingQuota <= 0 %}
-        {# Keine Mengenauswahl bei erschöpftem Kontingent (Warteliste) #}
-    {% else %}
         {{ parent() }}
     {% endif %}
 {% endblock %}

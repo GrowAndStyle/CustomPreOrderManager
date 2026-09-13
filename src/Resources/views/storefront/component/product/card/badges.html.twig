@@ -5,13 +5,8 @@
 
     {% set isPreOrder = product.customFields.custom_preorder_active|default(false) %}
     {% set hasStock = product.stock > 0 %}
-    {% set enableListingBadge = config('CustomPreOrderManager.config.enableListingBadge') %}
 
-    {% if enableListingBadge is null %}
-        {% set enableListingBadge = true %}
-    {% endif %}
-
-    {% if isPreOrder and not hasStock and enableListingBadge %}
+    {% if isPreOrder and not hasStock and config('CustomPreOrderManager.config.enableListingBadge') %}
         <span class="badge badge-preorder">
             {{ "custom-preorder.badge.preOrder"|trans }}
         </span>
