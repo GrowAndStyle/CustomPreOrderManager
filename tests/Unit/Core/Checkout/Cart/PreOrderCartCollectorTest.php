@@ -155,4 +155,42 @@ class PreOrderCartCollectorTest extends TestCase
         static::assertTrue($lineItem->getPayloadValue('isPreOrder'));
         static::assertSame('Vorbestellung', $lineItem->getPayloadValue('preOrderReleaseText'));
     }
+
+    public function testCollectEnrichesWhenNoDeliveryInfoAndNoStockInPayload(): void
+    {
+        $cart = new Cart('test-token');
+        $lineItem = new LineItem('prod-1', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $lineItem->setPayloadValue('customFields', [
+            'custom_preorder_active' => true,
+            'custom_preorder_release_text' => 'Lieferbar bald',
+        ]);
+
+        $cart->addLineItems(new LineItemCollection([$lineItem]));
+
+        $this->collector->collect($this->data, $cart, $this->context, $this->behavior);
+
+        static::assertTrue($lineItem->getPayloadValue('isPreOrder'));
+        static::assertSame('Lieferbar bald', $lineItem->getPayloadValue('preOrderReleaseText'));
+    }
+
+    public function testCollectProcessesMultipleMixedLineItems(): void
+    {
+        $cart = new Cart('test-token');
+        $normalItem = new LineItem('prod-normal', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $normalItem->setPayloadValue('customFields', ['custom_preorder_active' => false]);
+
+        $preOrderItem = new LineItem('prod-preorder', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $preOrderItem->setPayloadValue('customFields', [
+            'custom_preorder_active' => true,
+            'custom_preorder_release_text' => 'Herbst 2026',
+        ]);
+
+        $cart->addLineItems(new LineItemCollection([$normalItem, $preOrderItem]));
+
+        $this->collector->collect($this->data, $cart, $this->context, $this->behavior);
+
+        static::assertNull($normalItem->getPayloadValue('isPreOrder'));
+        static::assertTrue($preOrderItem->getPayloadValue('isPreOrder'));
+        static::assertSame('Herbst 2026', $preOrderItem->getPayloadValue('preOrderReleaseText'));
+    }
 }
