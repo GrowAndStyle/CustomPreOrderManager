@@ -58,3 +58,19 @@
   - Registriert mit Tag `kernel.event_subscriber` und Service-Dependencies (`order.repository`, `tag.repository`, `Connection`).
 - **Unit-Tests (`tests/Unit/Core/Checkout/Subscriber/OrderPlacedSubscriberTest.php`):**
   - 8 Unit-Tests für alle Szenarien (Early Returns, bestehendes Tag, neues Tag, ungültige Produkt-ID, Mehrfachpositionen).
+
+## Phase 4: Storefront Twig & Mobile-First SCSS abgeschlossen
+> Detaillierte Dokumentation: [docs/walkthrough/004-storefront-ui.md](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/walkthrough/004-storefront-ui.md)
+
+- **Twig Block-Inheritance mit `{% sw_extends %}`:**
+  - `buy-widget-form.html.twig`: Automatischer Wechsel zwischen Kaufen-Button, Vorbestell-Button und Wartelisten-Button bei Kontingenterschöpfung. Blendet Mengenwähler bei Warteliste aus.
+  - `buy-widget.html.twig`: Saubere Einbindung des Wartelisten-Modals außerhalb des Kaufen-Formulars (keine invaliden verschachtelten `<form>`-Tags).
+  - `delivery-information.html.twig`: PreOrder-Hinweisbox und Scarcity-Badges (Normal- vs. Dringlichkeits-Zustand).
+  - `badges.html.twig`: Vorbestell-Badge auf Listing-Karten über Konfiguration steuerbar.
+  - `label.html.twig`: Positions-Hinweis im Warenkorb und Checkout aus unveränderlichem LineItem-Payload.
+  - `waitlist-modal.html.twig`: Bootstrap 5 Modal mit CSRF, unsichtbarem Bot-Honeypot und DSGVO-Einwilligung.
+- **Storefront JS & SCSS:**
+  - `src/Resources/app/storefront/src/main.js`: Plugin-Registrierung `PreOrderManager` im Shopware PluginManager.
+  - `src/Resources/app/storefront/src/plugin/preorder-manager.plugin.js`: Asynchrones AJAX-Handling mit Inline-Feedback.
+  - `src/Resources/app/storefront/src/scss/base.scss`: Mobile-First Design (Touch-Targets ≥48px, Grow & Style CI-Farben `#1a1a2e`, `#ff9800`, `#28a745`).
+

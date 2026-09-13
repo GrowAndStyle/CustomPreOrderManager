@@ -1,0 +1,48 @@
+{% sw_extends '@Storefront/storefront/component/delivery-information.html.twig' %}
+
+{% block component_delivery_information %}
+    {% set currentProduct = page.product|default(product|default(null)) %}
+    {% set isPreOrder = currentProduct.customFields.custom_preorder_active|default(false) %}
+    {% set hasStock = currentProduct.stock > 0 %}
+
+    {% if isPreOrder and not hasStock %}
+        {% set releaseText = currentProduct.customFields.custom_preorder_release_text %}
+        {% set releaseDate = currentProduct.customFields.custom_preorder_release_date %}
+        {% set inboundStock = currentProduct.customFields.custom_preorder_inbound_stock|default(0) %}
+        {% set soldCount = currentProduct.customFields.custom_preorder_sold_count|default(0) %}
+        {% set remainingQuota = inboundStock - soldCount %}
+        {% set enableScarcity = config('CustomPreOrderManager.config.enableScarcity') ?? config('CustomPreOrder.config.enableScarcity') ?? true %}
+        {% set lowStockThreshold = config('CustomPreOrderManager.config.lowStockThreshold') ?? config('CustomPreOrder.config.lowStockThreshold') ?? 5 %}
+
+        <div class="product-delivery-information preorder-delivery-box">
+            <span class="delivery-status-indicator is-preorder"></span>
+            <span class="preorder-delivery-text">
+                {% if releaseText %}
+                    {{ releaseText }}
+                {% elseif releaseDate %}
+                    {{ "custom-preorder.badge.availableFrom"|trans({'%date%': releaseDate|date('m/Y')}) }}
+                {% else %}
+                    {{ "custom-preorder.badge.preOrder"|trans }}
+                {% endif %}
+            </span>
+        </div>
+
+        {% if enableScarcity and inboundStock > 0 and remainingQuota > 0 %}
+            <div class="preorder-scarcity-container">
+                {% if remainingQuota <= lowStockThreshold %}
+                    <div class="preorder-scarcity-urgent">
+                        <span>🔥</span>
+                        <span>{{ "custom-preorder.badge.almostSoldOut"|trans({'%count%': remainingQuota}) }}</span>
+                    </div>
+                {% else %}
+                    <div class="preorder-scarcity-info">
+                        <span>ℹ️</span>
+                        <span>{{ "custom-preorder.badge.remaining"|trans({'%remaining%': remainingQuota, '%total%': inboundStock}) }}</span>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

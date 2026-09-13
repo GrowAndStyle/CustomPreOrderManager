@@ -1,0 +1,15 @@
+{% sw_extends '@Storefront/storefront/component/product/card/badges.html.twig' %}
+
+{% block component_product_badges %}
+    {{ parent() }}
+
+    {% set isPreOrder = product.customFields.custom_preorder_active|default(false) %}
+    {% set hasStock = product.stock > 0 %}
+    {% set enableListingBadge = config('CustomPreOrderManager.config.enableListingBadge') ?? config('CustomPreOrder.config.enableListingBadge') ?? true %}
+
+    {% if isPreOrder and not hasStock and enableListingBadge %}
+        <span class="badge badge-preorder">
+            {{ "custom-preorder.badge.preOrder"|trans }}
+        </span>
+    {% endif %}
+{% endblock %}
