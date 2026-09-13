@@ -69,7 +69,13 @@ Erstellung der Datenbasis für das Vorbestellungs-System (PreOrder):
    ```
    *Ergebnis:* Valides JSON.
 
-3. **Unit-Tests:**
+3. **Unit-Tests (100% Coverage, 18 Tests, 61 Assertions):**
    - `PreOrderWaitlistEntityTest`: Getter/Setter, Default-Werte, Nullable-Eigenschaften.
    - `PreOrderWaitlistDefinitionTest`: EntityName, Field-Typen, PrimaryKey, ReferenceVersionField, ForeignKeys.
-   - `PluginLifecycleTest`: `keepUserData()`-Guard-Prüfung.
+   - `PreOrderWaitlistCollectionTest`: Typisierung und Vererbung der EntityCollection.
+   - `PluginLifecycleTest`: `keepUserData()`-Guard-Prüfung, vollständige Kaskadierungs-Prüfung, Neuanlage & Update von CustomFieldSets über `custom_field_set.repository`.
+
+4. **CustomField-Set Registrierung (Shopware 6.5 Standard):**
+   - Registrierung von `custom_preorder_set` erfolgt über `custom_field_set.repository` in `CustomPreOrderManager::install`, `activate` und `update`.
+   - Idempotente Verknüpfung mit der Entity `product`.
+   - Absicherung gegen Duplicate Keys und saubere Übergabe der Feldkomponenten (`sw-field`, `sw-datepicker`).

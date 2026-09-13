@@ -29,4 +29,5 @@
 - **Verifikation & Qualität:**
   - `xmllint` Validierung für alle XML-Dateien erfolgreich bestanden (0 Fehler).
   - JSON-Linting der Storefront-Snippets erfolgreich.
-  - Unit-Tests für Entity, Definition und Lifecycle-Guards erstellt.
+  - Unit-Tests: 18 Tests, 61 Assertions, **100.00% Coverage** (Classes: 4/4, Methods: 33/33, Lines: 198/198).
+  - CustomField-Set wird im Plugin-Lifecycle über `custom_field_set.repository` verwaltet.
