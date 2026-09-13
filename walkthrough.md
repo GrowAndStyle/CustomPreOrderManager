@@ -44,4 +44,17 @@
 - **DI-Registrierung (`src/Resources/config/services.xml`):**
   - Registriert mit Tag `shopware.cart.collector` und Priorität `4500`.
 - **Unit-Tests (`tests/Unit/Core/Checkout/Cart/PreOrderCartCollectorTest.php`):**
-  - 8 Unit-Tests für alle Verzweigungen (Non-Product, Inaktiv, Lagerbestand > 0, Freitext, Datum, Fallbacks).
+  - 10 Unit-Tests für alle Verzweigungen und Edge-Cases (Non-Product, Inaktiv, Lagerbestand > 0 via DeliveryInfo/Payload, Freitext, Datum, Fallbacks, Null-Stock, Mischwarenkörbe).
+
+## Phase 3: Order-Placed Subscriber & Auto-Tagging abgeschlossen
+> Detaillierte Dokumentation: [docs/walkthrough/003-order-placed-subscriber.md](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/walkthrough/003-order-placed-subscriber.md)
+
+- **OrderPlacedSubscriber (`src/Core/Checkout/Subscriber/OrderPlacedSubscriber.php`):**
+  - Hört auf `CheckoutOrderPlacedEvent`.
+  - Erkennt Vorbestellpositionen via `payload.isPreOrder === true`.
+  - Inkrementiert atomar `custom_preorder_sold_count` am Produkt per DBAL `JSON_SET()`.
+  - Sucht oder erstellt das Tag `Vorbestellung` und hängt es an die Order.
+- **DI-Registrierung (`src/Resources/config/services.xml`):**
+  - Registriert mit Tag `kernel.event_subscriber` und Service-Dependencies (`order.repository`, `tag.repository`, `Connection`).
+- **Unit-Tests (`tests/Unit/Core/Checkout/Subscriber/OrderPlacedSubscriberTest.php`):**
+  - 8 Unit-Tests für alle Szenarien (Early Returns, bestehendes Tag, neues Tag, ungültige Produkt-ID, Mehrfachpositionen).
