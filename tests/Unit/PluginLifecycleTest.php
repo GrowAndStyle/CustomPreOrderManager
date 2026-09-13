@@ -5,7 +5,11 @@ namespace CustomPreOrderManager\Tests\Unit;
 use CustomPreOrderManager\CustomPreOrderManager;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
+use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class PluginLifecycleTest extends TestCase
@@ -41,5 +45,21 @@ class PluginLifecycleTest extends TestCase
 
         $plugin->setContainer($container);
         $plugin->uninstall($context);
+    }
+
+    public function testLifecycleMethodsExecuteSafely(): void
+    {
+        $plugin = new CustomPreOrderManager(true, '');
+        $installContext = $this->createMock(InstallContext::class);
+        $updateContext = $this->createMock(UpdateContext::class);
+        $activateContext = $this->createMock(ActivateContext::class);
+        $deactivateContext = $this->createMock(DeactivateContext::class);
+
+        $plugin->install($installContext);
+        $plugin->update($updateContext);
+        $plugin->activate($activateContext);
+        $plugin->deactivate($deactivateContext);
+
+        static::assertTrue(true);
     }
 }
