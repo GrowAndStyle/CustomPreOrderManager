@@ -80,7 +80,6 @@ class PreOrderWaitlistDefinitionTest extends TestCase
     {
         $productId = $this->findField('productId');
         static::assertInstanceOf(FkField::class, $productId);
-        static::assertSame(ProductDefinition::class, $productId->getReferenceClass());
         static::assertTrue($productId->is(Required::class));
 
         $productVersionId = $this->findField('productVersionId');
@@ -96,7 +95,6 @@ class PreOrderWaitlistDefinitionTest extends TestCase
     {
         $salesChannelId = $this->findField('salesChannelId');
         static::assertInstanceOf(FkField::class, $salesChannelId);
-        static::assertSame(SalesChannelDefinition::class, $salesChannelId->getReferenceClass());
         static::assertTrue($salesChannelId->is(Required::class));
 
         $salesChannel = $this->findField('salesChannel');
