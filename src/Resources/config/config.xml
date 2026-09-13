@@ -4,33 +4,57 @@
 
     <card>
         <title>Allgemeine Einstellungen</title>
+        <title lang="de-DE">Grundeinstellungen</title>
         <title lang="en-GB">General Settings</title>
-
-        <input-field type="bool">
-            <name>enableScarcity</name>
-            <label>Verknappungs-Anzeige (Scarcity) aktivieren</label>
-            <label lang="en-GB">Enable scarcity display</label>
-            <defaultValue>true</defaultValue>
-            <helpText>Zeigt Hinweise wie Noch X von Y verfügbar im Frontend an.</helpText>
-            <helpText lang="en-GB">Shows badges like Only X of Y remaining in the storefront.</helpText>
-        </input-field>
-
-        <input-field type="int">
-            <name>lowStockThreshold</name>
-            <label>Schwellenwert für Fast vergriffen</label>
-            <label lang="en-GB">Threshold for Almost sold out</label>
-            <defaultValue>5</defaultValue>
-            <helpText>Ab dieser Restmenge wechselt das Badge auf den Dringlichkeits-Hinweis.</helpText>
-            <helpText lang="en-GB">Below this quota, the badge switches to urgent state.</helpText>
-        </input-field>
 
         <input-field type="bool">
             <name>enableListingBadge</name>
             <label>Vorbestell-Badge auf Kategorieseiten anzeigen</label>
-            <label lang="en-GB">Show pre-order badge on listing cards</label>
+            <label lang="de-DE">Vorbestell-Badge auf Kategorieseiten anzeigen</label>
+            <label lang="en-GB">Show pre-order badge on category listing</label>
             <defaultValue>true</defaultValue>
-            <helpText>Hebt Vorbestell-Artikel bereits in der Kategorieübersicht hervor.</helpText>
-            <helpText lang="en-GB">Highlights pre-order products directly on category cards.</helpText>
+            <helpText>Hebt Vorbestell-Artikel bereits in der Kategorieübersicht und auf Produktkarten hervor.</helpText>
+            <helpText lang="de-DE">Hebt Vorbestell-Artikel bereits in der Kategorieübersicht und auf Produktkarten hervor.</helpText>
+            <helpText lang="en-GB">Highlights pre-order products directly in category listings and on product cards.</helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>enableScarcity</name>
+            <label>Verknappungs-Anzeige (Scarcity) aktivieren</label>
+            <label lang="de-DE">Verknappungs-Anzeige (Scarcity) aktivieren</label>
+            <label lang="en-GB">Enable scarcity display</label>
+            <defaultValue>true</defaultValue>
+            <helpText>Zeigt dynamische Kontingent- und Dringlichkeitshinweise im Frontend an.</helpText>
+            <helpText lang="de-DE">Zeigt dynamische Kontingent- und Dringlichkeitshinweise im Frontend an.</helpText>
+            <helpText lang="en-GB">Shows dynamic allocation and urgency hints in the storefront.</helpText>
+        </input-field>
+
+        <input-field type="int">
+            <name>lowStockThreshold</name>
+            <label>Schwellenwert für „Fast vergriffen“</label>
+            <label lang="de-DE">Schwellenwert für „Fast vergriffen“</label>
+            <label lang="en-GB">Threshold for "Almost sold out"</label>
+            <defaultValue>5</defaultValue>
+            <helpText>Ab dieser Restmenge wechselt die Anzeige automatisch zum Dringlichkeits-Badge.</helpText>
+            <helpText lang="de-DE">Ab dieser Restmenge wechselt die Anzeige automatisch zum Dringlichkeits-Badge.</helpText>
+            <helpText lang="en-GB">Below this remaining quota, the badge automatically switches to urgent state.</helpText>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Warteliste &amp; DSGVO</title>
+        <title lang="de-DE">Warteliste &amp; DSGVO</title>
+        <title lang="en-GB">Waitlist &amp; GDPR</title>
+
+        <input-field type="int">
+            <name>retentionDays</name>
+            <label>DSGVO-Speicherfrist für Warteliste (Tage)</label>
+            <label lang="de-DE">DSGVO-Speicherfrist für Warteliste (Tage)</label>
+            <label lang="en-GB">GDPR retention period for waitlist (days)</label>
+            <defaultValue>90</defaultValue>
+            <helpText>Zeitraum in Tagen, nach dem unbestätigte oder abgelaufene Einträge bereinigt werden (Standard: 90 Tage).</helpText>
+            <helpText lang="de-DE">Zeitraum in Tagen, nach dem unbestätigte oder abgelaufene Einträge bereinigt werden (Standard: 90 Tage).</helpText>
+            <helpText lang="en-GB">Period in days after which unconfirmed or expired entries are purged (default: 90 days).</helpText>
         </input-field>
     </card>
 </config>

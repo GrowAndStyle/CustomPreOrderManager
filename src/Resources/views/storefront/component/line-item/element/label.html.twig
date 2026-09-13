@@ -4,9 +4,13 @@
     {{ parent() }}
 
     {% if lineItem.payload.isPreOrder %}
+        {% set releaseText = lineItem.payload.preOrderReleaseText %}
+        {% if not releaseText %}
+            {% set releaseText = "custom-preorder.badge.preOrder"|trans %}
+        {% endif %}
         <div class="line-item-preorder-badge">
             <span class="badge bg-light text-dark border">
-                📅 {{ "custom-preorder.cart.lineItemNotice"|trans({'%releaseText%': lineItem.payload.preOrderReleaseText|default("custom-preorder.badge.preOrder"|trans)}) }}
+                📅 {{ "custom-preorder.cart.lineItemNotice"|trans({'%releaseText%': releaseText}) }}
             </span>
         </div>
     {% endif %}

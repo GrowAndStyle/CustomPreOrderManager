@@ -1,18 +1,25 @@
 {% sw_extends '@Storefront/storefront/component/delivery-information.html.twig' %}
 
 {% block component_delivery_information %}
-    {% set currentProduct = page.product|default(product|default(null)) %}
+    {% set currentProduct = page.product is defined ? page.product : (product is defined ? product : null) %}
     {% set isPreOrder = currentProduct.customFields.custom_preorder_active|default(false) %}
     {% set hasStock = currentProduct.stock > 0 %}
 
     {% if isPreOrder and not hasStock %}
-        {% set releaseText = currentProduct.customFields.custom_preorder_release_text %}
-        {% set releaseDate = currentProduct.customFields.custom_preorder_release_date %}
+        {% set releaseText = currentProduct.customFields.custom_preorder_release_text|default(null) %}
+        {% set releaseDate = currentProduct.customFields.custom_preorder_release_date|default(null) %}
         {% set inboundStock = currentProduct.customFields.custom_preorder_inbound_stock|default(0) %}
         {% set soldCount = currentProduct.customFields.custom_preorder_sold_count|default(0) %}
         {% set remainingQuota = inboundStock - soldCount %}
-        {% set enableScarcity = config('CustomPreOrderManager.config.enableScarcity') ?? config('CustomPreOrder.config.enableScarcity') ?? true %}
-        {% set lowStockThreshold = config('CustomPreOrderManager.config.lowStockThreshold') ?? config('CustomPreOrder.config.lowStockThreshold') ?? 5 %}
+        {% set enableScarcity = config('CustomPreOrderManager.config.enableScarcity') %}
+        {% set lowStockThreshold = config('CustomPreOrderManager.config.lowStockThreshold') %}
+
+        {% if enableScarcity is null %}
+            {% set enableScarcity = true %}
+        {% endif %}
+        {% if lowStockThreshold is null %}
+            {% set lowStockThreshold = 5 %}
+        {% endif %}
 
         <div class="product-delivery-information preorder-delivery-box">
             <span class="delivery-status-indicator is-preorder"></span>
