@@ -8,5 +8,10 @@
         <service id="CustomPreOrderManager\Core\Content\PreOrderWaitlist\PreOrderWaitlistDefinition">
             <tag name="shopware.entity.definition" entity="custom_preorder_waitlist"/>
         </service>
+
+        <!-- Cart Collector Pipeline -->
+        <service id="CustomPreOrderManager\Core\Checkout\Cart\PreOrderCartCollector">
+            <tag name="shopware.cart.collector" priority="4500"/>
+        </service>
     </services>
 </container>

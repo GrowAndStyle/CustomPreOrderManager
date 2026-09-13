@@ -31,3 +31,17 @@
   - JSON-Linting der Storefront-Snippets erfolgreich.
   - Unit-Tests: 18 Tests, 61 Assertions, **100.00% Coverage** (Classes: 4/4, Methods: 33/33, Lines: 198/198).
   - CustomField-Set wird im Plugin-Lifecycle über `custom_field_set.repository` verwaltet.
+
+## Phase 2: Cart-Collector Pipeline & LineItem Payload Enrichment abgeschlossen
+> Detaillierte Dokumentation: [docs/walkthrough/002-cart-collector-pipeline.md](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/walkthrough/002-cart-collector-pipeline.md)
+
+- **Cart-Collector (`src/Core/Checkout/Cart/PreOrderCartCollector.php`):**
+  - Implementiert `CartDataCollectorInterface`.
+  - Filtert auf Produkt-LineItems und prüft `custom_preorder_active === true`.
+  - Strikte Regel: Physischer Lagerbestand sticht Vorbestellung (`deliveryInformation->stock > 0` bzw. `payload['stock'] > 0`).
+  - Reichert LineItem mit `isPreOrder = true` und `preOrderReleaseText` an.
+  - Automatische Text-Generierung: Freitext `custom_preorder_release_text` vor formatiertem Release-Datum `Lieferbar ab MM/YYYY`.
+- **DI-Registrierung (`src/Resources/config/services.xml`):**
+  - Registriert mit Tag `shopware.cart.collector` und Priorität `4500`.
+- **Unit-Tests (`tests/Unit/Core/Checkout/Cart/PreOrderCartCollectorTest.php`):**
+  - 8 Unit-Tests für alle Verzweigungen (Non-Product, Inaktiv, Lagerbestand > 0, Freitext, Datum, Fallbacks).
