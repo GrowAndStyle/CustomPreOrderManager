@@ -1,0 +1,14 @@
+# Export ignore for shopware-cli git archive
+.agent export-ignore
+.env.example export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+.sw-zip-blacklist export-ignore
+ARCHITECTURE.md export-ignore
+BUILD.md export-ignore
+README.md export-ignore
+task.md export-ignore
+walkthrough.md export-ignore
+phpunit.xml.dist export-ignore
+tests export-ignore
+dist export-ignore

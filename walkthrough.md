@@ -7,6 +7,8 @@
 - Lifecycle-Methoden und keepUserData() Uninstall-Guards implementiert.
 
 ## Phase 1: DAL-Migrationen & Wartelisten-Entity abgeschlossen
+> Detaillierte Dokumentation: [docs/walkthrough/001-dal-migrationen-und-entities.md](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/walkthrough/001-dal-migrationen-und-entities.md)
+
 - **CustomField-Set Migration (`Migration1726200000AddPreOrderCustomFields.php`):**
   - Idempotente Anlage von `custom_preorder_set` für die Entity `product`.
   - 5 Felder angelegt: `custom_preorder_active` (bool/switch), `custom_preorder_release_date` (datetime/datepicker), `custom_preorder_release_text` (text), `custom_preorder_inbound_stock` (int), `custom_preorder_sold_count` (int/disabled).

@@ -1,19 +1,37 @@
-# AI Agent Skills — deployed vom zentralen AgentSkill-Repo
-# Single Source of Truth: github.com/GrowAndStyle/AgentSkills
-.agent/skills/
-.agent/manifest.md
+# OS
+.DS_Store
+Thumbs.db
 
-# Environment & IDE
-.env
-.env.*
-!.env.example
+# IDE
 .idea/
 .vscode/
-.DS_Store
-
-# Build & Dependencies
-vendor/
-node_modules/
-dist/
 *.swp
 *.swo
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Shopware Build Artifacts
+Resources/app/administration/node_modules/
+Resources/public/
+
+# Environment
+.env
+.env.local
+
+# Build Output
+dist/
+
+# Session-Dokumente (nicht projekt-persistent)
+backup/
+masterplan.md
+task.md
+BUILD.md
+CHANGELOG.md
+
+# AI Agent Skills — Single Source of Truth: AgentSkill-Repo
+.agent/
+
+# Source Maps — nicht ins Release-ZIP
+*.map
