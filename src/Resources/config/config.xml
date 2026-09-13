@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>Allgemeine Einstellungen</title>
+        <title lang="en-GB">General Settings</title>
+
+        <input-field type="bool">
+            <name>enableScarcity</name>
+            <label>Verknappungs-Anzeige (Scarcity) aktivieren</label>
+            <label lang="en-GB">Enable scarcity display</label>
+            <defaultValue>true</defaultValue>
+            <helpText>Zeigt Hinweise wie Noch X von Y verfügbar im Frontend an.</helpText>
+            <helpText lang="en-GB">Shows badges like Only X of Y remaining in the storefront.</helpText>
+        </input-field>
+
+        <input-field type="int">
+            <name>lowStockThreshold</name>
+            <label>Schwellenwert für Fast vergriffen</label>
+            <label lang="en-GB">Threshold for Almost sold out</label>
+            <defaultValue>5</defaultValue>
+            <helpText>Ab dieser Restmenge wechselt das Badge auf den Dringlichkeits-Hinweis.</helpText>
+            <helpText lang="en-GB">Below this quota, the badge switches to urgent state.</helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>enableListingBadge</name>
+            <label>Vorbestell-Badge auf Kategorieseiten anzeigen</label>
+            <label lang="en-GB">Show pre-order badge on listing cards</label>
+            <defaultValue>true</defaultValue>
+            <helpText>Hebt Vorbestell-Artikel bereits in der Kategorieübersicht hervor.</helpText>
+            <helpText lang="en-GB">Highlights pre-order products directly on category cards.</helpText>
+        </input-field>
+    </card>
+</config>

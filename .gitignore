@@ -1,0 +1,19 @@
+# AI Agent Skills — deployed vom zentralen AgentSkill-Repo
+# Single Source of Truth: github.com/GrowAndStyle/AgentSkills
+.agent/skills/
+.agent/manifest.md
+
+# Environment & IDE
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+.DS_Store
+
+# Build & Dependencies
+vendor/
+node_modules/
+dist/
+*.swp
+*.swo

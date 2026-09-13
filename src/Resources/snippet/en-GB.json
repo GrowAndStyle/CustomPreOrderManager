@@ -1,0 +1,25 @@
+{
+    "custom-preorder": {
+        "badge": {
+            "preOrder": "Pre-Order",
+            "availableFrom": "Expected to ship %date%",
+            "almostSoldOut": "Almost sold out: Only %count% left for initial release",
+            "remaining": "Only %remaining% of %total% available"
+        },
+        "button": {
+            "preOrder": "Pre-order now",
+            "notifyMe": "Notify me when available"
+        },
+        "cart": {
+            "lineItemNotice": "Pre-Order (%releaseText%)"
+        },
+        "waitlist": {
+            "modalTitle": "Pre-order waitlist",
+            "emailPlaceholder": "Your email address",
+            "namePlaceholder": "Your name (optional)",
+            "submit": "Join waitlist",
+            "consentText": "I would like to be notified via email when this item becomes available. Unsubscribe anytime.",
+            "successMessage": "Thank you! We sent you a confirmation email."
+        }
+    }
+}

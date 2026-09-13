@@ -1,0 +1,44 @@
+{
+    "name": "growandstyle/custom-pre-order-manager",
+    "description": "Enterprise Vorbestellungs-System mit Kontingentierung, dynamischer Verknappung und CIS-kompatibler Warteliste für GrowAndStyle",
+    "type": "shopware-platform-plugin",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "GrowAndStyle",
+            "homepage": "https://growandstyle.de"
+        }
+    ],
+    "require": {
+        "shopware/core": "~6.5.8.0 || ^6.6.0 || ^6.7.0",
+        "shopware/administration": "~6.5.8.0 || ^6.6.0 || ^6.7.0",
+        "shopware/storefront": "~6.5.8.0 || ^6.6.0 || ^6.7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "CustomPreOrderManager\\": "src/"
+        }
+    },
+    "extra": {
+        "shopware-plugin-class": "CustomPreOrderManager\\CustomPreOrderManager",
+        "label": {
+            "de-DE": "PreOrderManager",
+            "en-GB": "PreOrderManager"
+        },
+        "description": {
+            "de-DE": "Enterprise Vorbestellungs-System mit Kontingentierung, dynamischer Verknappung und CIS-kompatibler Warteliste",
+            "en-GB": "Enterprise pre-order system with allocation management, dynamic scarcity and CIS-compatible waitlist"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CustomPreOrderManager\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

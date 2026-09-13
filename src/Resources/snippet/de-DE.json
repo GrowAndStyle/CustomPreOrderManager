@@ -1,0 +1,25 @@
+{
+    "custom-preorder": {
+        "badge": {
+            "preOrder": "Vorbestellung",
+            "availableFrom": "Voraussichtlich lieferbar ab %date%",
+            "almostSoldOut": "Fast vergriffen: Nur noch %count% Stück für Erstauslieferung",
+            "remaining": "Noch %remaining% von %total% Exemplaren verfügbar"
+        },
+        "button": {
+            "preOrder": "Jetzt vorbestellen",
+            "notifyMe": "Bitte benachrichtigen wenn wieder lieferbar"
+        },
+        "cart": {
+            "lineItemNotice": "Vorbestellung (%releaseText%)"
+        },
+        "waitlist": {
+            "modalTitle": "Warteliste für Vorbestellung",
+            "emailPlaceholder": "Ihre E-Mail-Adresse",
+            "namePlaceholder": "Ihr Name (optional)",
+            "submit": "Eintragen & benachrichtigt werden",
+            "consentText": "Ich möchte per E-Mail informiert werden, sobald der Artikel wieder vorbestellbar ist. Abmeldung jederzeit möglich.",
+            "successMessage": "Vielen Dank! Wir haben Ihnen eine Bestätigungs-E-Mail gesendet."
+        }
+    }
+}
