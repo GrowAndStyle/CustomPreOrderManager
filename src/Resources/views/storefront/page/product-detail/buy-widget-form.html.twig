@@ -1,6 +1,10 @@
 {% sw_extends '@Storefront/storefront/page/product-detail/buy-widget-form.html.twig' %}
 
-{% block page_product_detail_buy_button %}
+{# KRITISCH: page_product_detail_buy_container (NICHT buy_button!)
+   Shopware-Core setzt: buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0
+   Bei stock=0 → calculatedMaxPurchase=0 → buyable=false → der gesamte Container wird nicht gerendert!
+   Deshalb MUSS der äußere Block überschrieben werden. (→ shopware_plugin §7.D) #}
+{% block page_product_detail_buy_container %}
     {% set currentProduct = page.product|default(product) %}
     {% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
     {% set isPreOrder = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
@@ -15,12 +19,16 @@
                 {{ "custom-preorder.badge.quotaExhausted"|trans }}
             </div>
         {% else %}
-            <button class="btn btn-primary btn-block btn-buy btn-preorder"
-                    title="{{ "custom-preorder.button.preOrder"|trans }}"
-                    aria-label="{{ "custom-preorder.button.preOrder"|trans }}">
-                <span class="btn-preorder-icon me-2">📅</span>
-                {{ "custom-preorder.button.preOrder"|trans }}
-            </button>
+            <div class="row g-2 buy-widget-container">
+                <div class="col-12">
+                    <button class="btn btn-primary btn-block btn-buy btn-preorder"
+                            title="{{ "custom-preorder.button.preOrder"|trans }}"
+                            aria-label="{{ "custom-preorder.button.preOrder"|trans }}">
+                        <span class="btn-preorder-icon me-2">📅</span>
+                        {{ "custom-preorder.button.preOrder"|trans }}
+                    </button>
+                </div>
+            </div>
         {% endif %}
     {% else %}
         {{ parent() }}
