@@ -73,15 +73,36 @@ python3 -m json.tool src/Resources/app/administration/src/module/custom-preorder
 # Resultat: ALL XML AND JSON FILES ARE 100% VALID
 ```
 
-### Test-Fixes auf Teststation:
-1. `PreOrderPlacedEventTest`: Assertion angepasst auf `EventDataCollection::toArray()` und `assertArrayHasKey()` (Shopware 6.5 API).
-2. `OrderPlacedSubscriberTest`: `OrderEntity::getLineItems()` per Mock auf `null` gesetzt, um den Early-Exit typsicher zu testen.
-- Commit: `c53c55b fix(test): EventDataCollection toArray und OrderEntity getLineItems Mocking korrigiert`
+### Test-Ergebnis auf Teststation:
+```text
+OK (21 tests, 46 assertions)
+
+Code Coverage Report:     
+  2026-09-14 15:40:05     
+                          
+ Summary:                 
+  Classes: 100.00% (5/5)  
+  Methods: 100.00% (18/18)
+  Lines:   100.00% (86/86)
+
+CustomPreOrderManager\Core\Checkout\Cart\PreOrderCartCollector
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 14/ 14)
+CustomPreOrderManager\Core\Checkout\Event\PreOrderPlacedEvent
+  Methods: 100.00% ( 7/ 7)   Lines: 100.00% (  9/  9)
+CustomPreOrderManager\Core\Checkout\Subscriber\OrderPlacedSubscriber
+  Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 41/ 41)
+CustomPreOrderManager\CustomPreOrderManager
+  Methods: 100.00% ( 5/ 5)   Lines: 100.00% ( 12/ 12)
+CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 10/ 10)
+```
 
 ## Subagent-Governance
 - Keine Subagents eingesetzt. Sämtliche Dateien wurden direkt und atomar durch den Lead-Agenten implementiert, geprüft und verifiziert.
 
 ## Aktueller Status
-- Feature-Branch `feat/scaffold-and-architecture` ist sauber und auf dem neuesten Stand.
-- Bereit für Re-Run der Testsuite auf dem Testserver: `php vendor/bin/phpunit --coverage-text`.
+- Feature-Branch `feat/scaffold-and-architecture` vollständig implementiert und getestet.
+- 100% Line-, Method- und Class-Coverage erreicht (übertrifft Vorgabe von ≥95% Lines / ≥90% Methods).
+- Bereit für finales Review und Merge.
+
 
