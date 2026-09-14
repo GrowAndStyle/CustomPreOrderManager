@@ -73,8 +73,15 @@ python3 -m json.tool src/Resources/app/administration/src/module/custom-preorder
 # Resultat: ALL XML AND JSON FILES ARE 100% VALID
 ```
 
+### Test-Fixes auf Teststation:
+1. `PreOrderPlacedEventTest`: Assertion angepasst auf `EventDataCollection::toArray()` und `assertArrayHasKey()` (Shopware 6.5 API).
+2. `OrderPlacedSubscriberTest`: `OrderEntity::getLineItems()` per Mock auf `null` gesetzt, um den Early-Exit typsicher zu testen.
+- Commit: `c53c55b fix(test): EventDataCollection toArray und OrderEntity getLineItems Mocking korrigiert`
+
 ## Subagent-Governance
 - Keine Subagents eingesetzt. Sämtliche Dateien wurden direkt und atomar durch den Lead-Agenten implementiert, geprüft und verifiziert.
 
-## Nächste Schritte
-- Commit auf dem Feature-Branch `feat/scaffold-and-architecture` durchführen.
+## Aktueller Status
+- Feature-Branch `feat/scaffold-and-architecture` ist sauber und auf dem neuesten Stand.
+- Bereit für Re-Run der Testsuite auf dem Testserver: `php vendor/bin/phpunit --coverage-text`.
+
