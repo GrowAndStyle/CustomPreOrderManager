@@ -1,0 +1,13 @@
+{% sw_extends '@Storefront/storefront/component/line-item/element/label.html.twig' %}
+
+{% block component_line_item_label %}
+    {{ parent() }}
+
+    {% if lineItem.payload.isPreOrder %}
+        <div class="line-item-preorder-badge">
+            <span class="badge bg-light text-dark border">
+                📅 {{ "custom-preorder.cart.lineItemNotice"|trans({'%releaseText%': lineItem.payload.preOrderReleaseText|default("custom-preorder.badge.preOrder"|trans)}) }}
+            </span>
+        </div>
+    {% endif %}
+{% endblock %}

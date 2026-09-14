@@ -1,0 +1,27 @@
+{
+    "custom-preorder": {
+        "button": {
+            "preOrder": "Pre-order now",
+            "notifyMe": "Notify me when available"
+        },
+        "badge": {
+            "preOrder": "Pre-Order",
+            "preOrderImage": "Pre-Order",
+            "availableFrom": "Available from %date%",
+            "urgentFewLeft": "Almost gone: Only %count% left!",
+            "quotaExhausted": "Quota exhausted"
+        },
+        "cart": {
+            "lineItemNotice": "Pre-order — %releaseText%"
+        },
+        "scarcity": {
+            "remaining": "%remaining% of %total% available",
+            "fewLeft": "Only %remaining% left for %releaseText%"
+        }
+    },
+    "preOrder": {
+        "scarcity": {
+            "fewLeft": "Almost gone: Only %count% left!"
+        }
+    }
+}

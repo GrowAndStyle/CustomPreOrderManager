@@ -1,0 +1,26 @@
+{% sw_extends '@Storefront/storefront/component/delivery-information.html.twig' %}
+
+{% block component_delivery_information %}
+    {% set isPreOrder = page.product.customFields.custom_preorder_active|default(false) %}
+    {% set hasStock = page.product.stock > 0 %}
+
+    {% if isPreOrder and not hasStock %}
+        {% set releaseText = page.product.customFields.custom_preorder_release_text %}
+        {% set releaseDate = page.product.customFields.custom_preorder_release_date %}
+
+        <div class="product-delivery-information preorder-delivery-box">
+            <span class="delivery-status-indicator is-preorder"></span>
+            <span class="preorder-delivery-text">
+                {% if releaseText %}
+                    {{ releaseText }}
+                {% elseif releaseDate %}
+                    {{ "custom-preorder.badge.availableFrom"|trans({'%date%': releaseDate|date('m/Y')}) }}
+                {% else %}
+                    {{ "custom-preorder.badge.preOrder"|trans }}
+                {% endif %}
+            </span>
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

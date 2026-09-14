@@ -1,0 +1,16 @@
+{% sw_extends '@Storefront/storefront/component/product/card/image.html.twig' %}
+
+{% block component_product_image %}
+    <div class="product-image-wrapper preorder-image-wrapper">
+        {{ parent() }}
+
+        {% set isPreOrder = product.customFields.custom_preorder_active|default(false) %}
+        {% set hasStock = product.stock > 0 %}
+
+        {% if isPreOrder and not hasStock %}
+            <div class="preorder-image-badge" aria-label="{{ "custom-preorder.badge.preOrderImage"|trans }}">
+                {{ "custom-preorder.badge.preOrderImage"|trans }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% sw_extends '@Storefront/storefront/page/product-detail/buy-widget-form.html.twig' %}
+
+{% block page_product_detail_buy_button %}
+    {% set isPreOrder = page.product.customFields.custom_preorder_active|default(false) %}
+    {% set hasStock = page.product.stock > 0 %}
+    {% set inboundStock = page.product.customFields.custom_preorder_inbound_stock|default(0) %}
+    {% set soldCount = page.product.customFields.custom_preorder_sold_count|default(0) %}
+    {% set remainingQuota = inboundStock - soldCount %}
+
+    {% if isPreOrder and not hasStock %}
+        {% if inboundStock > 0 and remainingQuota <= 0 %}
+            <div class="alert alert-info preorder-exhausted-notice">
+                {{ "custom-preorder.badge.quotaExhausted"|trans }}
+            </div>
+        {% else %}
+            <button class="btn btn-primary btn-block btn-buy btn-preorder"
+                    title="{{ "custom-preorder.button.preOrder"|trans }}"
+                    aria-label="{{ "custom-preorder.button.preOrder"|trans }}">
+                <span class="btn-preorder-icon me-2">📅</span>
+                {{ "custom-preorder.button.preOrder"|trans }}
+            </button>
+        {% endif %}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
