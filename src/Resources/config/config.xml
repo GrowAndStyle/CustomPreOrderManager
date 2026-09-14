@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Vorbestellung — Allgemein</title>
+        <title lang="en-GB">Pre-Order — General</title>
+
+        <input-field type="bool">
+            <name>enableListingBadge</name>
+            <label>Vorbestell-Badge in Kategorieseiten anzeigen</label>
+            <label lang="en-GB">Show pre-order badge on listing pages</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>enableScarcityCounter</name>
+            <label>Restmengen-Zähler auf der Produktdetailseite anzeigen</label>
+            <label lang="en-GB">Show remaining quota counter on product detail page</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>lowStockThreshold</name>
+            <label>Schwellenwert für Dringlichkeits-Anzeige (Restmenge)</label>
+            <label lang="en-GB">Threshold for urgency display (remaining quantity)</label>
+            <defaultValue>5</defaultValue>
+            <helpText>Ab dieser Restmenge wird das „Fast vergriffen"-Badge angezeigt.</helpText>
+            <helpText lang="en-GB">The urgency badge is shown when remaining quantity drops to this value.</helpText>
+        </input-field>
+    </card>
+</config>
