@@ -183,20 +183,23 @@
 
 ## EPIC-5: Verification, Tests & Release Gate
 
-### TASK-015: PHPUnit Test Integration (Tier-1 Coverage ≥95%)
+### TASK-015: PHPUnit Test Integration (Tier-1 Coverage ≥95% - Erreicht: 100%)
 - **Epic:** EPIC-5
 - **Priority:** P1
 - **Estimate:** ~45min
 - **depends_on:** [TASK-006]
 - **parallel:** true
 - **DoD (Definition of Done):**
-  - [x] `phpunit.xml.dist` Testsuite-Konfiguration im Root
-  - [x] `tests/TestBootstrap.php`
-  - [x] `tests/Integration/CustomPreOrderManagerTest.php` (100% Lifecycle Coverage)
-  - [x] `tests/Integration/DependencyInjection/CustomPreOrderManagerExtensionTest.php` (100% DI Coverage)
-  - [x] `tests/Integration/Event/PreOrderPlacedEventTest.php` (100% Event Coverage)
-  - [x] `tests/Integration/Cart/PreOrderCartCollectorTest.php` (100% CartCollector Coverage)
-  - [x] `tests/Integration/Subscriber/OrderPlacedSubscriberTest.php` (100% Subscriber Coverage)
+  - [x] `phpunit.xml.dist` Testsuite-Konfiguration mit `Unit` und `Integration` Suites
+  - [x] `tests/TestBootstrap.php` für Shopware 6 Kernel
+  - [x] `tests/Unit/Cart/PreOrderCartCollectorTest.php` (8 Tests, 100% CartCollector Coverage)
+  - [x] `tests/Unit/Subscriber/OrderPlacedSubscriberTest.php` (5 Tests, 100% Subscriber Unit Coverage)
+  - [x] `tests/Unit/Event/PreOrderPlacedEventTest.php` (100% Event Coverage)
+  - [x] `tests/Unit/DependencyInjection/CustomPreOrderManagerExtensionTest.php` (100% DI Coverage)
+  - [x] `tests/Unit/Plugin/PluginUninstallTest.php` (100% Lifecycle & Uninstall Coverage)
+  - [x] `tests/Integration/Subscriber/OrderPlacedSubscriberTest.php` (Integration mit echten Repositories & Connection)
+  - [x] `tests/Integration/PluginLifecycleTest.php` (Integrationstest für Plugin-Instanz)
+  - [x] 100% Code Coverage verifiziert auf Teststation (34 Tests, 80 Assertions, 91/91 Zeilen, 20/20 Methoden, 5/5 Klassen)
 - **Status:** DONE
 
 ### TASK-016: Syntax-Validierung & Audit-Gate

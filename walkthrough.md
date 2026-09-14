@@ -78,14 +78,48 @@ for f in glob.glob('src/Resources/**/*.json', recursive=True):
 # Resultat: ALLE XML- UND JSON-DATEIEN SIND 100% VALIDE
 ```
 
+### Test-Ergebnis auf Teststation (Dockware PHP 8.1 / Shopware 6.5.x CE):
+```text
+PHPUnit 9.6.35 by Sebastian Bergmann and contributors.
+
+Random Seed:   1789421824
+
+..................................                                34 / 34 (100%)
+
+Time: 00:00.348, Memory: 123.00 MB
+
+OK (34 tests, 80 assertions)
+
+
+Code Coverage Report:     
+  2026-09-14 21:37:05     
+                          
+ Summary:                 
+  Classes: 100.00% (5/5)  
+  Methods: 100.00% (20/20)
+  Lines:   100.00% (91/91)
+
+CustomPreOrderManager\Core\Checkout\Cart\PreOrderCartCollector
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 16/ 16)
+CustomPreOrderManager\Core\Checkout\Event\PreOrderPlacedEvent
+  Methods: 100.00% ( 7/ 7)   Lines: 100.00% (  9/  9)
+CustomPreOrderManager\Core\Checkout\Subscriber\OrderPlacedSubscriber
+  Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 41/ 41)
+CustomPreOrderManager\CustomPreOrderManager
+  Methods: 100.00% ( 6/ 6)   Lines: 100.00% ( 13/ 13)
+CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
+  Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 12/ 12)
+```
+
 ## Subagent-Governance
 - Keine Subagents eingesetzt. Sämtliche Dateien wurden direkt und atomar durch den Lead-Agenten implementiert, geprüft und verifiziert.
 
 ## Aktueller Status
-- Feature-Branch `feat/scaffold-and-architecture` vollständig implementiert und mit den aktualisierten Skills harmonisiert.
-- Testsuite: 33 Tests sauber in `Unit` und `Integration` unterteilt, 0 Fehler, 0 Mocks in Integration-Subscriber-Tests.
+- Feature-Branch `feat/scaffold-and-architecture` vollständig implementiert und mit den Enterprise Tier-1 Skills harmonisiert.
+- Testsuite: 34 Tests (100% bestanden, 80 Assertions).
+- Code Coverage: 100.00% auf allen Klassen, Methoden und Zeilen (Classes 5/5, Methods 20/20, Lines 91/91).
 - `src/CustomPreOrderManager.php::uninstall()` exakt nach `rules_preorder_backend` §12 implementiert.
 - `services.xml` exakt nach `rules_preorder_backend` §4 implementiert.
-- Bereit für finalen Testlauf auf der Teststation und anschließenden Release-Build via `shopware-cli`.
+- Vollständig freigegeben und verifiziert für den Release-Build via `shopware-cli`.
 
 

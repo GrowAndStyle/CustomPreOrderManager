@@ -44,6 +44,20 @@ Konfigurierbar unter *Einstellungen > Erweiterungen > PreOrderManager*:
 
 ---
 
+## Testing & Qualitätssicherung
+
+Das Plugin wird über eine automatisierte PHPUnit-Testsuite nach Shopware Enterprise Tier-1 Standard verifiziert:
+
+* **Struktur:** Saubere Trennung in `tests/Unit/` (isolierte Service- und Logik-Tests mit Mocks) und `tests/Integration/` (Container- und Kernel-Tests mit echten Repositories).
+* **Testumfang:** 34 automatisierte Tests mit 80 Assertions.
+* **Code Coverage (Dockware Teststation):**
+  * **Classes:** 100.00% (5/5)
+  * **Methods:** 100.00% (20/20)
+  * **Lines:** 100.00% (91/91)
+* **Validierung:** Alle XML- und JSON-Dateien werden bei jedem Testlauf automatisch auf Schemakonformität geprüft.
+
+---
+
 ## Build & Release
 
 Release-Pakete werden standardmäßig via `shopware-cli` gebaut:
