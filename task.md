@@ -190,6 +190,7 @@
 - **depends_on:** [TASK-006]
 - **parallel:** true
 - **DoD (Definition of Done):**
+  - [x] `phpunit.xml.dist` Testsuite-Konfiguration im Root
   - [x] `tests/TestBootstrap.php`
   - [x] `tests/Integration/Cart/PreOrderCartCollectorTest.php`
   - [x] `tests/Integration/Subscriber/OrderPlacedSubscriberTest.php`

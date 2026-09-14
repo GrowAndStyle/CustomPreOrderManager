@@ -50,6 +50,7 @@
 - Admin-Snippets für Deutsch (`de-DE.json`) und Englisch (`en-GB.json`).
 
 ### Slice 5: Tests & Syntax-Validierung
+- [`phpunit.xml.dist`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/phpunit.xml.dist)
 - [`tests/TestBootstrap.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/TestBootstrap.php)
 - [`tests/Integration/Cart/PreOrderCartCollectorTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Integration/Cart/PreOrderCartCollectorTest.php)
 - [`tests/Integration/Subscriber/OrderPlacedSubscriberTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Integration/Subscriber/OrderPlacedSubscriberTest.php)
