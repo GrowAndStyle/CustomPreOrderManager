@@ -31,7 +31,8 @@ CustomPreOrderManager/
 │   └── Resources/
 │       ├── config/
 │       │   ├── services.xml                    # Alle Services + Snippet-Tags
-│       │   └── config.xml                      # Plugin-Konfiguration (→ storefront §6)
+│       │   ├── config.xml                      # Plugin-Konfiguration (→ storefront §6)
+│       │   └── plugin.png                      # Plugin-Logo (400×400px, PNG)
 │       ├── snippet/
 │       │   ├── de_DE/{SnippetFile_de_DE.php, storefront.de-DE.json}
 │       │   └── en_GB/{SnippetFile_en_GB.php, storefront.en-GB.json}
@@ -50,6 +51,7 @@ CustomPreOrderManager/
 │   ├── TestBootstrap.php
 │   ├── Cart/PreOrderCartCollectorTest.php
 │   └── Subscriber/OrderPlacedSubscriberTest.php
+├── phpunit.xml.dist
 └── composer.json
 ```
 
@@ -728,6 +730,35 @@ $this->logger->error('PreOrder: DBAL counter failed', ['productId' => $id, 'exce
 ### Testing
 
 > **KEIN PHP lokal installiert.** Tests werden als Dateien geschrieben und auf 192.168.2.222:8080 ausgeführt.
+
+### `phpunit.xml.dist` (PFLICHT im Projekt-Root)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="tests/TestBootstrap.php"
+         cacheResultFile=".phpunit.cache/test-results"
+         executionOrder="depends,defects"
+         colors="true">
+    <testsuites>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+    <coverage cacheDirectory=".phpunit.cache/code-coverage">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory>src/Migration</directory>
+            <directory>src/Resources</directory>
+        </exclude>
+    </coverage>
+</phpunit>
+```
+
+> **Ausführung:** `cd /Users/nicoschultz/Documents/CustomPreOrderManager && php vendor/bin/phpunit` auf dem Server (192.168.2.222:8080). Lokal ist KEIN PHP installiert.
 
 ```
 tests/

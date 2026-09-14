@@ -74,6 +74,11 @@ for skill_dir in projects/{ProjektName}/*/; do
     mkdir -p "$TARGET/skills/$skill_name"
     cp "$skill_dir/SKILL.md" "$TARGET/skills/$skill_name/SKILL.md"
 done
+
+# Shared Assets (Plugin-Logo etc.)
+PROJ_ROOT="/Users/nicoschultz/Documents/{ProjektName}"
+mkdir -p "$PROJ_ROOT/src/Resources/config"
+cp assets/plugin.png "$PROJ_ROOT/src/Resources/config/plugin.png"
 ```
 
 ### B. Bulk-Deploy (Alle Projekte)
@@ -117,6 +122,10 @@ for proj_dir in projects/*/; do
         mkdir -p "$target/.agent/skills/$skill_name"
         cp "$skill_dir/SKILL.md" "$target/.agent/skills/$skill_name/SKILL.md"
     done
+
+    # Shared Assets (Plugin-Logo etc.)
+    mkdir -p "$target/src/Resources/config"
+    cp assets/plugin.png "$target/src/Resources/config/plugin.png"
 
     echo "✅ $proj_name → $target"
 done

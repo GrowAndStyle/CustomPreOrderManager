@@ -80,7 +80,8 @@ CustomPluginName/
 │   └── Resources/                         # ⚠️ INNERHALB von src/ !
 │       ├── config/
 │       │   ├── services.xml               # DI-Container
-│       │   └── routes.xml                 # Route-Definitionen
+│       │   ├── routes.xml                 # Route-Definitionen
+│       │   └── plugin.png                 # Plugin-Logo (400×400px, PNG)
 │       ├── views/
 │       │   └── storefront/                # Twig-Templates
 │       ├── app/
