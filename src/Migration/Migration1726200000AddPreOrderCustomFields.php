@@ -35,7 +35,7 @@ class Migration1726200000AddPreOrderCustomFields extends MigrationStep
 
             $connection->insert('custom_field_set_relation', [
                 'id' => Uuid::randomBytes(),
-                'custom_field_set_id' => $setId,
+                'set_id' => $setId,
                 'entity_name' => 'product',
                 'created_at' => (new \DateTime())->format('Y-m-d H:i:s.v'),
             ]);

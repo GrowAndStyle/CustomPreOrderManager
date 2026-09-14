@@ -318,6 +318,32 @@ FOREIGN KEY (`manufacturer_id`) REFERENCES `product_manufacturer` (`id`)
 $criteria->addFilter(new EqualsFilter('versionId', Defaults::LIVE_VERSION));
 ```
 
+### C3. DBAL-INSERT: Physische Spaltennamen verwenden (KRITISCH)
+
+> **DBAL (`$connection->insert()`) nutzt die physischen DB-Spaltennamen, NICHT die DAL-Property-Namen.** Die DAL mappt camelCase-Properties auf snake_case-Spalten, aber bei Migrationen/DBAL-Code muss der echte Spaltenname aus der Tabelle verwendet werden. Diese weichen bei FK-Spalten oft vom erwarteten Muster ab.
+
+```php
+// ❌ VERBOTEN: DAL-Property-Name in DBAL-INSERT
+$connection->insert('custom_field_set_relation', [
+    'custom_field_set_id' => $setId,  // Spalte existiert NICHT — heißt `set_id`!
+]);
+
+// ✅ KORREKT: Physischer DB-Spaltenname
+$connection->insert('custom_field_set_relation', [
+    'set_id' => $setId,  // Echte Spalte in der DB
+]);
+```
+
+**Häufig betroffene Tabellen:**
+
+| Tabelle | DAL-Property | Physische DB-Spalte |
+|---|---|---|
+| `custom_field_set_relation` | `customFieldSetId` | `set_id` |
+| `custom_field` | `customFieldSetId` | `set_id` |
+| `product_translation` | `productId` | `product_id` |
+
+**Regel:** Bei DBAL-Code im Zweifel die Tabellenstruktur in der offiziellen Shopware-Doku oder per `DESCRIBE {table}` auf dem Server prüfen.
+
 ### D. JSON-Felder
 - Nutze `JsonField` mit expliziten Property-Definitionen für strukturierte Daten.
 - Für dynamische Daten: `JsonField` ohne Property-Constraints, aber mit Backend-Validierung im Controller.
@@ -1139,6 +1165,88 @@ phpunit.xml.dist
 | `dist/` in `.gitignore` aufnehmen | Build-Artefakte gehören nicht ins Repository |
 | Kompilierte Assets (JS/CSS) werden automatisch gebaut | `shopware-cli` führt `bin/build-js.sh` intern aus — kein manueller Build nötig |
 
+### 10c. Testing & Coverage (PFLICHT)
+
+> **Mindest-Coverage: 95% Line-Coverage, 90% Method-Coverage.** Jeder PR der unter diesen Schwellenwerten liegt, wird abgelehnt. Coverage wird mit `--coverage-text` bei jedem Testlauf geprüft.
+
+#### `phpunit.xml.dist` (PFLICHT im Projekt-Root)
+
+Jedes Plugin MUSS eine `phpunit.xml.dist` im Root haben:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="tests/TestBootstrap.php"
+         cacheResultFile=".phpunit.cache/test-results"
+         executionOrder="depends,defects"
+         colors="true">
+    <testsuites>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+    <coverage cacheDirectory=".phpunit.cache/code-coverage">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory>src/Migration</directory>
+            <directory>src/Resources</directory>
+        </exclude>
+    </coverage>
+</phpunit>
+```
+
+#### `tests/TestBootstrap.php` (PFLICHT)
+
+```php
+<?php declare(strict_types=1);
+
+use Shopware\Core\TestBootstrapper;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+(new TestBootstrapper())
+    ->setForceInstallPlugins(true)
+    ->addActivePlugins('CustomPluginName')
+    ->bootstrap();
+```
+
+#### Coverage-Regeln
+
+| Metrik | Schwellenwert | Konsequenz bei Unterschreitung |
+|---|---|---|
+| **Line-Coverage** | ≥ 95% | PR wird abgelehnt |
+| **Method-Coverage** | ≥ 90% | PR wird abgelehnt |
+| **Class-Coverage** | ≥ 80% | Warnung + Begründungspflicht |
+
+#### Was MUSS getestet werden
+
+| Klasse/Layer | Pflicht-Tests | Typ |
+|---|---|---|
+| **Service-Layer** | Jede Public Method | Unit + Integration |
+| **Subscriber/Listener** | Jeder Event-Handler | Integration |
+| **CartCollector/Processor** | collect()/process() mit Edge-Cases | Integration |
+| **Controller/Route** | Request → Response Zyklus | Integration |
+| **Entity-Definition** | Feld-Typen, Flags, Relationen | Unit |
+| **Migration** | update() + updateDestructive() | Integration (via TestBootstrap) |
+
+#### Was NICHT in die Coverage zählt (excludiert in `phpunit.xml.dist`)
+
+- `src/Migration/` — Migrationen werden via TestBootstrap implizit getestet
+- `src/Resources/` — Templates, Config, Snippets (kein PHP-Code)
+
+#### Coverage-Befehl
+
+```bash
+# Coverage-Report als Text (CI/Lokal)
+php vendor/bin/phpunit --coverage-text
+
+# Coverage-Report als HTML (lokale Analyse)
+php vendor/bin/phpunit --coverage-html coverage/
+```
+
 ## 11. Kill-Kriterien
 
 | Verstoß | Konsequenz |
@@ -1186,3 +1294,7 @@ phpunit.xml.dist
 | `@new-item-active`-Handler nutzt Parameter direkt als String (§6.D2) | Event liefert Vue-Instanz, nicht String — `tabItem.name` verwenden |
 | `#content`-Slot in `sw-tabs` verwendet (§6.D2) | Slot existiert nicht in 6.5.x — Content außerhalb mit `v-if` rendern |
 | `loginService.getHeader()` aufgerufen (§6.B2) | Methode existiert nicht — `loginService.getToken()` verwenden |
+| DAL-Property-Name statt physischen Spaltennamen in DBAL-INSERT (§3.C3) | Migration crasht — `DESCRIBE {table}` prüfen, physische Spalte verwenden |
+| Line-Coverage unter 95% oder Method-Coverage unter 90% (§10c) | PR wird abgelehnt — fehlende Tests nachreichen |
+| Plugin ohne `phpunit.xml.dist` im Root (§10c) | Pflichtdatei — vor erstem Commit anlegen |
+| Plugin ohne `tests/TestBootstrap.php` (§10c) | Tests nicht ausführbar — Bootstrapper anlegen |
