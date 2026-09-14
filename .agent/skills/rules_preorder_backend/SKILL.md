@@ -52,6 +52,9 @@ CustomPreOrderManager/
 │   ├── Cart/PreOrderCartCollectorTest.php
 │   └── Subscriber/OrderPlacedSubscriberTest.php
 ├── phpunit.xml.dist
+├── .gitattributes
+├── .gitignore
+├── .sw-zip-blacklist
 └── composer.json
 ```
 

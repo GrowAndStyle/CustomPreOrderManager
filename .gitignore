@@ -3,8 +3,10 @@
 /node_modules/
 
 # Build & Release
+.agent/
 /dist/
 *.map
+BUILD.md
 
 # Environment & Secrets
 .env

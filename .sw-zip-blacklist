@@ -17,6 +17,7 @@ masterplan.md
 architecture.md
 LICENSE.md
 README.md
+BUILD.md
 phpunit.xml.dist
 *.swp
 *.swo

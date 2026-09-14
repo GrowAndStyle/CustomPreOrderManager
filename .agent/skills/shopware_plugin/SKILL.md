@@ -88,8 +88,80 @@ CustomPluginName/
 │       │   ├── administration/src/        # Vue.js Admin-Modul
 │       │   └── storefront/src/            # JS-Plugins + SCSS
 │       └── snippet/                       # Übersetzungen (de_DE, en_GB)
+├── tests/                                 # PHPUnit Tests (§10c)
+├── .gitattributes                         # Line-Endings + Export-Ignore
+├── .gitignore
+├── .sw-zip-blacklist                      # Release-ZIP Excludes (§10b)
+├── phpunit.xml.dist                       # Test-Config (§10c)
 └── composer.json
 ```
+
+### 2c. `.gitattributes` (PFLICHT im Projekt-Root)
+
+> **Jedes Plugin MUSS eine `.gitattributes` haben.** Sie steuert Line-Endings (LF erzwingen) und `export-ignore` (was NICHT in `git archive` / Release-ZIPs landet).
+
+```gitattributes
+# Line-Endings: LF auf allen Plattformen erzwingen
+* text=auto eol=lf
+
+# Binärdateien
+*.png binary
+*.jpg binary
+*.gif binary
+*.woff binary
+*.woff2 binary
+
+# Export-Ignore: Wird NICHT in git archive / Release-ZIP aufgenommen
+/.agent          export-ignore
+/.github         export-ignore
+/.gitattributes  export-ignore
+/.gitignore      export-ignore
+/.sw-zip-blacklist export-ignore
+/tests           export-ignore
+/phpunit.xml.dist export-ignore
+/.phpunit.cache  export-ignore
+/README.md       export-ignore
+/LICENSE.md       export-ignore
+```
+
+### 2d. `.gitignore` (PFLICHT im Projekt-Root)
+
+> **`.agent/` MUSS gitignored sein.** Die Skills und Manifeste in den Projektordnern sind deployed Copies aus dem AgentSkill-Repo (→ `deployment_sync` §1). Sie gehören NICHT ins Projekt-Repository.
+
+```gitignore
+# AI Agent Skills — deployed vom zentralen AgentSkill-Repo
+# Single Source of Truth: github.com/GrowAndStyle/AgentSkills
+.agent/skills/
+.agent/manifest.md
+
+# Build-Artefakte
+dist/
+node_modules/
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PHPUnit Cache
+.phpunit.cache/
+
+# Environment
+.env
+.env.local
+```
+
+| Regel | Begründung |
+|---|---|
+| `.agent/skills/` + `.agent/manifest.md` | Deployed Copies — Original lebt im AgentSkill-Repo |
+| `.agent/scripts/` wird NICHT ignoriert | Projekt-spezifische Build-Automation gehört zum Projekt |
+| `.agent/archive/` wird NICHT ignoriert | Walkthrough-History gehört zum Projekt |
 
 **Namens-Konvention:**
 - **Plugin-Prefix:** `Custom` (Shopware-Standard für private/wiederverwendbare Plugins) — `CustomRedirectManager`, `CustomModalManager`
@@ -1298,3 +1370,4 @@ php vendor/bin/phpunit --coverage-html coverage/
 | Line-Coverage unter 95% oder Method-Coverage unter 90% (§10c) | PR wird abgelehnt — fehlende Tests nachreichen |
 | Plugin ohne `phpunit.xml.dist` im Root (§10c) | Pflichtdatei — vor erstem Commit anlegen |
 | Plugin ohne `tests/TestBootstrap.php` (§10c) | Tests nicht ausführbar — Bootstrapper anlegen |
+| Plugin ohne `.gitattributes` im Root (§2c) | Pflichtdatei — LF-Enforcement + export-ignore fehlt |
