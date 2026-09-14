@@ -2,30 +2,34 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
     <card>
-        <title>Vorbestellung — Allgemein</title>
+        <title lang="de-DE">Vorbestellung — Allgemein</title>
         <title lang="en-GB">Pre-Order — General</title>
 
         <input-field type="bool">
             <name>enableListingBadge</name>
-            <label>Vorbestell-Badge in Kategorieseiten anzeigen</label>
+            <label lang="de-DE">Vorbestell-Badge in Kategorieseiten anzeigen</label>
             <label lang="en-GB">Show pre-order badge on listing pages</label>
+            <helpText lang="de-DE">Zeigt ein „Vorbestellung"-Badge auf den Kategorieseiten bei allen Produkten, die im Vorbestellungsmodus sind.</helpText>
+            <helpText lang="en-GB">Shows a "Pre-Order" badge on category pages for all products in pre-order mode.</helpText>
             <defaultValue>true</defaultValue>
         </input-field>
 
         <input-field type="bool">
             <name>enableScarcityCounter</name>
-            <label>Restmengen-Zähler auf der Produktdetailseite anzeigen</label>
+            <label lang="de-DE">Restmengen-Zähler auf der Produktdetailseite anzeigen</label>
             <label lang="en-GB">Show remaining quota counter on product detail page</label>
+            <helpText lang="de-DE">Blendet auf der Produktdetailseite ein Badge mit der noch verfügbaren Vorbestellmenge ein.</helpText>
+            <helpText lang="en-GB">Displays a badge with the remaining pre-order quota on the product detail page.</helpText>
             <defaultValue>true</defaultValue>
         </input-field>
 
         <input-field type="int">
             <name>lowStockThreshold</name>
-            <label>Schwellenwert für Dringlichkeits-Anzeige (Restmenge)</label>
+            <label lang="de-DE">Schwellenwert für Dringlichkeits-Anzeige (Restmenge)</label>
             <label lang="en-GB">Threshold for urgency display (remaining quantity)</label>
-            <defaultValue>5</defaultValue>
-            <helpText>Ab dieser Restmenge wird das „Fast vergriffen"-Badge angezeigt.</helpText>
+            <helpText lang="de-DE">Ab dieser Restmenge wird das „Fast vergriffen“-Badge angezeigt.</helpText>
             <helpText lang="en-GB">The urgency badge is shown when remaining quantity drops to this value.</helpText>
+            <defaultValue>5</defaultValue>
         </input-field>
     </card>
 </config>
