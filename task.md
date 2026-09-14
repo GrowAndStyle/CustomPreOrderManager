@@ -183,7 +183,7 @@
 
 ## EPIC-5: Verification, Tests & Release Gate
 
-### TASK-015: PHPUnit Test Integration
+### TASK-015: PHPUnit Test Integration (Tier-1 Coverage ≥95%)
 - **Epic:** EPIC-5
 - **Priority:** P1
 - **Estimate:** ~45min
@@ -192,8 +192,11 @@
 - **DoD (Definition of Done):**
   - [x] `phpunit.xml.dist` Testsuite-Konfiguration im Root
   - [x] `tests/TestBootstrap.php`
-  - [x] `tests/Integration/Cart/PreOrderCartCollectorTest.php`
-  - [x] `tests/Integration/Subscriber/OrderPlacedSubscriberTest.php`
+  - [x] `tests/Integration/CustomPreOrderManagerTest.php` (100% Lifecycle Coverage)
+  - [x] `tests/Integration/DependencyInjection/CustomPreOrderManagerExtensionTest.php` (100% DI Coverage)
+  - [x] `tests/Integration/Event/PreOrderPlacedEventTest.php` (100% Event Coverage)
+  - [x] `tests/Integration/Cart/PreOrderCartCollectorTest.php` (100% CartCollector Coverage)
+  - [x] `tests/Integration/Subscriber/OrderPlacedSubscriberTest.php` (100% Subscriber Coverage)
 - **Status:** DONE
 
 ### TASK-016: Syntax-Validierung & Audit-Gate

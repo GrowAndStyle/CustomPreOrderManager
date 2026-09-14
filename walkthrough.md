@@ -49,11 +49,14 @@
   - [`custom-preorder-manager-list.scss`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/app/administration/src/module/custom-preorder-manager/page/custom-preorder-manager-list/custom-preorder-manager-list.scss)
 - Admin-Snippets für Deutsch (`de-DE.json`) und Englisch (`en-GB.json`).
 
-### Slice 5: Tests & Syntax-Validierung
+### Slice 5: Tests & Syntax-Validierung (Tier-1 Coverage ≥95%)
 - [`phpunit.xml.dist`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/phpunit.xml.dist)
 - [`tests/TestBootstrap.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/TestBootstrap.php)
-- [`tests/Integration/Cart/PreOrderCartCollectorTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Integration/Cart/PreOrderCartCollectorTest.php)
-- [`tests/Integration/Subscriber/OrderPlacedSubscriberTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Integration/Subscriber/OrderPlacedSubscriberTest.php)
+- [`tests/Integration/CustomPreOrderManagerTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Integration/CustomPreOrderManagerTest.php) (100% Plugin Lifecycle)
+- [`tests/Integration/DependencyInjection/CustomPreOrderManagerExtensionTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Integration/DependencyInjection/CustomPreOrderManagerExtensionTest.php) (100% Rate-Limiter DI)
+- [`tests/Integration/Event/PreOrderPlacedEventTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Integration/Event/PreOrderPlacedEventTest.php) (100% Event Properties & AvailableData)
+- [`tests/Integration/Cart/PreOrderCartCollectorTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Integration/Cart/PreOrderCartCollectorTest.php) (100% CartCollector & Sanitization)
+- [`tests/Integration/Subscriber/OrderPlacedSubscriberTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Integration/Subscriber/OrderPlacedSubscriberTest.php) (100% OrderPlacedSubscriber & Tagging)
 - Automatische XML-Validierung (`xmllint`) und JSON-Validierung (`python3 -m json.tool`) bestanden.
 
 ---
