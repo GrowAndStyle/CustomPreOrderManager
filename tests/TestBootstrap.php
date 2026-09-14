@@ -3,7 +3,7 @@
 use Shopware\Core\TestBootstrapper;
 
 $loader = (new TestBootstrapper())
-    ->addCallingRegister()
+    ->addCallingPlugin()
     ->addActivePlugins('CustomPreOrderManager')
     ->setForceInstallPlugins(true)
     ->bootstrap()
