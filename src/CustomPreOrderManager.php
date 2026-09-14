@@ -9,9 +9,15 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
+use CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension;
 
 class CustomPreOrderManager extends Plugin
 {
+    public function getContainerExtension(): ?ExtensionInterface
+    {
+        return new CustomPreOrderManagerExtension();
+    }
     public function install(InstallContext $installContext): void
     {
         // Migrationen werden durch Shopware automatisch ausgeführt

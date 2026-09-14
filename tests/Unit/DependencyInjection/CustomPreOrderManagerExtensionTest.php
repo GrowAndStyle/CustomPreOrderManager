@@ -14,7 +14,14 @@ class CustomPreOrderManagerExtensionTest extends TestCase
         $container = new ContainerBuilder();
         $extension->load([], $container);
 
-        static::assertTrue(true);
+        static::assertTrue($container->hasDefinition('CustomPreOrderManager\Core\Checkout\Subscriber\OrderPlacedSubscriber'));
+        static::assertTrue($container->hasDefinition('CustomPreOrderManager\Core\Checkout\Cart\PreOrderCartCollector'));
+    }
+
+    public function testGetAlias(): void
+    {
+        $extension = new CustomPreOrderManagerExtension();
+        static::assertSame('custom_pre_order_manager', $extension->getAlias());
     }
 
     public function testPrepend(): void

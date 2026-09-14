@@ -4,12 +4,12 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <!-- Cart-Collector: Reichert LineItems mit Vorbestell-Payload an (Priority 4100) -->
-        <service id="CustomPreOrderManager\Core\Checkout\Cart\PreOrderCartCollector">
+        <service id="CustomPreOrderManager\Core\Checkout\Cart\PreOrderCartCollector" public="true">
             <tag name="shopware.cart.collector" priority="4100" />
         </service>
 
         <!-- Order-Placed Subscriber: Auto-Tagging, DBAL-Counter & Event-Dispatch -->
-        <service id="CustomPreOrderManager\Core\Checkout\Subscriber\OrderPlacedSubscriber">
+        <service id="CustomPreOrderManager\Core\Checkout\Subscriber\OrderPlacedSubscriber" public="true">
             <argument type="service" id="order.repository" />
             <argument type="service" id="tag.repository" />
             <argument type="service" id="Doctrine\DBAL\Connection" />

@@ -28,6 +28,17 @@ class PluginUninstallTest extends TestCase
         $this->plugin = new CustomPreOrderManager(true, '');
     }
 
+    public function testPluginClassExists(): void
+    {
+        static::assertInstanceOf(CustomPreOrderManager::class, $this->plugin);
+    }
+
+    public function testGetContainerExtension(): void
+    {
+        $extension = $this->plugin->getContainerExtension();
+        static::assertInstanceOf(\CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension::class, $extension);
+    }
+
     public function testInstallDoesNotThrow(): void
     {
         $context = $this->createMock(InstallContext::class);
