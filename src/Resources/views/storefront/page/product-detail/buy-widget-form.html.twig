@@ -1,10 +1,12 @@
 {% sw_extends '@Storefront/storefront/page/product-detail/buy-widget-form.html.twig' %}
 
 {% block page_product_detail_buy_button %}
-    {% set isPreOrder = page.product.customFields.custom_preorder_active|default(false) %}
-    {% set hasStock = page.product.stock > 0 %}
-    {% set inboundStock = page.product.customFields.custom_preorder_inbound_stock|default(0) %}
-    {% set soldCount = page.product.customFields.custom_preorder_sold_count|default(0) %}
+    {% set currentProduct = page.product|default(product) %}
+    {% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
+    {% set isPreOrder = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
+    {% set hasStock = currentProduct.stock > 0 %}
+    {% set inboundStock = customFields.custom_preorder_inbound_stock|default(0) %}
+    {% set soldCount = customFields.custom_preorder_sold_count|default(0) %}
     {% set remainingQuota = inboundStock - soldCount %}
 
     {% if isPreOrder and not hasStock %}

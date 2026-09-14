@@ -21,7 +21,10 @@ class PreOrderCartCollector implements CartDataCollectorInterface
             $payload = $lineItem->getPayload();
             $customFields = $payload['customFields'] ?? [];
 
-            if (!($customFields['custom_preorder_active'] ?? false)) {
+            $isPreOrder = ($customFields['custom_preorder_active'] ?? false)
+                || !empty($customFields['custom_preorder_release_date']);
+
+            if (!$isPreOrder) {
                 continue;
             }
 

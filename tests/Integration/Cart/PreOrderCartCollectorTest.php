@@ -152,4 +152,23 @@ class PreOrderCartCollectorTest extends TestCase
         static::assertTrue($lineItem->getPayloadValue('isPreOrder'));
         static::assertSame('Vorbestellung', $lineItem->getPayloadValue('preOrderReleaseText'));
     }
+
+    public function testCollectActivatesWhenOnlyReleaseDateIsSet(): void
+    {
+        $cart = new Cart('test-token');
+        $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $lineItem->setPayloadValue('customFields', [
+            'custom_preorder_release_date' => '2026-12-01',
+        ]);
+        $cart->add($lineItem);
+
+        $data = new CartDataCollection();
+        $context = $this->createMock(SalesChannelContext::class);
+        $behavior = new CartBehavior();
+
+        $this->collector->collect($data, $cart, $context, $behavior);
+
+        static::assertTrue($lineItem->getPayloadValue('isPreOrder'));
+        static::assertSame('Lieferbar ab 12/2026', $lineItem->getPayloadValue('preOrderReleaseText'));
+    }
 }
