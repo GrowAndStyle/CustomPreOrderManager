@@ -36,9 +36,8 @@ class OrderPlacedSubscriberTest extends TestCase
 
         $subscriber = new OrderPlacedSubscriber($orderRepo, $tagRepo, $connection, $dispatcher, $logger);
 
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
-        $order->setLineItems(null);
+        $order = $this->createMock(OrderEntity::class);
+        $order->method('getLineItems')->willReturn(null);
 
         $context = Context::createDefaultContext();
         $event = new CheckoutOrderPlacedEvent($context, $order, Uuid::randomHex());

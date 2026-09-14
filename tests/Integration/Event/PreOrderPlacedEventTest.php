@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 
 class PreOrderPlacedEventTest extends TestCase
@@ -30,9 +31,9 @@ class PreOrderPlacedEventTest extends TestCase
         static::assertSame(3, $values['preOrderItemCount']);
 
         $availableData = PreOrderPlacedEvent::getAvailableData();
-        static::assertTrue($availableData->has('order'));
-        static::assertTrue($availableData->has('preOrderItemCount'));
-        static::assertInstanceOf(EntityType::class, $availableData->get('order'));
-        static::assertInstanceOf(ScalarValueType::class, $availableData->get('preOrderItemCount'));
+        static::assertInstanceOf(EventDataCollection::class, $availableData);
+        $data = $availableData->toArray();
+        static::assertArrayHasKey('order', $data);
+        static::assertArrayHasKey('preOrderItemCount', $data);
     }
 }
