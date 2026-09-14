@@ -1,0 +1,23 @@
+<sw-page class="custom-preorder-manager-list">
+    <template #smart-bar-header>
+        <h2>{{ $tc('custom-preorder-manager.general.mainMenuItemGeneral') }}</h2>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <sw-card :title="$tc('custom-preorder-manager.list.cardTitle')" :isLoading="isLoading">
+                <template #grid>
+                    <sw-entity-listing
+                        v-if="items"
+                        :items="items"
+                        :repository="orderRepository"
+                        :columns="columns"
+                        :showSelection="false"
+                        :isLoading="isLoading"
+                        :fullPage="true">
+                    </sw-entity-listing>
+                </template>
+            </sw-card>
+        </sw-card-view>
+    </template>
+</sw-page>

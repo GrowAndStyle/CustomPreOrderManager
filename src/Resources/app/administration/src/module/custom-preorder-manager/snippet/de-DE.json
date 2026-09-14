@@ -1,0 +1,30 @@
+{
+    "custom-preorder-manager": {
+        "general": {
+            "mainMenuItemGeneral": "Vorbestellungen",
+            "descriptionTextModule": "Verwaltung von Vorbestellungen und Zulaufmengen"
+        },
+        "list": {
+            "cardTitle": "Vorbestellte Bestellungen",
+            "columnOrderNumber": "Bestellnummer",
+            "columnCustomer": "Kunde",
+            "columnDate": "Bestelldatum",
+            "columnStatus": "Status",
+            "columnAmount": "Gesamtbetrag"
+        },
+        "productDetail": {
+            "cardTitle": "Vorbestellung (Pre-Order)",
+            "activeLabel": "Vorbestellung aktivieren",
+            "activeHelp": "Aktiviert den Vorbestellungsmodus für dieses Produkt, falls kein Lagerbestand vorhanden ist.",
+            "releaseDateLabel": "Erscheinungsdatum",
+            "releaseDateHelp": "Voraussichtliches Datum der Verfügbarkeit.",
+            "releaseTextLabel": "Hinweistext Frontend",
+            "releaseTextHelp": "Manueller Hinweistext, der in der Storefront angezeigt wird.",
+            "inboundStockLabel": "Zulaufmenge (Lieferanten-Kontingent)",
+            "inboundStockHelp": "Maximale Menge an Artikeln, die im Vorbestellungsmodus verkauft werden dürfen.",
+            "soldCountLabel": "Bereits vorbestellte Menge",
+            "soldCountHelp": "Wird bei erfolgreichen Bestellungen automatisch inkrementiert.",
+            "remainingStockLabel": "Verbleibendes Kontingent"
+        }
+    }
+}
