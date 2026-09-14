@@ -67,7 +67,7 @@ class CustomPreOrderManagerTest extends TestCase
         $context->method('keepUserData')->willReturn(false);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::exactly(2))
+        $connection->expects(static::exactly(4))
             ->method('executeStatement');
 
         $container = $this->createMock(ContainerInterface::class);

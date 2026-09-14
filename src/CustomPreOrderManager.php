@@ -56,7 +56,35 @@ class CustomPreOrderManager extends Plugin
             WHERE cfs.name = 'custom_preorder_set'
         ");
 
-        // 2. Gespeicherte Plugin-Konfigurationen bereinigen
+        // 2. Custom-Fields an allen Produkten entfernen
+        $connection->executeStatement("
+            UPDATE `product`
+            SET `custom_fields` = JSON_REMOVE(
+                `custom_fields`,
+                '$.custom_preorder_active',
+                '$.custom_preorder_release_date',
+                '$.custom_preorder_release_text',
+                '$.custom_preorder_inbound_stock',
+                '$.custom_preorder_sold_count'
+            )
+            WHERE `custom_fields` IS NOT NULL
+        ");
+
+        // 3. Custom-Fields an allen Produkt-Übersetzungen entfernen
+        $connection->executeStatement("
+            UPDATE `product_translation`
+            SET `custom_fields` = JSON_REMOVE(
+                `custom_fields`,
+                '$.custom_preorder_active',
+                '$.custom_preorder_release_date',
+                '$.custom_preorder_release_text',
+                '$.custom_preorder_inbound_stock',
+                '$.custom_preorder_sold_count'
+            )
+            WHERE `custom_fields` IS NOT NULL
+        ");
+
+        // 4. Gespeicherte Plugin-Konfigurationen bereinigen
         $connection->executeStatement("
             DELETE FROM system_config
             WHERE configuration_key LIKE 'CustomPreOrderManager.config.%'
