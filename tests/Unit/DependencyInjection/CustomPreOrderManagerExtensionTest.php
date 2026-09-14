@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace CustomPreOrderManager\Tests\Integration\DependencyInjection;
+namespace CustomPreOrderManager\Tests\Unit\DependencyInjection;
 
 use CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension;
 use PHPUnit\Framework\TestCase;

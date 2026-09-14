@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace CustomPreOrderManager\Tests\Integration\Event;
+namespace CustomPreOrderManager\Tests\Unit\Event;
 
 use CustomPreOrderManager\Core\Checkout\Event\PreOrderPlacedEvent;
 use PHPUnit\Framework\TestCase;

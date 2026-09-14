@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace CustomPreOrderManager\Tests\Integration;
+namespace CustomPreOrderManager\Tests\Unit\Plugin;
 
 use CustomPreOrderManager\CustomPreOrderManager;
 use Doctrine\DBAL\Connection;
@@ -12,7 +12,14 @@ use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class CustomPreOrderManagerTest extends TestCase
+/**
+ * Unit-Tests für den Plugin-Lifecycle und Uninstall.
+ *
+ * Testet alle 5 Lifecycle-Methoden und stellt sicher, dass bei keepUserData=false
+ * sowohl das CustomField-Set als auch system_config und custom_fields an Produkten
+ * bereinigt werden.
+ */
+class PluginUninstallTest extends TestCase
 {
     private CustomPreOrderManager $plugin;
 
@@ -21,35 +28,35 @@ class CustomPreOrderManagerTest extends TestCase
         $this->plugin = new CustomPreOrderManager(true, '');
     }
 
-    public function testInstall(): void
+    public function testInstallDoesNotThrow(): void
     {
         $context = $this->createMock(InstallContext::class);
         $this->plugin->install($context);
         static::assertTrue(true);
     }
 
-    public function testUpdate(): void
+    public function testUpdateDoesNotThrow(): void
     {
         $context = $this->createMock(UpdateContext::class);
         $this->plugin->update($context);
         static::assertTrue(true);
     }
 
-    public function testActivate(): void
+    public function testActivateDoesNotThrow(): void
     {
         $context = $this->createMock(ActivateContext::class);
         $this->plugin->activate($context);
         static::assertTrue(true);
     }
 
-    public function testDeactivate(): void
+    public function testDeactivateDoesNotThrow(): void
     {
         $context = $this->createMock(DeactivateContext::class);
         $this->plugin->deactivate($context);
         static::assertTrue(true);
     }
 
-    public function testUninstallKeepUserData(): void
+    public function testUninstallKeepUserDataSkipsCleanup(): void
     {
         $context = $this->createMock(UninstallContext::class);
         $context->method('keepUserData')->willReturn(true);
@@ -61,7 +68,7 @@ class CustomPreOrderManagerTest extends TestCase
         $this->plugin->uninstall($context);
     }
 
-    public function testUninstallRemoveUserData(): void
+    public function testUninstallRemoveUserDataExecutesAllCleanups(): void
     {
         $context = $this->createMock(UninstallContext::class);
         $context->method('keepUserData')->willReturn(false);

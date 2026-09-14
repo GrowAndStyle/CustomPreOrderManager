@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace CustomPreOrderManager\Tests\Integration\Cart;
+namespace CustomPreOrderManager\Tests\Unit\Cart;
 
 use CustomPreOrderManager\Core\Checkout\Cart\PreOrderCartCollector;
 use PHPUnit\Framework\TestCase;
