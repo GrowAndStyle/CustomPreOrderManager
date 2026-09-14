@@ -85,7 +85,7 @@ class PluginUninstallTest extends TestCase
         $context->method('keepUserData')->willReturn(false);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::exactly(4))
+        $connection->expects(static::exactly(2))
             ->method('executeStatement');
 
         $container = $this->createMock(ContainerInterface::class);

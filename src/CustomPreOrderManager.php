@@ -53,7 +53,6 @@ class CustomPreOrderManager extends Plugin
         /** @var Connection $connection */
         $connection = $this->container->get(Connection::class);
 
-        // 1. CustomField-Set und zugehörige Felder/Relationen löschen
         $connection->executeStatement("
             DELETE cf, cfsr, cfs
             FROM custom_field_set cfs
@@ -62,38 +61,6 @@ class CustomPreOrderManager extends Plugin
             WHERE cfs.name = 'custom_preorder_set'
         ");
 
-        $jsonRemoveSql = "JSON_REMOVE(
-            `custom_fields`,
-            '$.custom_preorder_active',
-            '$.custom_preorder_release_date',
-            '$.custom_preorder_release_text',
-            '$.custom_preorder_inbound_stock',
-            '$.custom_preorder_sold_count'
-        )";
-
-        // 2. Custom-Fields an allen Produkt-Übersetzungen entfernen (Shopware 6.5 Standard)
-        try {
-            $connection->executeStatement("
-                UPDATE `product_translation`
-                SET `custom_fields` = {$jsonRemoveSql}
-                WHERE `custom_fields` IS NOT NULL
-                  AND `custom_fields` != '{}'
-            ");
-        } catch (\Doctrine\DBAL\Exception) {
-        }
-
-        // 3. Fallback: Custom-Fields an Produkten entfernen (falls Tabelle custom_fields Spalte besitzt)
-        try {
-            $connection->executeStatement("
-                UPDATE `product`
-                SET `custom_fields` = {$jsonRemoveSql}
-                WHERE `custom_fields` IS NOT NULL
-                  AND `custom_fields` != '{}'
-            ");
-        } catch (\Doctrine\DBAL\Exception) {
-        }
-
-        // 4. Gespeicherte Plugin-Konfigurationen bereinigen
         $connection->executeStatement("
             DELETE FROM system_config
             WHERE configuration_key LIKE 'CustomPreOrderManager.config.%'
