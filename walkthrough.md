@@ -75,18 +75,18 @@ python3 -m json.tool src/Resources/app/administration/src/module/custom-preorder
 
 ### Test-Ergebnis auf Teststation:
 ```text
-OK (21 tests, 46 assertions)
+OK (22 tests, 48 assertions)
 
 Code Coverage Report:     
-  2026-09-14 15:40:05     
+  2026-09-14 18:32:06     
                           
  Summary:                 
   Classes: 100.00% (5/5)  
   Methods: 100.00% (18/18)
-  Lines:   100.00% (86/86)
+  Lines:   100.00% (88/88)
 
 CustomPreOrderManager\Core\Checkout\Cart\PreOrderCartCollector
-  Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 14/ 14)
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 16/ 16)
 CustomPreOrderManager\Core\Checkout\Event\PreOrderPlacedEvent
   Methods: 100.00% ( 7/ 7)   Lines: 100.00% (  9/  9)
 CustomPreOrderManager\Core\Checkout\Subscriber\OrderPlacedSubscriber
@@ -102,7 +102,8 @@ CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
 
 ## Aktueller Status
 - Feature-Branch `feat/scaffold-and-architecture` vollständig implementiert und getestet.
-- 100% Line-, Method- und Class-Coverage erreicht (übertrifft Vorgabe von ≥95% Lines / ≥90% Methods).
+- 100% Line-, Method- und Class-Coverage erreicht (22/22 Tests, 48 Assertions).
+- Storefront-Buy-Button-Block auf `page_product_detail_buy_container` angepasst (§7.D).
 - Bereit für finales Review und Merge.
 
 
