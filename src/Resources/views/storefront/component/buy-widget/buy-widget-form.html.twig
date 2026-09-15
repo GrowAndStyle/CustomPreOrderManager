@@ -1,11 +1,7 @@
-{% sw_extends '@Storefront/storefront/page/product-detail/buy-widget-form.html.twig' %}
+{% sw_extends '@Storefront/storefront/component/buy-widget/buy-widget-form.html.twig' %}
 
-{# KRITISCH: page_product_detail_buy_container (NICHT buy_button!)
-   Shopware-Core setzt: buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0
-   Bei stock=0 → calculatedMaxPurchase=0 → buyable=false → der gesamte Container und buy_info Block werden nicht gerendert!
-   Deshalb MUSS der äußere Block überschrieben werden und alle lineItems-Inputs mitliefern. (→ shopware_plugin §7.D) #}
-{% block page_product_detail_buy_container %}
-    {% set currentProduct = page.product|default(product) %}
+{% block buy_widget_buy_container %}
+    {% set currentProduct = product|default(page.product) %}
     {% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
     {% set isPreOrder = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
     {% set hasStock = currentProduct.stock > 0 %}
