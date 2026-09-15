@@ -1,0 +1,61 @@
+{% sw_extends '@Storefront/storefront/component/product/card/action.html.twig' %}
+
+{% block component_product_box_action_buy %}
+    {% set currentProduct = product %}
+    {% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
+    {% set isPreOrder = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
+    {% set hasStock = currentProduct.stock > 0 %}
+    {% set inboundStock = customFields.custom_preorder_inbound_stock|default(0) %}
+    {% set soldCount = customFields.custom_preorder_sold_count|default(0) %}
+    {% set remainingQuota = inboundStock - soldCount %}
+
+    {% if isPreOrder and not hasStock %}
+        {% if inboundStock > 0 and remainingQuota <= 0 %}
+            <div class="d-grid">
+                <button class="btn btn-secondary disabled" disabled="disabled">
+                    {{ "custom-preorder.badge.quotaExhausted"|trans }}
+                </button>
+            </div>
+        {% else %}
+            {% if config('core.listing.allowBuyInListing') and currentProduct.childCount <= 0 %}
+                <form action="{{ path('frontend.checkout.line-item.add') }}"
+                      method="post"
+                      class="buy-widget"
+                      data-add-to-cart="true">
+
+                    {{ sw_csrf('frontend.checkout.line-item.add') }}
+
+                    <input type="hidden" name="lineItems[{{ currentProduct.id }}][id]" value="{{ currentProduct.id }}">
+                    <input type="hidden" name="lineItems[{{ currentProduct.id }}][type]" value="product">
+                    <input type="hidden" name="lineItems[{{ currentProduct.id }}][referencedId]" value="{{ currentProduct.id }}">
+                    <input type="hidden" name="lineItems[{{ currentProduct.id }}][stackable]" value="1">
+                    <input type="hidden" name="lineItems[{{ currentProduct.id }}][removable]" value="1">
+                    <input type="hidden" name="lineItems[{{ currentProduct.id }}][quantity]" value="{{ currentProduct.minPurchase|default(1) }}">
+                    <input type="hidden" name="product-name" value="{{ currentProduct.translated.name|default(currentProduct.name) }}">
+                    <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
+
+                    <div class="d-grid">
+                        <button class="btn btn-primary btn-buy btn-preorder"
+                                title="{{ "custom-preorder.button.preOrder"|trans|striptags }}"
+                                aria-label="{{ "custom-preorder.button.preOrder"|trans|striptags }}">
+                            <span class="btn-preorder-icon me-2">📅</span>
+                            {{ "custom-preorder.button.preOrder"|trans|sw_sanitize }}
+                        </button>
+                    </div>
+                </form>
+            {% else %}
+                <div class="d-grid">
+                    <a href="{{ seoUrl('frontend.detail.page', {'productId': currentProduct.id}) }}"
+                       class="btn btn-primary btn-buy btn-preorder"
+                       title="{{ "custom-preorder.button.preOrder"|trans|striptags }}"
+                       aria-label="{{ "custom-preorder.button.preOrder"|trans|striptags }}">
+                        <span class="btn-preorder-icon me-2">📅</span>
+                        {{ "custom-preorder.button.preOrder"|trans|sw_sanitize }}
+                    </a>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
