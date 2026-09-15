@@ -114,12 +114,35 @@ CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
 ## Subagent-Governance
 - Keine Subagents eingesetzt. Sämtliche Dateien wurden direkt und atomar durch den Lead-Agenten implementiert, geprüft und verifiziert.
 
+---
+
+## Phase 3: Storefront- & Checkout-Bugfixes
+
+### 1. Snippet-Ladevorgang & Linux-Casing (`TASK-009`)
+- **Ursache:** Auf case-sensitive Linux-Dateisystemen wurde der Snippet-Ordner `Snippet/` (PascalCase) vom Shopware-Kernel nicht zuverlässig gefunden. Zudem kollidierte `getName() === 'storefront.de-DE'` in `SnippetFileCollection` mit dem Core-Storefront-Bundle.
+- **Lösung:**
+  - Pfad auf `src/Resources/snippet/` (lowercase) standardisiert.
+  - SnippetFile-Klassen auf Namespace `CustomPreOrderManager\Resources\snippet\` angepasst.
+  - `getName()` auf eindeutige Identifier `custom-preorder.de-DE` und `custom-preorder.en-GB` geändert.
+  - Auto-Discovery JSONs `custom-preorder.de-DE.json` und `custom-preorder.en-GB.json` bereitgestellt.
+
+### 2. LineItems-Payload-Injektion gegen HTTP 400 Bad Request (`TASK-010`)
+- **Ursache:** Shopware Core blendet bei `stock <= 0` (`buyable = false`) den Block `page_product_detail_buy_info` aus, der die hidden `<input name="lineItems[...]>` Felder enthält. Beim Klick auf den Vorbestell-Button übermittelte das Formular keine LineItems, was im Controller mit `MissingRequestParameterException: Parameter "lineItems" is missing` (HTTP 400) endete.
+- **Lösung:**
+  - In `src/Resources/views/storefront/page/product-detail/buy-widget-form.html.twig` und `src/Resources/views/storefront/component/buy-widget/buy-widget-form.html.twig` werden die erforderlichen hidden Inputs (`id`, `type`, `referencedId`, `stackable`, `removable`, `product-name`, `redirectTo`) innerhalb des Vorbestell-Zweigs explizit gerendert.
+  - Mengenauswahl respektiert `calculatedMaxPurchase`, `minPurchase` und `remainingQuota`.
+
+### 3. Vorbestell-Button im Kategorie-Listing (`TASK-010`)
+- **Lösung:**
+  - Neues Template `src/Resources/views/storefront/component/product/card/action.html.twig` überschreibt `component_product_box_action_buy`.
+  - Bei `isPreOrder and not hasStock` wird der Vorbestell-Button mit CSRF-Token und LineItem-Payload gerendert bzw. verlinkt auf die Detailseite.
+
+---
+
 ## Aktueller Status
-- Feature-Branch `feat/scaffold-and-architecture` vollständig implementiert und mit den Enterprise Tier-1 Skills harmonisiert.
-- Testsuite: 34 Tests (100% bestanden, 80 Assertions).
-- Code Coverage: 100.00% auf allen Klassen, Methoden und Zeilen (Classes 5/5, Methods 20/20, Lines 91/91).
-- `src/CustomPreOrderManager.php::uninstall()` exakt nach `rules_preorder_backend` §12 implementiert.
-- `services.xml` exakt nach `rules_preorder_backend` §4 implementiert.
-- Vollständig freigegeben und verifiziert für den Release-Build via `shopware-cli`.
+- Feature-Branch `feat/scaffold-and-architecture` implementiert und durch Benutzer-Test auf Teststation (192.168.2.222:8080) verifiziert.
+- Testsuite: 35 Tests (100% bestanden, 83 Assertions, 100.00% Coverage).
+- Storefront-Snippets und Cart-Additions-Payload vollständig intakt.
+- Nächster Schritt: ADR-005 für natives Button-Theming und dynamischen Color-Picker ausarbeiten.
 
 
