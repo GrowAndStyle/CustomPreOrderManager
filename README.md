@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/Shopware-6.5%20|%206.6%20|%206.7-189eff?style=flat-square&logo=shopware&logoColor=white" alt="Shopware">
   <img src="https://img.shields.io/badge/Version-v1.0.0-0f62fe?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/PHP-8.1+-777bb4?style=flat-square&logo=php&logoColor=white" alt="PHP">
-  <img src="https://img.shields.io/badge/Tests-34%20passed-2ea44f?style=flat-square&logo=githubactions&logoColor=white" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-35%20passed-2ea44f?style=flat-square&logo=githubactions&logoColor=white" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-100%25-2ea44f?style=flat-square" alt="Coverage">
   <img src="https://img.shields.io/badge/Architecture-Enterprise%20Tier--1-blueviolet?style=flat-square" alt="Architecture">
   <img src="https://img.shields.io/badge/Security-Zero--Trust%20%7C%20XSS--Proof-success?style=flat-square" alt="Security">
@@ -341,9 +341,9 @@ tests/
 │   ├── Event/PreOrderPlacedEventTest.php                # 1 Test:  Flow Builder Datenstrukturen & ScalarValues
 │   ├── DependencyInjection/CustomPreOrderManagerExtTest # 3 Tests: DI Prepend & Symfony Rate-Limiter Config
 │   └── Plugin/PluginUninstallTest.php                   # 7 Tests: Alle 5 Lifecycle-Hooks & Deinstallations-Cleanup
-└── Integration/ (6 Tests, 16 Assertions)
+└── Integration/ (7 Tests, 19 Assertions)
     ├── Subscriber/OrderPlacedSubscriberTest.php         # Echte Repositories, DBAL & Test-Container ohne Mocks
-    └── PluginLifecycleTest.php                          # Kernel Plugin-Loader & Service-Container Boot
+    └── PluginLifecycleTest.php                          # Kernel Plugin-Loader, DI Boot & vollständiger Lifecycle-Cleanup
 ```
 
 ### Offizieller PHPUnit-Prüfbericht (Dockware Teststation)
@@ -353,21 +353,19 @@ Verifiziert auf Dockware Teststation (PHP 8.1.33 / Shopware 6.5.8.12):
 ```text
 PHPUnit 9.6.35 by Sebastian Bergmann and contributors.
 
-Random Seed:   1789421824
+...................................                               35 / 35 (100%)
 
-..................................                                34 / 34 (100%)
+Time: 00:00.362, Memory: 124.00 MB
 
-Time: 00:00.348, Memory: 123.00 MB
-
-OK (34 tests, 80 assertions)
+OK (35 tests, 83 assertions)
 
 Code Coverage Report:     
-  2026-09-14 21:37:05     
+  2026-09-15 10:17:04     
                           
  Summary:                 
   Classes: 100.00% (5/5)  
   Methods: 100.00% (20/20)
-  Lines:   100.00% (91/91)
+  Lines:   100.00% (102/102)
 
 CustomPreOrderManager\Core\Checkout\Cart\PreOrderCartCollector
   Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 16/ 16)
@@ -376,7 +374,7 @@ CustomPreOrderManager\Core\Checkout\Event\PreOrderPlacedEvent
 CustomPreOrderManager\Core\Checkout\Subscriber\OrderPlacedSubscriber
   Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 41/ 41)
 CustomPreOrderManager\CustomPreOrderManager
-  Methods: 100.00% ( 6/ 6)   Lines: 100.00% ( 13/ 13)
+  Methods: 100.00% ( 6/ 6)   Lines: 100.00% ( 24/ 24)
 CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
   Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 12/ 12)
 ```

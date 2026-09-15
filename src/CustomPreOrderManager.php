@@ -61,6 +61,42 @@ class CustomPreOrderManager extends Plugin
             WHERE cfs.name = 'custom_preorder_set'
         ");
 
+        $jsonRemoveSql = "JSON_REMOVE(
+            `custom_fields`,
+            '$.custom_preorder_active',
+            '$.custom_preorder_release_date',
+            '$.custom_preorder_release_text',
+            '$.custom_preorder_inbound_stock',
+            '$.custom_preorder_sold_count'
+        )";
+
+        // 2. Custom-Fields an allen Produkt-Übersetzungen entfernen
+        $connection->executeStatement("
+            UPDATE `product_translation`
+            SET `custom_fields` = {$jsonRemoveSql}
+            WHERE `custom_fields` IS NOT NULL
+        ");
+
+        // 3. Fallback: Custom-Fields an Produkten entfernen (falls Tabelle custom_fields Spalte besitzt)
+        try {
+            $connection->executeStatement("
+                UPDATE `product`
+                SET `custom_fields` = {$jsonRemoveSql}
+                WHERE `custom_fields` IS NOT NULL
+            ");
+        } catch (\Throwable) {
+            // Tabelle product besitzt in Shopware 6.5+ keine custom_fields Spalte (liegt auf product_translation)
+        }
+
+        // 4. Tag "Vorbestellung" und Order-Tag-Verknüpfungen vollständig entfernen
+        $connection->executeStatement("
+            DELETE ot, t
+            FROM tag t
+            LEFT JOIN order_tag ot ON ot.tag_id = t.id
+            WHERE t.name = 'Vorbestellung'
+        ");
+
+        // 5. Gespeicherte Plugin-Konfigurationen bereinigen
         $connection->executeStatement("
             DELETE FROM system_config
             WHERE configuration_key LIKE 'CustomPreOrderManager.config.%'

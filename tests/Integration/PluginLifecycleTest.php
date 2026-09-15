@@ -71,4 +71,13 @@ class PluginLifecycleTest extends TestCase
         $this->plugin->uninstall($context);
         $this->addToAssertionCount(1);
     }
+
+    public function testUninstallRemoveUserDataExecutesCleanup(): void
+    {
+        $context = $this->createMock(UninstallContext::class);
+        $context->method('keepUserData')->willReturn(false);
+
+        $this->plugin->uninstall($context);
+        $this->addToAssertionCount(1);
+    }
 }
