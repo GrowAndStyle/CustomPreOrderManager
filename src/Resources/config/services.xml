@@ -19,10 +19,10 @@
         </service>
 
         <!-- Storefront-Snippets Registrierung -->
-        <service id="CustomPreOrderManager\Resources\Snippet\de_DE\SnippetFile_de_DE">
+        <service id="CustomPreOrderManager\Resources\snippet\de_DE\SnippetFile_de_DE">
             <tag name="shopware.snippet.file" />
         </service>
-        <service id="CustomPreOrderManager\Resources\Snippet\en_GB\SnippetFile_en_GB">
+        <service id="CustomPreOrderManager\Resources\snippet\en_GB\SnippetFile_en_GB">
             <tag name="shopware.snippet.file" />
         </service>
     </services>
