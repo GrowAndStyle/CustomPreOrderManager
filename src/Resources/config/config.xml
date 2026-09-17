@@ -100,4 +100,72 @@
             <defaultValue>#2b2b48</defaultValue>
         </input-field>
     </card>
+
+    <card>
+        <title lang="de-DE">Lieferhinweis-Card — Design &amp; Styling</title>
+        <title lang="en-GB">Delivery Notice Card — Design &amp; Styling</title>
+
+        <input-field type="int">
+            <name>cardBorderRadius</name>
+            <label lang="de-DE">Eckenrundung der Card (in Pixel)</label>
+            <label lang="en-GB">Corner radius of the card (in pixels)</label>
+            <helpText lang="de-DE">Bestimmt die Eckenabrundung der Lieferhinweis-Box (z. B. 12 für moderne Squircle-Rundung, 0 für eckig).</helpText>
+            <helpText lang="en-GB">Determines the corner radius of the delivery notice box (e.g. 12 for modern squircle rounding, 0 for sharp corners).</helpText>
+            <defaultValue>12</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>cardBackgroundColor</name>
+            <label lang="de-DE">Card Hintergrundfarbe</label>
+            <label lang="en-GB">Card background color</label>
+            <helpText lang="de-DE">Hintergrundfarbe der Lieferhinweis-Box bzw. Endfarbe des Verlaufs.</helpText>
+            <helpText lang="en-GB">Background color of the delivery notice box or end color of the gradient.</helpText>
+            <defaultValue>#f8fafc</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>cardBorderColor</name>
+            <label lang="de-DE">Card Rahmenfarbe</label>
+            <label lang="en-GB">Card border color</label>
+            <helpText lang="de-DE">Farbe des feinen Rahmens um die Lieferhinweis-Box.</helpText>
+            <helpText lang="en-GB">Color of the subtle border around the delivery notice box.</helpText>
+            <defaultValue>#e2e8f0</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>cardAccentColor</name>
+            <label lang="de-DE">Card Akzentfarbe (Icon &amp; Badge)</label>
+            <label lang="en-GB">Card accent color (icon &amp; badge)</label>
+            <helpText lang="de-DE">Farbe für das Icon-Badge, den Puls-Indikator und das Pill-Tag.</helpText>
+            <helpText lang="en-GB">Color for the icon badge, pulse indicator, and pill tag.</helpText>
+            <defaultValue>#e67e22</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>cardTextColor</name>
+            <label lang="de-DE">Card Textfarbe (Headline)</label>
+            <label lang="en-GB">Card text color (headline)</label>
+            <helpText lang="de-DE">Schriftfarbe für die Datums- und Hauptanzeige.</helpText>
+            <helpText lang="en-GB">Text color for the date and primary headline.</helpText>
+            <defaultValue>#0f172a</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>cardEnableShadow</name>
+            <label lang="de-DE">Sanften Schatten (Soft Elevation) aktivieren</label>
+            <label lang="en-GB">Enable subtle shadow (soft elevation)</label>
+            <helpText lang="de-DE">Aktiviert einen modernen, tiefenwirksamen Soft-Schatten gem. Design 2026.</helpText>
+            <helpText lang="en-GB">Enables a modern layered soft shadow following Design 2026 standards.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>cardEnableGradient</name>
+            <label lang="de-DE">Sanften Hintergrund-Verlauf aktivieren</label>
+            <label lang="en-GB">Enable subtle background gradient</label>
+            <helpText lang="de-DE">Aktiviert einen dezenten Farbverlauf von Weiß zur Hintergrundfarbe.</helpText>
+            <helpText lang="en-GB">Enables a subtle gradient from white to the background color.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+    </card>
 </config>

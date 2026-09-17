@@ -31,7 +31,7 @@ class ConfigXmlTest extends TestCase
 
     public function testConfigXmlHasCards(): void
     {
-        static::assertGreaterThanOrEqual(2, count($this->xml->card), 'config.xml muss mindestens 2 Cards besitzen');
+        static::assertGreaterThanOrEqual(3, count($this->xml->card), 'config.xml muss mindestens 3 Cards besitzen');
     }
 
     public function testAllCardsHaveBilingualTitles(): void
@@ -64,6 +64,13 @@ class ConfigXmlTest extends TestCase
             'buttonHoverTextColor' => 'colorpicker',
             'buttonBorderColor' => 'colorpicker',
             'buttonHoverBorderColor' => 'colorpicker',
+            'cardBorderRadius' => 'int',
+            'cardBackgroundColor' => 'colorpicker',
+            'cardBorderColor' => 'colorpicker',
+            'cardAccentColor' => 'colorpicker',
+            'cardTextColor' => 'colorpicker',
+            'cardEnableShadow' => 'bool',
+            'cardEnableGradient' => 'bool',
         ];
 
         $foundKeys = [];
@@ -78,7 +85,7 @@ class ConfigXmlTest extends TestCase
             static::assertSame($expectedType, $foundKeys[$key], sprintf('Feld "%s" muss Typ "%s" besitzen', $key, $expectedType));
         }
 
-        static::assertCount(10, $foundKeys, 'config.xml muss exakt 10 Konfigurationsfelder enthalten');
+        static::assertCount(17, $foundKeys, 'config.xml muss exakt 17 Konfigurationsfelder enthalten');
     }
 
     public function testAllFieldsHaveBilingualLabelsAndHelpTexts(): void
@@ -123,6 +130,10 @@ class ConfigXmlTest extends TestCase
             'buttonHoverTextColor',
             'buttonBorderColor',
             'buttonHoverBorderColor',
+            'cardBackgroundColor',
+            'cardBorderColor',
+            'cardAccentColor',
+            'cardTextColor',
         ];
 
         foreach ($this->xml->xpath('//input-field[@type="colorpicker"]') as $field) {

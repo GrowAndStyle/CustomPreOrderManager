@@ -13,43 +13,148 @@ $breakpoint-mobile: 575px;
 
 .preorder-delivery-information,
 .preorder-delivery-box {
-    background-color: #fbfbfc;
-    border: 1px solid #e5e9ee;
-    border-radius: 6px;
-    padding: 0.75rem 1rem;
-    margin: 0.75rem 0 1rem 0;
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 1rem 1.125rem;
+    margin: 0.875rem 0 1.25rem 0;
+    background: var(--custom-preorder-card-bg-render, linear-gradient(135deg, #ffffff 0%, #f8fafc 100%));
+    border: 1px solid var(--custom-preorder-card-border, #e2e8f0);
+    border-radius: var(--custom-preorder-card-radius, 12px);
+    box-shadow: var(--custom-preorder-card-shadow, 0 1px 3px rgba(15, 23, 42, 0.04), 0 6px 16px -4px rgba(15, 23, 42, 0.06));
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
-    .preorder-delivery-headline {
-        display: flex;
-        align-items: center;
-        font-size: 0.9375rem;
-        font-weight: 600;
-        color: #1a202c;
-        line-height: 1.4;
+    &:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.08);
+    }
 
-        .delivery-status-indicator.is-preorder {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #e67e22;
-            box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
-            display: inline-block;
-            margin-right: 10px;
-            flex-shrink: 0;
-        }
+    .preorder-card-icon-wrapper {
+        flex-shrink: 0;
+        margin-top: 2px;
 
-        .preorder-delivery-status {
-            letter-spacing: -0.01em;
+        .preorder-card-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background-color: var(--custom-preorder-card-accent, #e67e22);
+            color: #ffffff;
+            opacity: 0.92;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            transition: background-color 0.2s ease, transform 0.2s ease;
+
+            .preorder-svg-icon {
+                display: block;
+                stroke: currentColor;
+            }
         }
     }
 
-    .preorder-delivery-notice {
-        font-size: 0.8125rem;
-        color: #5a6a80;
-        margin-top: 4px;
-        padding-left: 18px;
-        line-height: 1.45;
+    .preorder-card-body {
+        flex: 1 1 auto;
+        min-width: 0;
+
+        .preorder-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.35rem;
+
+            .preorder-pill-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 0.2rem 0.6rem;
+                border-radius: 9999px;
+                background-color: rgba(230, 126, 34, 0.12);
+                color: var(--custom-preorder-card-accent, #b45309);
+                font-size: 0.6875rem;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                line-height: 1;
+
+                .preorder-pulse-dot {
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                    background-color: var(--custom-preorder-card-accent, #e67e22);
+                    display: inline-block;
+                    animation: preorderPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                }
+            }
+        }
+
+        .preorder-delivery-headline {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--custom-preorder-card-color, #0f172a);
+            line-height: 1.4;
+            margin: 0;
+
+            .delivery-status-indicator.is-preorder {
+                display: none;
+            }
+
+            .preorder-delivery-status {
+                letter-spacing: -0.01em;
+            }
+        }
+
+        .preorder-delivery-notice {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-size: 0.8125rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed #e2e8f0;
+            line-height: 1.45;
+
+            .preorder-notice-icon {
+                flex-shrink: 0;
+                margin-top: 2px;
+                color: #94a3b8;
+            }
+
+            .preorder-notice-text {
+                flex: 1 1 auto;
+            }
+        }
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+
+        .preorder-card-icon-wrapper .preorder-card-icon {
+            width: 34px;
+            height: 34px;
+
+            .preorder-svg-icon {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        .preorder-card-body .preorder-delivery-headline {
+            font-size: 0.875rem;
+        }
+    }
+}
+
+@keyframes preorderPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.35;
+        transform: scale(0.85);
     }
 }
 

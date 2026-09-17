@@ -10,25 +10,50 @@
         {% set releaseText = customFields.custom_preorder_release_text %}
         {% set releaseDate = customFields.custom_preorder_release_date %}
 
-        <div class="product-delivery-information preorder-delivery-information preorder-delivery-box">
-            <div class="preorder-delivery-headline">
-                <span class="delivery-status-indicator is-preorder"></span>
-                <span class="preorder-delivery-status">
-                    {% if releaseDate %}
-                        {{ "custom-preorder.badge.availableFrom"|trans({'%date%': releaseDate|date('d.m.Y')}) }}
-                    {% elseif releaseText %}
-                        {{ releaseText }}
-                    {% else %}
-                        {{ "custom-preorder.badge.preOrder"|trans }}
-                    {% endif %}
-                </span>
+        <div class="product-delivery-information preorder-delivery-information preorder-delivery-box preorder-delivery-card">
+            <div class="preorder-card-icon-wrapper">
+                <div class="preorder-card-icon" aria-hidden="true">
+                    <svg class="preorder-svg-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </div>
             </div>
 
-            {% if releaseDate and releaseText %}
-                <div class="preorder-delivery-notice">
-                    {{ releaseText }}
+            <div class="preorder-card-body">
+                <div class="preorder-card-header">
+                    <span class="preorder-pill-badge">
+                        <span class="preorder-pulse-dot" aria-hidden="true"></span>
+                        <span class="preorder-pill-text">{{ "custom-preorder.badge.preOrder"|trans }}</span>
+                    </span>
                 </div>
-            {% endif %}
+
+                <div class="preorder-delivery-headline">
+                    <span class="delivery-status-indicator is-preorder"></span>
+                    <span class="preorder-delivery-status">
+                        {% if releaseDate %}
+                            {{ "custom-preorder.badge.availableFrom"|trans({'%date%': releaseDate|date('d.m.Y')}) }}
+                        {% elseif releaseText %}
+                            {{ releaseText }}
+                        {% else %}
+                            {{ "custom-preorder.badge.preOrder"|trans }}
+                        {% endif %}
+                    </span>
+                </div>
+
+                {% if releaseDate and releaseText %}
+                    <div class="preorder-delivery-notice">
+                        <svg class="preorder-notice-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span class="preorder-notice-text">{{ releaseText }}</span>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     {% else %}
         {{ parent() }}

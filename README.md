@@ -198,13 +198,20 @@ Pflegbar im Shopware Administration Panel unter *Einstellungen → Erweiterungen
 | `CustomPreOrderManager.config.enableListingBadge` | `bool` | `true` | Zeigt das Vorbestellungs-Badge auf Kategorieseiten und in der Suche an. | Display pre-order badge on category and search listing cards. |
 | `CustomPreOrderManager.config.enableScarcityCounter` | `bool` | `true` | Aktiviert den Restmengen-Zähler auf der Produktdetailseite. | Enable remaining quota counter on the product detail page. |
 | `CustomPreOrderManager.config.lowStockThreshold` | `int` | `5` | Schwellenwert für das Dringlichkeits-Badge (*„Fast vergriffen“*). | Remaining stock threshold to trigger urgency badge. |
-| `CustomPreOrderManager.config.showButtonIcon` | `bool` | `true` | Kalender-Icon im Vorbestell-Button anzeigen. | Display calendar icon in pre-order button. |
+| `CustomPreOrderManager.config.showButtonIcon` | `bool` | `false` | Kalender-Icon im Vorbestell-Button anzeigen. | Display calendar icon in pre-order button. |
 | `CustomPreOrderManager.config.buttonBackgroundColor` | `colorpicker` | `#1a1a2e` | Button Hintergrundfarbe (Normalzustand). | Button background color (default state). |
 | `CustomPreOrderManager.config.buttonHoverBackgroundColor` | `colorpicker` | `#2b2b48` | Button Hintergrundfarbe (Hover / Fokus). | Button background color (hover / focus). |
 | `CustomPreOrderManager.config.buttonTextColor` | `colorpicker` | `#ffffff` | Button Text- und Icon-Farbe (Normalzustand). | Button text and icon color (default state). |
 | `CustomPreOrderManager.config.buttonHoverTextColor` | `colorpicker` | `#ffffff` | Button Text- und Icon-Farbe (Hover / Fokus). | Button text and icon color (hover / focus). |
 | `CustomPreOrderManager.config.buttonBorderColor` | `colorpicker` | `#1a1a2e` | Button Rahmenfarbe (Normalzustand). | Button border color (default state). |
 | `CustomPreOrderManager.config.buttonHoverBorderColor` | `colorpicker` | `#2b2b48` | Button Rahmenfarbe (Hover / Fokus). | Button border color (hover / focus). |
+| `CustomPreOrderManager.config.cardBorderRadius` | `int` | `12` | Eckenrundung der Card in Pixeln (Squircle). | Corner radius of the card in pixels (squircle). |
+| `CustomPreOrderManager.config.cardBackgroundColor` | `colorpicker` | `#f8fafc` | Card Hintergrundfarbe (Fläche / Gradient). | Card background color (surface / gradient). |
+| `CustomPreOrderManager.config.cardBorderColor` | `colorpicker` | `#e2e8f0` | Card Rahmenfarbe (Micro-Border). | Card border color (micro-border). |
+| `CustomPreOrderManager.config.cardAccentColor` | `colorpicker` | `#e67e22` | Card Akzentfarbe (Icon-Badge, Pill-Tag, Puls-Dot). | Card accent color (icon badge, pill tag, pulse dot). |
+| `CustomPreOrderManager.config.cardTextColor` | `colorpicker` | `#0f172a` | Card Headline-Textfarbe. | Card headline text color. |
+| `CustomPreOrderManager.config.cardEnableShadow` | `bool` | `true` | Soft Elevation (Schatten) aktivieren. | Enable soft elevation (layered shadow). |
+| `CustomPreOrderManager.config.cardEnableGradient` | `bool` | `true` | Sanften Hintergrund-Farbverlauf aktivieren. | Enable subtle background gradient. |
 
 ---
 

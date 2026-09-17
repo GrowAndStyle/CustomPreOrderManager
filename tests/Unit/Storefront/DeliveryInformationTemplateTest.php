@@ -44,6 +44,40 @@ class DeliveryInformationTemplateTest extends TestCase
         static::assertStringContainsString('"custom-preorder.badge.availableFrom"|trans({\'%date%\': releaseDate|date(\'d.m.Y\')})', $content);
     }
 
+    public function testDeliveryInformationTemplateDeclaresDesign2026CardElements(): void
+    {
+        $templatePath = $this->viewsPath . '/component/delivery-information.html.twig';
+        static::assertFileExists($templatePath);
+
+        $content = (string) file_get_contents($templatePath);
+
+        // Design 2026 Card-Elemente
+        static::assertStringContainsString('preorder-delivery-card', $content);
+        static::assertStringContainsString('preorder-card-icon-wrapper', $content);
+        static::assertStringContainsString('preorder-card-icon', $content);
+        static::assertStringContainsString('preorder-card-body', $content);
+        static::assertStringContainsString('preorder-pill-badge', $content);
+        static::assertStringContainsString('preorder-pulse-dot', $content);
+        static::assertStringContainsString('preorder-notice-icon', $content);
+    }
+
+    public function testBaseTemplateInjectsCardCssVariables(): void
+    {
+        $baseTemplatePath = $this->viewsPath . '/base.html.twig';
+        static::assertFileExists($baseTemplatePath);
+
+        $content = (string) file_get_contents($baseTemplatePath);
+
+        // Prüfung der dynamischen CSS-Custom-Properties für die Card
+        static::assertStringContainsString('--custom-preorder-card-radius', $content);
+        static::assertStringContainsString('--custom-preorder-card-bg', $content);
+        static::assertStringContainsString('--custom-preorder-card-border', $content);
+        static::assertStringContainsString('--custom-preorder-card-accent', $content);
+        static::assertStringContainsString('--custom-preorder-card-color', $content);
+        static::assertStringContainsString('--custom-preorder-card-shadow', $content);
+        static::assertStringContainsString('--custom-preorder-card-bg-render', $content);
+    }
+
     public function testPreOrderButtonsDoNotContainSvgCalendarIcons(): void
     {
         $buttonTemplates = [

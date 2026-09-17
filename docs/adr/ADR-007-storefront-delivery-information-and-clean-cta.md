@@ -56,11 +56,25 @@ In `src/Resources/views/storefront/component/delivery-information.html.twig` wir
 </div>
 ```
 
-### 2. Enterprise UI-Styling nach Design-System-Standards
-In `src/Resources/app/storefront/src/scss/base.scss` wird die Box modernisiert:
-* **Container:** Subtiles Panel mit weichem Hintergrund (`#fbfbfc`), feinem 1px Border (`#e5e9ee`) und 6px Abrundung.
-* **Status-Indikator:** Eleganter Amber-Punkt (`#e67e22`) mit dezentem Glow-Ring (`box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18)`).
-* **Typografie-Flucht:** Der zusätzliche Hinweistext erhält ein `padding-left: 18px`, sodass er optisch exakt mit dem Text der Hauptzeile fluchtet und nicht unter den Status-Punkt geschoben wird.
+### 2. Enterprise UI-Styling nach Design 2026 Standards & Dynamische Admin-Konfiguration
+In `src/Resources/app/storefront/src/scss/base.scss` und `src/Resources/config/config.xml` wird die Box vom veralteten 2010er Bootstrap-Panel zu einer modernen **Luxe Card (Design 2026)** aufgewertet:
+* **Media-Object-Layout:**
+  - **Left Visual Anchor:** Ein 38×38px Squircle-Container (`border-radius: 10px`) mit feinem SVG-Kalender-Vektor (`stroke-width: 1.75`), anstelle des veralteten 8px-Ampelpunkts.
+  - **Rechte Inhaltsspalte:**
+    - **Micro Pill Badge:** Edles Pill-Tag `VORBESTELLUNG` mit sanft animiertem Live-Pulse-Dot (`@keyframes preorderPulse`).
+    - **Prominente Statuszeile:** Gestochene Typografie für das Erscheinungsdatum (*„Voraussichtlich lieferbar ab [Datum]“*).
+    - **Info-Subline:** Der optionale Hinweistext wird durch eine feine dashed Trennlinie abgegrenzt und mit einem dezenten Info-Icon versehen.
+* **Vollständig dynamische Konfiguration via `config.xml` & CSS-Custom-Properties:**
+  Unter der neuen Card *„Lieferhinweis-Card — Design & Styling“* werden 7 Parameter bereitgestellt, die in `base.html.twig` auf `:root` injiziert werden:
+  - `cardBorderRadius` (`int`, Default: `12` px)
+  - `cardBackgroundColor` (`colorpicker`, Default: `#f8fafc`)
+  - `cardBorderColor` (`colorpicker`, Default: `#e2e8f0`)
+  - `cardAccentColor` (`colorpicker`, Default: `#e67e22`)
+  - `cardTextColor` (`colorpicker`, Default: `#0f172a`)
+  - `cardEnableShadow` (`bool`, Default: `true`)
+  - `cardEnableGradient` (`bool`, Default: `true`)
+* **Responsive Anpassung:** Auf mobilen Endgeräten (`< 575px`) verkleinern sich der Icon-Container und die Abstände harmonisch.
+* **Rückwärtskompatibilität:** Alle bestehenden Selektoren (`preorder-delivery-information`, `preorder-delivery-box`, `preorder-delivery-headline`, `preorder-delivery-status`, `preorder-delivery-notice`) bleiben im DOM erhalten.
 
 ### 3. Entfall des SVG-Icons im Vorbestell-Button
 * Das Kalender-SVG-Icon wird aus allen Button-Templates entfernt:
