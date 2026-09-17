@@ -118,19 +118,29 @@ class DeliveryInformationTemplateTest extends TestCase
         static::assertSame('Expected to be available from %date%', $enAvailableFrom);
     }
 
-    public function testProductCardActionTemplateContainsPreOrderInfoBox(): void
+    public function testProductCardActionTemplateMaintainsGridSymmetryWithoutInfoBox(): void
     {
         $templatePath = $this->viewsPath . '/component/product/card/action.html.twig';
         static::assertFileExists($templatePath);
 
         $content = (string) file_get_contents($templatePath);
 
-        static::assertStringContainsString('product-card-preorder-info', $content);
-        static::assertStringContainsString('product-card-preorder-headline', $content);
-        static::assertStringContainsString('product-card-preorder-status', $content);
-        static::assertStringContainsString('product-card-preorder-notice', $content);
-        static::assertStringContainsString('preorder-pulse-dot', $content);
-        static::assertStringContainsString('custom-preorder.badge.availableFrom', $content);
+        static::assertStringContainsString('btn-preorder', $content);
+        // Um 100% horizontale Symmetrie im Grid zu sichern, darf keine Info-Box über dem Button liegen
+        static::assertStringNotContainsString('product-card-preorder-info', $content);
+    }
+
+    public function testProductCardImageTemplateContainsPreOrderBanner(): void
+    {
+        $templatePath = $this->viewsPath . '/component/product/card/image.html.twig';
+        static::assertFileExists($templatePath);
+
+        $content = (string) file_get_contents($templatePath);
+
+        static::assertStringContainsString('product-image-preorder-banner', $content);
+        static::assertStringContainsString('preorder-banner-prefix', $content);
+        static::assertStringContainsString('preorder-banner-date', $content);
+        static::assertStringContainsString('custom-preorder.listing.availableFromPrefix', $content);
     }
 
     public function testLineItemLabelTemplateContainsStructuredInfoAndNoEmojis(): void

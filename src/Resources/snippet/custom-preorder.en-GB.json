@@ -11,6 +11,9 @@
             "urgentFewLeft": "Almost gone: Only %count% left!",
             "quotaExhausted": "Quota exhausted"
         },
+        "listing": {
+            "availableFromPrefix": "Expected from"
+        },
         "cart": {
             "lineItemNotice": "Pre-order — %releaseText%",
             "mixedCartBadge": "Mixed Order",

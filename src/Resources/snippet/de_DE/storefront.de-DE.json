@@ -11,6 +11,9 @@
             "urgentFewLeft": "Fast vergriffen: Nur noch %count% Stück!",
             "quotaExhausted": "Kontingent erschöpft"
         },
+        "listing": {
+            "availableFromPrefix": "Voraussichtlich ab"
+        },
         "cart": {
             "lineItemNotice": "Vorbestellung — %releaseText%",
             "mixedCartBadge": "Mischbestellung",

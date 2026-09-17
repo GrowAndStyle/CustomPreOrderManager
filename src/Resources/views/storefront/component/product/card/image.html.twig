@@ -10,9 +10,23 @@
         {% set hasStock = currentProduct.stock > 0 %}
 
         {% if isPreOrder and not hasStock and config('CustomPreOrderManager.config.enableListingBadge') %}
-            <span class="badge badge-preorder badge-image-overlay">
-                {{ "custom-preorder.badge.preOrder"|trans }}
-            </span>
+            {% set releaseDate = customFields.custom_preorder_release_date %}
+            {% set releaseText = customFields.custom_preorder_release_text %}
+
+            <div class="product-image-preorder-banner">
+                <span class="preorder-banner-prefix">
+                    {{ "custom-preorder.listing.availableFromPrefix"|trans }}
+                </span>
+                <span class="preorder-banner-date">
+                    {% if releaseDate %}
+                        {{ releaseDate|date('d.m.Y') }}
+                    {% elseif releaseText %}
+                        {{ releaseText }}
+                    {% else %}
+                        {{ "custom-preorder.badge.preOrder"|trans }}
+                    {% endif %}
+                </span>
+            </div>
         {% endif %}
     </div>
 {% endblock %}
