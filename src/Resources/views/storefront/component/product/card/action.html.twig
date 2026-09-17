@@ -17,13 +17,26 @@
                 </button>
             </div>
         {% else %}
+            {% set preorderBtnStyle = '' %}
+            {% set cBg = config('CustomPreOrderManager.config.buttonBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cHoverBg = config('CustomPreOrderManager.config.buttonHoverBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cText = config('CustomPreOrderManager.config.buttonTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cHoverText = config('CustomPreOrderManager.config.buttonHoverTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cBorder = config('CustomPreOrderManager.config.buttonBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cHoverBorder = config('CustomPreOrderManager.config.buttonHoverBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+
+            {% if cBg is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-bg: ' ~ cBg ~ ';' %}{% endif %}
+            {% if cHoverBg is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-hover-bg: ' ~ cHoverBg ~ ';' %}{% endif %}
+            {% if cText is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-color: ' ~ cText ~ ';' %}{% endif %}
+            {% if cHoverText is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-hover-color: ' ~ cHoverText ~ ';' %}{% endif %}
+            {% if cBorder is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-border: ' ~ cBorder ~ ';' %}{% endif %}
+            {% if cHoverBorder is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-hover-border: ' ~ cHoverBorder ~ ';' %}{% endif %}
+
             {% if config('core.listing.allowBuyInListing') and currentProduct.childCount <= 0 %}
                 <form action="{{ path('frontend.checkout.line-item.add') }}"
                       method="post"
                       class="buy-widget"
                       data-add-to-cart="true">
-
-                    {{ sw_csrf('frontend.checkout.line-item.add') }}
 
                     <input type="hidden" name="lineItems[{{ currentProduct.id }}][id]" value="{{ currentProduct.id }}">
                     <input type="hidden" name="lineItems[{{ currentProduct.id }}][type]" value="product">
@@ -36,9 +49,14 @@
 
                     <div class="d-grid">
                         <button class="btn btn-primary btn-buy btn-preorder"
+                                style="{{ preorderBtnStyle }}"
                                 title="{{ "custom-preorder.button.preOrder"|trans|striptags }}"
                                 aria-label="{{ "custom-preorder.button.preOrder"|trans|striptags }}">
-                            <span class="btn-preorder-icon me-2">📅</span>
+                            {% if config('CustomPreOrderManager.config.showButtonIcon')|default(true) %}
+                                <span class="btn-preorder-icon me-2">
+                                    {% sw_icon 'calendar' style { size: 'sm' } %}
+                                </span>
+                            {% endif %}
                             {{ "custom-preorder.button.preOrder"|trans|sw_sanitize }}
                         </button>
                     </div>
@@ -47,9 +65,14 @@
                 <div class="d-grid">
                     <a href="{{ seoUrl('frontend.detail.page', {'productId': currentProduct.id}) }}"
                        class="btn btn-primary btn-buy btn-preorder"
+                       style="{{ preorderBtnStyle }}"
                        title="{{ "custom-preorder.button.preOrder"|trans|striptags }}"
                        aria-label="{{ "custom-preorder.button.preOrder"|trans|striptags }}">
-                        <span class="btn-preorder-icon me-2">📅</span>
+                        {% if config('CustomPreOrderManager.config.showButtonIcon')|default(true) %}
+                            <span class="btn-preorder-icon me-2">
+                                {% sw_icon 'calendar' style { size: 'sm' } %}
+                            </span>
+                        {% endif %}
                         {{ "custom-preorder.button.preOrder"|trans|sw_sanitize }}
                     </a>
                 </div>

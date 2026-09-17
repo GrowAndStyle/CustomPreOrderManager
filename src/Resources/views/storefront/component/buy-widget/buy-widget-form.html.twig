@@ -38,6 +38,21 @@
                    name="redirectTo"
                    value="frontend.cart.offcanvas">
 
+            {% set preorderBtnStyle = '' %}
+            {% set cBg = config('CustomPreOrderManager.config.buttonBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cHoverBg = config('CustomPreOrderManager.config.buttonHoverBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cText = config('CustomPreOrderManager.config.buttonTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cHoverText = config('CustomPreOrderManager.config.buttonHoverTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cBorder = config('CustomPreOrderManager.config.buttonBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cHoverBorder = config('CustomPreOrderManager.config.buttonHoverBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+
+            {% if cBg is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-bg: ' ~ cBg ~ ';' %}{% endif %}
+            {% if cHoverBg is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-hover-bg: ' ~ cHoverBg ~ ';' %}{% endif %}
+            {% if cText is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-color: ' ~ cText ~ ';' %}{% endif %}
+            {% if cHoverText is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-hover-color: ' ~ cHoverText ~ ';' %}{% endif %}
+            {% if cBorder is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-border: ' ~ cBorder ~ ';' %}{% endif %}
+            {% if cHoverBorder is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-hover-border: ' ~ cHoverBorder ~ ';' %}{% endif %}
+
             <div class="row g-2 buy-widget-container">
                 {% set maxQuantity = currentProduct.calculatedMaxPurchase|default(0) %}
                 {% if maxQuantity <= 0 %}
@@ -49,7 +64,7 @@
                 {% if maxQuantity > minQuantity %}
                     <div class="col-4">
                         <select name="lineItems[{{ currentProduct.id }}][quantity]"
-                                class="form-select form-select-lg">
+                                class="form-select">
                             {% for quantity in range(minQuantity, min(maxQuantity, 20), step) %}
                                 <option value="{{ quantity }}">{{ quantity }}</option>
                             {% endfor %}
@@ -62,12 +77,19 @@
                            value="{{ minQuantity }}">
                     <div class="col-12">
                 {% endif %}
-                        <button class="btn btn-primary btn-block btn-buy btn-preorder"
-                                title="{{ "custom-preorder.button.preOrder"|trans|striptags }}"
-                                aria-label="{{ "custom-preorder.button.preOrder"|trans|striptags }}">
-                            <span class="btn-preorder-icon me-2">📅</span>
-                            {{ "custom-preorder.button.preOrder"|trans|sw_sanitize }}
-                        </button>
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-buy btn-preorder"
+                                    style="{{ preorderBtnStyle }}"
+                                    title="{{ "custom-preorder.button.preOrder"|trans|striptags }}"
+                                    aria-label="{{ "custom-preorder.button.preOrder"|trans|striptags }}">
+                                {% if config('CustomPreOrderManager.config.showButtonIcon')|default(true) %}
+                                    <span class="btn-preorder-icon me-2">
+                                        {% sw_icon 'calendar' style { size: 'sm' } %}
+                                    </span>
+                                {% endif %}
+                                {{ "custom-preorder.button.preOrder"|trans|sw_sanitize }}
+                            </button>
+                        </div>
                     </div>
             </div>
         {% endif %}
