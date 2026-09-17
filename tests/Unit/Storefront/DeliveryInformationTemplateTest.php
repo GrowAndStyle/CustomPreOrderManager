@@ -130,9 +130,9 @@ class DeliveryInformationTemplateTest extends TestCase
         static::assertStringNotContainsString('product-card-preorder-info', $content);
     }
 
-    public function testProductCardImageTemplateContainsPreOrderBanner(): void
+    public function testProductCardBoxStandardTemplateContainsPreOrderBanner(): void
     {
-        $templatePath = $this->viewsPath . '/component/product/card/image.html.twig';
+        $templatePath = $this->viewsPath . '/component/product/card/box-standard.html.twig';
         static::assertFileExists($templatePath);
 
         $content = (string) file_get_contents($templatePath);

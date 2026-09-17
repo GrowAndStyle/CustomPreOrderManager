@@ -179,11 +179,34 @@ CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
 
 ---
 
+## Phase 5: Kategorieseite Bild-Overlay-Banner & Core-Alignment (`TASK-021`)
+
+### 1. Root-Cause-Analyse & Shopware 6.5.x CE Core-Abgleich
+- **Problem:** Auf der Kategorieseite fehlte die Vorbestellungs-Kennzeichnung am Bild vollständig, wenn `image.html.twig` verwendet wurde. Zudem zerstörte eine Infobox über dem Button in `action.html.twig` die horizontale Fluchtlinie des Kategorie-Grids.
+- **Shopware Core Verifikation (v6.5.8.0):**
+  - Im Shopware Core Bundle `Storefront` existiert unter `component/product/card/` **keine** Datei `image.html.twig`.
+  - Die zentrale Basis aller Produktkarten ist `box-standard.html.twig`. Die Layout-Varianten `box-image.html.twig` und `box-minimal.html.twig` erben direkt von `box-standard.html.twig`.
+  - Der Block für das Produktbild lautet `component_product_box_image` mit dem inneren Block `component_product_box_image_link`.
+
+### 2. Technische Umsetzung
+- **Löschung veralteter Templates:** `src/Resources/views/storefront/component/product/card/image.html.twig` ersatzlos entfernt.
+- **Core-konforme Template-Erweiterung:** `src/Resources/views/storefront/component/product/card/box-standard.html.twig` erweitert `component_product_box_image_link`.
+- **2-Zeiliges Frosted-Banner (Option 2):**
+  - Zeile 1: `preorder-banner-prefix`: „Voraussichtlich ab“ (`custom-preorder.listing.availableFromPrefix`)
+  - Zeile 2: `preorder-banner-date`: `DD.MM.YYYY` (z. B. `30.09.2026`)
+  - Kein vorangestellter Dot, kein zusätzlicher Hinweistext im Listing (spart vertikalen Raum).
+  - Halbtransparenter Hintergrund `rgba(15, 23, 42, 0.72)` mit `backdrop-filter: blur(6px)`.
+  - `pointer-events: none` für Klick-Durchlässigkeit zum Produktlink.
+- **100% Horizontale Grid-Symmetrie:** In `action.html.twig` existiert keine Infobox über dem Button; alle Buttons fluchten exakt auf gleicher Höhe wie bei regulären Nachbarartikeln.
+- **SCSS-Positionierung:** `.product-image-wrapper { position: relative; }` in `base.scss` verankert, damit absolute Positionierung (`bottom: 0`) am Bild verankert bleibt.
+- **Unit-Test:** `DeliveryInformationTemplateTest.php` angepasst auf `testProductCardBoxStandardTemplateContainsPreOrderBanner`.
+
+---
+
 ## Aktueller Status
-- Feature-Branch `feat/scaffold-and-architecture` um `TASK-017` / `ADR-005` erweitert.
-- `ADR-005` als ENTSCHIEDEN dokumentiert und im Index von `ARCHITECTURE.md` und `README.md` verankert.
-- `config.xml` via `xmllint` validiert (0 Schema-Fehler).
-- SCSS und Twig-Templates 100 % harmonisiert mit Shopware Core & Enterprise Tier-1 Standards.
-- Testsuite: 42 Tests (35 Unit, 7 Integration). Neuer `ConfigXmlTest.php` sichert die Konfiguration vor Regressionen.
+- Feature-Branch `feat/storefront-delivery-styling` sauber synchronisiert.
+- Core-Abgleich gegen Shopware 6.5.x CE lückenlos verifiziert (0 spekulativer Code).
+- 100% Test-Coverage und saubere Git-Historie nach Conventional Commits.
+
 
 
