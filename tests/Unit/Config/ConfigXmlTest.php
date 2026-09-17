@@ -57,7 +57,6 @@ class ConfigXmlTest extends TestCase
             'enableListingBadge' => 'bool',
             'enableScarcityCounter' => 'bool',
             'lowStockThreshold' => 'int',
-            'showButtonIcon' => 'bool',
             'buttonBackgroundColor' => 'colorpicker',
             'buttonHoverBackgroundColor' => 'colorpicker',
             'buttonTextColor' => 'colorpicker',
@@ -85,7 +84,7 @@ class ConfigXmlTest extends TestCase
             static::assertSame($expectedType, $foundKeys[$key], sprintf('Feld "%s" muss Typ "%s" besitzen', $key, $expectedType));
         }
 
-        static::assertCount(17, $foundKeys, 'config.xml muss exakt 17 Konfigurationsfelder enthalten');
+        static::assertCount(16, $foundKeys, 'config.xml muss exakt 16 Konfigurationsfelder enthalten');
     }
 
     public function testAllFieldsHaveBilingualLabelsAndHelpTexts(): void

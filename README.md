@@ -198,7 +198,6 @@ Pflegbar im Shopware Administration Panel unter *Einstellungen → Erweiterungen
 | `CustomPreOrderManager.config.enableListingBadge` | `bool` | `true` | Zeigt das Vorbestellungs-Badge auf Kategorieseiten und in der Suche an. | Display pre-order badge on category and search listing cards. |
 | `CustomPreOrderManager.config.enableScarcityCounter` | `bool` | `true` | Aktiviert den Restmengen-Zähler auf der Produktdetailseite. | Enable remaining quota counter on the product detail page. |
 | `CustomPreOrderManager.config.lowStockThreshold` | `int` | `5` | Schwellenwert für das Dringlichkeits-Badge (*„Fast vergriffen“*). | Remaining stock threshold to trigger urgency badge. |
-| `CustomPreOrderManager.config.showButtonIcon` | `bool` | `false` | Kalender-Icon im Vorbestell-Button anzeigen. | Display calendar icon in pre-order button. |
 | `CustomPreOrderManager.config.buttonBackgroundColor` | `colorpicker` | `#1a1a2e` | Button Hintergrundfarbe (Normalzustand). | Button background color (default state). |
 | `CustomPreOrderManager.config.buttonHoverBackgroundColor` | `colorpicker` | `#2b2b48` | Button Hintergrundfarbe (Hover / Fokus). | Button background color (hover / focus). |
 | `CustomPreOrderManager.config.buttonTextColor` | `colorpicker` | `#ffffff` | Button Text- und Icon-Farbe (Normalzustand). | Button text and icon color (default state). |

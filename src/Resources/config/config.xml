@@ -37,15 +37,6 @@
         <title lang="de-DE">Vorbestell-Button — Design &amp; Farben</title>
         <title lang="en-GB">Pre-Order Button — Design &amp; Colors</title>
 
-        <input-field type="bool">
-            <name>showButtonIcon</name>
-            <label lang="de-DE">Kalender-Icon im Vorbestell-Button anzeigen</label>
-            <label lang="en-GB">Display calendar icon in pre-order button</label>
-            <helpText lang="de-DE">Blendet ein dezentes Kalender-Icon links neben dem Button-Text ein.</helpText>
-            <helpText lang="en-GB">Displays a subtle calendar icon to the left of the button text.</helpText>
-            <defaultValue>false</defaultValue>
-        </input-field>
-
         <input-field type="colorpicker">
             <name>buttonBackgroundColor</name>
             <label lang="de-DE">Button Hintergrundfarbe</label>

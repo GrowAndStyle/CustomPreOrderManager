@@ -82,7 +82,7 @@ In `src/Resources/app/storefront/src/scss/base.scss` und `src/Resources/config/c
   * `src/Resources/views/storefront/component/buy-widget/buy-widget-form.html.twig`
   * `src/Resources/views/storefront/component/product/card/action.html.twig`
 * Der Button agiert als reiner, fokussierter Text-Button (*„Jetzt vorbestellen"*).
-* In `src/Resources/config/config.xml` wird der Default-Wert für `showButtonIcon` auf `false` gesetzt.
+* In `src/Resources/config/config.xml` wird das Konfigurationsfeld `showButtonIcon` ersatzlos gestrichen, um tote Schalter (Zombie-Config) nach Enterprise Tier-1 Standard konsequent auszuschließen.
 
 ## Begründung
 * **Rechtssicherheit & Preistransparenz:** Der Endkunde sieht immer das konkrete Erscheinungsdatum, selbst wenn der Händler zusätzliche Erläuterungen im Freitextfeld hinterlegt.
