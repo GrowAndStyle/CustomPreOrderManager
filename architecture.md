@@ -9,6 +9,7 @@
 | [ADR-003](docs/adr/ADR-003-lineitem-payload-enrichment.md) | LineItem-Payload-Enrichment statt Mail-Template-Override | ENTSCHIEDEN | 2026-09-14 |
 | [ADR-004](docs/adr/ADR-004-autarkic-scarcity-no-waitlist.md) | Autarkes Scarcity-System ohne Warteliste | ENTSCHIEDEN | 2026-09-14 |
 | [ADR-005](docs/adr/ADR-005-native-button-theming-color-picker.md) | Natives Button-Theming und dynamische Farb-Konfiguration via CSS Custom Properties | ENTSCHIEDEN | 2026-09-15 |
+| [ADR-006](docs/adr/ADR-006-admin-preorder-dashboard-listing.md) | Admin Vorbestellungs-Dashboard — Listing-Architektur, Lifecycle-Steuerung und Datensynchronisation | ENTSCHIEDEN | 2026-09-17 |
 
 ---
 

@@ -242,7 +242,7 @@ Available Payload:
 CustomPreOrderManager/
 ├── .agent/                                      # Agent Governance & Quality Skill Blueprints
 ├── docs/
-│   └── adr/                                     # Architecture Decision Records (ADR-001 bis ADR-004)
+│   └── adr/                                     # Architecture Decision Records (ADR-001 bis ADR-006)
 ├── src/
 │   ├── CustomPreOrderManager.php                # Plugin-Hauptklasse (Lifecycle & Container-Extension)
 │   ├── Core/Checkout/
@@ -413,6 +413,7 @@ Grundlegende Architekturentscheidungen sind nach dem Michael Nygard ADR-Standard
 | **[ADR-003](docs/adr/ADR-003-lineitem-payload-enrichment.md)** | LineItem Payload Enrichment vs. Mail-Override | `AKZEPTIERT` | Priorität 4100 im CartCollector schleust Vorbestell-Flags konfliktfrei durch Core-Mails und PDF-Belege. |
 | **[ADR-004](docs/adr/ADR-004-autarkic-scarcity-no-waitlist.md)** | Autarkes Scarcity-System vs. externe Warteliste | `AKZEPTIERT` | Verknappungsanzeige mit Button-Sperre schützt Kontingente ohne DSGVO- und DOI-Risiken externer E-Mail-Listen. |
 | **[ADR-005](docs/adr/ADR-005-native-button-theming-color-picker.md)** | Natives Button-Theming & Color-Picker | `AKZEPTIERT` | Bereinigung harter Maße zugunsten nativer Theme-Klassen und dynamischer Farb-Injektion via CSS-Variablen. |
+| **[ADR-006](docs/adr/ADR-006-admin-preorder-dashboard-listing.md)** | Admin Vorbestellungs-Dashboard | `AKZEPTIERT` | Expliziter `created()`-Hook, Assoziationen (`stateMachineState`, `currency`) und Scoped Slots mit Deep-Linking. |
 
 ---
 
