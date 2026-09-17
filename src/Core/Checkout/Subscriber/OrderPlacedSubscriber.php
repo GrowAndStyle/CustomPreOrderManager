@@ -49,15 +49,15 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
             $productId = $item->getReferencedId();
 
             if ($productId) {
-                // Atomares Inkrement der verkauften Menge unter strikter Beachtung der LIVE_VERSION
+                // Atomares Inkrement der verkauften Menge auf product_translation unter strikter Beachtung der LIVE_VERSION
                 $this->connection->executeStatement(
-                    'UPDATE `product`
+                    'UPDATE `product_translation`
                      SET `custom_fields` = JSON_SET(
                          COALESCE(`custom_fields`, "{}"),
                          "$.custom_preorder_sold_count",
                          COALESCE(JSON_UNQUOTE(JSON_EXTRACT(`custom_fields`, "$.custom_preorder_sold_count")), 0) + :qty
                      )
-                     WHERE `id` = :id AND `version_id` = :versionId',
+                     WHERE `product_id` = :id AND `product_version_id` = :versionId',
                     [
                         'id' => Uuid::fromHexToBytes($productId),
                         'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),

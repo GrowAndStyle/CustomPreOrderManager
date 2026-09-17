@@ -16,7 +16,7 @@
                 {% if releaseText %}
                     {{ releaseText }}
                 {% elseif releaseDate %}
-                    {{ "custom-preorder.badge.availableFrom"|trans({'%date%': releaseDate|date('m/Y')}) }}
+                    {{ "custom-preorder.badge.availableFrom"|trans({'%date%': releaseDate|date('d.m.Y')}) }}
                 {% else %}
                     {{ "custom-preorder.badge.preOrder"|trans }}
                 {% endif %}

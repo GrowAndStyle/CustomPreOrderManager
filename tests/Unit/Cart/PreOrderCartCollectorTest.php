@@ -110,7 +110,7 @@ class PreOrderCartCollectorTest extends TestCase
         $this->collector->collect($data, $cart, $context, $behavior);
 
         static::assertTrue($lineItem->getPayloadValue('isPreOrder'));
-        static::assertSame('Lieferbar ab 10/2026', $lineItem->getPayloadValue('preOrderReleaseText'));
+        static::assertSame('Lieferbar ab 15.10.2026', $lineItem->getPayloadValue('preOrderReleaseText'));
     }
 
     public function testCollectHandlesInvalidReleaseDateGracefully(): void
@@ -169,6 +169,6 @@ class PreOrderCartCollectorTest extends TestCase
         $this->collector->collect($data, $cart, $context, $behavior);
 
         static::assertTrue($lineItem->getPayloadValue('isPreOrder'));
-        static::assertSame('Lieferbar ab 12/2026', $lineItem->getPayloadValue('preOrderReleaseText'));
+        static::assertSame('Lieferbar ab 01.12.2026', $lineItem->getPayloadValue('preOrderReleaseText'));
     }
 }
