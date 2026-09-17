@@ -8,6 +8,11 @@
             <tag name="shopware.cart.collector" priority="4100" />
         </service>
 
+        <!-- Cart-Validator: High-Concurrency Quota Guard gegen Überverkäufe -->
+        <service id="CustomPreOrderManager\Core\Checkout\Cart\PreOrderCartValidator">
+            <tag name="shopware.cart.validator" />
+        </service>
+
         <!-- Order-Placed Subscriber: Auto-Tagging, DBAL-Counter & Event-Dispatch -->
         <service id="CustomPreOrderManager\Core\Checkout\Subscriber\OrderPlacedSubscriber">
             <argument type="service" id="order.repository" />

@@ -159,4 +159,58 @@
             <defaultValue>true</defaultValue>
         </input-field>
     </card>
+
+    <card>
+        <title lang="de-DE">Mischwarenkorb — Versandhinweis &amp; Fulfillment</title>
+        <title lang="en-GB">Mixed Cart — Shipping Notice &amp; Fulfillment</title>
+
+        <input-field type="bool">
+            <name>enableMixedCartNotice</name>
+            <label lang="de-DE">Mischwarenkorb-Hinweis aktivieren</label>
+            <label lang="en-GB">Enable mixed cart notice</label>
+            <helpText lang="de-DE">Blendet im Offcanvas-Warenkorb und Checkout einen Hinweis ein, wenn Lagerartikel und Vorbestellungen kombiniert sind.</helpText>
+            <helpText lang="en-GB">Displays a notice in offcanvas cart and checkout when in-stock items and pre-orders are combined.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>mixedCartNoticeMode</name>
+            <label lang="de-DE">Fulfillment-Modus für Mischwarenkörbe</label>
+            <label lang="en-GB">Fulfillment mode for mixed carts</label>
+            <helpText lang="de-DE">Steuert den angezeigten Hinweis, wenn sofort lieferbare Artikel und Vorbestellungen gemeinsam im Warenkorb liegen.</helpText>
+            <helpText lang="en-GB">Controls the notice shown when in-stock items and pre-orders are mixed in the cart.</helpText>
+            <options>
+                <option>
+                    <id>flexible</id>
+                    <name lang="de-DE">Fall-zu-Fall / Teillieferung nach Verfügbarkeit (Standard)</name>
+                    <name lang="en-GB">Case-by-case / Split delivery based on availability (Default)</name>
+                </option>
+                <option>
+                    <id>split</id>
+                    <name lang="de-DE">Feste Teillieferung (Sofortversand der Lagerware)</name>
+                    <name lang="en-GB">Fixed split delivery (Immediate shipping of stock items)</name>
+                </option>
+                <option>
+                    <id>consolidated</id>
+                    <name lang="de-DE">Feste Komplettlieferung (Gemeinsamer Versand zum Release)</name>
+                    <name lang="en-GB">Fixed consolidated delivery (Ship together on release)</name>
+                </option>
+                <option>
+                    <id>custom</id>
+                    <name lang="de-DE">Eigener Hinweistext (Textfeld unten)</name>
+                    <name lang="en-GB">Custom notice text (Text field below)</name>
+                </option>
+            </options>
+            <defaultValue>flexible</defaultValue>
+        </input-field>
+
+        <input-field type="text">
+            <name>mixedCartCustomNoticeText</name>
+            <label lang="de-DE">Eigener Mischwarenkorb-Hinweistext</label>
+            <label lang="en-GB">Custom mixed cart notice text</label>
+            <helpText lang="de-DE">Individueller Text, der angezeigt wird, wenn als Modus 'Eigener Hinweistext' gewählt wurde.</helpText>
+            <helpText lang="en-GB">Custom text displayed when 'Custom notice text' mode is selected.</helpText>
+            <defaultValue>Deine Bestellung enthält sofort lieferbare Artikel und Vorbestellungen. Die Auslieferung erfolgt ggf. in Teillieferungen.</defaultValue>
+        </input-field>
+    </card>
 </config>

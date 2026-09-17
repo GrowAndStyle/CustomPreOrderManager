@@ -12,16 +12,30 @@
             "quotaExhausted": "Kontingent erschöpft"
         },
         "cart": {
-            "lineItemNotice": "Vorbestellung — %releaseText%"
+            "lineItemNotice": "Vorbestellung — %releaseText%",
+            "mixedCartBadge": "Mischbestellung",
+            "mixedCartFlexible": "Deine Bestellung enthält sofort lieferbare Artikel sowie Vorbestellungen. Die Auslieferung erfolgt ggf. in Teillieferungen nach Verfügbarkeit.",
+            "mixedCartSplit": "Sofort lieferbare Artikel werden umgehend versendet. Deine Vorbestellung folgt kostenfrei separat zum Release-Termin.",
+            "mixedCartConsolidated": "Deine Bestellung wird gesammelt versendet, sobald alle Vorbestellartikel eingetroffen sind."
         },
         "scarcity": {
             "remaining": "Noch %remaining% von %total% verfügbar",
             "fewLeft": "Nur noch %remaining% Stück für %releaseText% sicherbar"
+        },
+        "error": {
+            "quantityAdjusted": "Die gewünschte Bestellmenge für „%productName%“ wurde auf %maxQuantity% Stück angepasst, da das verfügbare Vorbestellkontingent begrenzt ist.",
+            "quotaExhausted": "Das Produkt „%productName%“ musste aus deinem Warenkorb entfernt werden, da das Vorbestellkontingent soeben vollständig vergriffen ist."
         }
     },
     "preOrder": {
         "scarcity": {
             "fewLeft": "Fast vergriffen: Nur noch %count% Stück!"
         }
+    },
+    "custom-preorder-quantity-adjusted": "Die gewünschte Bestellmenge für „%productName%“ wurde auf %maxQuantity% Stück angepasst, da das verfügbare Vorbestellkontingent begrenzt ist.",
+    "custom-preorder-quota-exhausted": "Das Produkt „%productName%“ musste aus deinem Warenkorb entfernt werden, da das Vorbestellkontingent soeben vollständig vergriffen ist.",
+    "checkout": {
+        "custom-preorder-quantity-adjusted": "Die gewünschte Bestellmenge für „%productName%“ wurde auf %maxQuantity% Stück angepasst, da das verfügbare Vorbestellkontingent begrenzt ist.",
+        "custom-preorder-quota-exhausted": "Das Produkt „%productName%“ musste aus deinem Warenkorb entfernt werden, da das Vorbestellkontingent soeben vollständig vergriffen ist."
     }
 }

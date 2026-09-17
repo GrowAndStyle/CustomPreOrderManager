@@ -28,21 +28,47 @@ class PreOrderCartCollector implements CartDataCollectorInterface
                 continue;
             }
 
-            $releaseText = $customFields['custom_preorder_release_text'] ?? null;
-            if (empty($releaseText) && !empty($customFields['custom_preorder_release_date'])) {
+            $rawDate = $customFields['custom_preorder_release_date'] ?? null;
+            $rawText = $customFields['custom_preorder_release_text'] ?? null;
+            $inboundStock = (int) ($customFields['custom_preorder_inbound_stock'] ?? 0);
+            $soldCount = (int) ($customFields['custom_preorder_sold_count'] ?? 0);
+            $remainingQuota = $inboundStock > 0 ? max(0, $inboundStock - $soldCount) : null;
+
+            $formattedDate = null;
+            $availableFrom = null;
+
+            if (!empty($rawDate)) {
                 try {
-                    $date = new \DateTimeImmutable((string) $customFields['custom_preorder_release_date']);
-                    $releaseText = 'Voraussichtlich lieferbar ab ' . $date->format('d.m.Y');
+                    $dateObj = new \DateTimeImmutable((string) $rawDate);
+                    $formattedDate = $dateObj->format('d.m.Y');
+                    $availableFrom = 'Voraussichtlich lieferbar ab ' . $formattedDate;
                 } catch (\Throwable) {
-                    $releaseText = 'Vorbestellung';
+                    $formattedDate = null;
+                    $availableFrom = null;
                 }
             }
 
-            // XSS-Schutz: Freitext vor dem Ablegen im Payload bereinigen
-            $sanitizedText = !empty($releaseText) ? strip_tags((string) $releaseText) : 'Vorbestellung';
+            $sanitizedNotice = !empty($rawText) ? strip_tags((string) $rawText) : null;
+
+            // Fallback für preOrderReleaseText (Rückwärtskompatibilität)
+            if ($availableFrom && $sanitizedNotice) {
+                $legacyText = $availableFrom . ' — ' . $sanitizedNotice;
+            } elseif ($availableFrom) {
+                $legacyText = $availableFrom;
+            } elseif ($sanitizedNotice) {
+                $legacyText = $sanitizedNotice;
+            } else {
+                $legacyText = 'Vorbestellung';
+            }
 
             $lineItem->setPayloadValue('isPreOrder', true);
-            $lineItem->setPayloadValue('preOrderReleaseText', $sanitizedText);
+            $lineItem->setPayloadValue('preOrderReleaseDate', $formattedDate);
+            $lineItem->setPayloadValue('preOrderNotice', $sanitizedNotice);
+            $lineItem->setPayloadValue('preOrderAvailableFrom', $availableFrom);
+            $lineItem->setPayloadValue('preOrderReleaseText', $legacyText);
+            $lineItem->setPayloadValue('preOrderInboundStock', $inboundStock);
+            $lineItem->setPayloadValue('preOrderSoldCount', $soldCount);
+            $lineItem->setPayloadValue('preOrderRemainingQuota', $remainingQuota);
         }
     }
 }

@@ -10,6 +10,29 @@
     {% set remainingQuota = inboundStock - soldCount %}
 
     {% if isPreOrder and not hasStock %}
+        {% set releaseText = customFields.custom_preorder_release_text %}
+        {% set releaseDate = customFields.custom_preorder_release_date %}
+
+        <div class="product-card-preorder-info">
+            <div class="product-card-preorder-headline">
+                <span class="preorder-pulse-dot" aria-hidden="true"></span>
+                <span class="product-card-preorder-status">
+                    {% if releaseDate %}
+                        {{ "custom-preorder.badge.availableFrom"|trans({'%date%': releaseDate|date('d.m.Y')}) }}
+                    {% elseif releaseText %}
+                        {{ releaseText }}
+                    {% else %}
+                        {{ "custom-preorder.badge.preOrder"|trans }}
+                    {% endif %}
+                </span>
+            </div>
+            {% if releaseDate and releaseText %}
+                <div class="product-card-preorder-notice">
+                    {{ releaseText }}
+                </div>
+            {% endif %}
+        </div>
+
         {% if inboundStock > 0 and remainingQuota <= 0 %}
             <div class="d-grid">
                 <button class="btn btn-secondary disabled" disabled="disabled">

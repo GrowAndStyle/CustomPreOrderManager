@@ -211,6 +211,9 @@ Pflegbar im Shopware Administration Panel unter *Einstellungen → Erweiterungen
 | `CustomPreOrderManager.config.cardTextColor` | `colorpicker` | `#0f172a` | Card Headline-Textfarbe. | Card headline text color. |
 | `CustomPreOrderManager.config.cardEnableShadow` | `bool` | `true` | Soft Elevation (Schatten) aktivieren. | Enable soft elevation (layered shadow). |
 | `CustomPreOrderManager.config.cardEnableGradient` | `bool` | `true` | Sanften Hintergrund-Farbverlauf aktivieren. | Enable subtle background gradient. |
+| `CustomPreOrderManager.config.enableMixedCartNotice` | `bool` | `true` | Mischwarenkorb-Hinweis im Offcanvas & Checkout aktivieren. | Enable mixed cart notice in offcanvas & checkout. |
+| `CustomPreOrderManager.config.mixedCartNoticeMode` | `select` | `flexible` | Fulfillment-Modus für Mischwarenkörbe (`flexible`, `split`, `consolidated`, `custom`). | Fulfillment mode for mixed carts (`flexible`, `split`, `consolidated`, `custom`). |
+| `CustomPreOrderManager.config.mixedCartCustomNoticeText` | `text` | `""` | Individueller Hinweistext bei Modus `custom`. | Custom notice text when mode is set to `custom`. |
 
 ---
 
@@ -421,6 +424,7 @@ Grundlegende Architekturentscheidungen sind nach dem Michael Nygard ADR-Standard
 | **[ADR-005](docs/adr/ADR-005-native-button-theming-color-picker.md)** | Natives Button-Theming & Color-Picker | `AKZEPTIERT` | Bereinigung harter Maße zugunsten nativer Theme-Klassen und dynamischer Farb-Injektion via CSS-Variablen. |
 | **[ADR-006](docs/adr/ADR-006-admin-preorder-dashboard-listing.md)** | Admin Vorbestellungs-Dashboard | `AKZEPTIERT` | Expliziter `created()`-Hook, Assoziationen (`stateMachineState`, `currency`) und Scoped Slots mit Deep-Linking. |
 | **[ADR-007](docs/adr/ADR-007-storefront-delivery-information-and-clean-cta.md)** | Storefront Lieferinformation & Clean CTA | `AKZEPTIERT` | Semantische 2-Ebenen-Hierarchie (Termin + Hinweistext), 'Voraussichtlich'-Rechtssicherheit und Icon-Entfall am CTA-Button. |
+| **[ADR-008](docs/adr/ADR-008-end-to-end-preorder-delivery-information.md)** | Full-Funnel Vorbestellungs-Architektur, Quota Guard & Mischwarenkorb | `AKZEPTIERT` | Durchgängige Begleitung (Listing bis Kundenkonto), aktiver Cart-Quota-Guard mit Shopware-Alerts und flexibler Mischwarenkorb-Versandhinweis. |
 
 ---
 

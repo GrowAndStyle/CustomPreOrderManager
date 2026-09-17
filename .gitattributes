@@ -19,3 +19,7 @@
 /.phpunit.cache  export-ignore
 /README.md       export-ignore
 /LICENSE.md      export-ignore
+/BUILD.md        export-ignore
+/docs            export-ignore
+/architecture.md export-ignore
+

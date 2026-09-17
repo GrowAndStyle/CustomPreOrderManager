@@ -1,6 +1,6 @@
-{% sw_extends '@Storefront/storefront/component/line-item/element/label.html.twig' %}
+{% sw_extends '@Storefront/storefront/page/account/order-history/order-detail-list-item.html.twig' %}
 
-{% block component_line_item_label %}
+{% block page_account_order_item_detail_line_item_label %}
     {{ parent() }}
 
     {% if lineItem.payload.isPreOrder %}
@@ -8,7 +8,7 @@
         {% set releaseNotice = lineItem.payload.preOrderNotice %}
         {% set legacyText = lineItem.payload.preOrderReleaseText %}
 
-        <div class="line-item-preorder-info">
+        <div class="line-item-preorder-info order-detail-preorder-info">
             <div class="line-item-preorder-badge-row">
                 <span class="line-item-preorder-pill">
                     <span class="preorder-pulse-dot" aria-hidden="true"></span>

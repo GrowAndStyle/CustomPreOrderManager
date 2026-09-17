@@ -19,9 +19,10 @@ class DeliveryInformationTemplateTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->viewsPath = dirname(__DIR__, 2) . '/src/Resources/views/storefront';
-        $this->snippetPath = dirname(__DIR__, 2) . '/src/Resources/snippet';
+        $this->viewsPath = dirname(__DIR__, 3) . '/src/Resources/views/storefront';
+        $this->snippetPath = dirname(__DIR__, 3) . '/src/Resources/snippet';
     }
+
 
     public function testDeliveryInformationTemplateDeclaresTwoLevelHierarchy(): void
     {
@@ -116,4 +117,67 @@ class DeliveryInformationTemplateTest extends TestCase
         static::assertSame('Voraussichtlich lieferbar ab %date%', $deAvailableFrom);
         static::assertSame('Expected to be available from %date%', $enAvailableFrom);
     }
+
+    public function testProductCardActionTemplateContainsPreOrderInfoBox(): void
+    {
+        $templatePath = $this->viewsPath . '/component/product/card/action.html.twig';
+        static::assertFileExists($templatePath);
+
+        $content = (string) file_get_contents($templatePath);
+
+        static::assertStringContainsString('product-card-preorder-info', $content);
+        static::assertStringContainsString('product-card-preorder-headline', $content);
+        static::assertStringContainsString('product-card-preorder-status', $content);
+        static::assertStringContainsString('product-card-preorder-notice', $content);
+        static::assertStringContainsString('preorder-pulse-dot', $content);
+        static::assertStringContainsString('custom-preorder.badge.availableFrom', $content);
+    }
+
+    public function testLineItemLabelTemplateContainsStructuredInfoAndNoEmojis(): void
+    {
+        $templatePath = $this->viewsPath . '/component/line-item/element/label.html.twig';
+        static::assertFileExists($templatePath);
+
+        $content = (string) file_get_contents($templatePath);
+
+        static::assertStringContainsString('line-item-preorder-info', $content);
+        static::assertStringContainsString('line-item-preorder-pill', $content);
+        static::assertStringContainsString('line-item-preorder-status', $content);
+        static::assertStringContainsString('line-item-preorder-notice', $content);
+        static::assertStringContainsString('preorder-pulse-dot', $content);
+
+        // Altes Emoji darf keinesfalls mehr im Template vorkommen
+        static::assertStringNotContainsString('📅', $content);
+    }
+
+    public function testOffcanvasCartTemplateContainsMixedCartNotice(): void
+    {
+        $templatePath = $this->viewsPath . '/component/checkout/offcanvas-cart.html.twig';
+        static::assertFileExists($templatePath);
+
+        $content = (string) file_get_contents($templatePath);
+
+        static::assertStringContainsString('mixed-cart-notice', $content);
+        static::assertStringContainsString('mixed-cart-notice-headline', $content);
+        static::assertStringContainsString('mixed-cart-notice-body', $content);
+        static::assertStringContainsString('enableMixedCartNotice', $content);
+        static::assertStringContainsString('mixedCartNoticeMode', $content);
+    }
+
+    public function testAccountOrderHistoryTemplatesDisplayPreOrderStatus(): void
+    {
+        $orderDetailItemPath = $this->viewsPath . '/page/account/order-history/order-detail-list-item.html.twig';
+        $orderItemPath = $this->viewsPath . '/page/account/order-history/order-item.html.twig';
+
+        static::assertFileExists($orderDetailItemPath);
+        static::assertFileExists($orderItemPath);
+
+        $detailContent = (string) file_get_contents($orderDetailItemPath);
+        static::assertStringContainsString('lineItem.payload.isPreOrder', $detailContent);
+        static::assertStringContainsString('line-item-preorder-info', $detailContent);
+
+        $overviewContent = (string) file_get_contents($orderItemPath);
+        static::assertStringContainsString('order-overview-preorder-badge', $overviewContent);
+    }
 }
+

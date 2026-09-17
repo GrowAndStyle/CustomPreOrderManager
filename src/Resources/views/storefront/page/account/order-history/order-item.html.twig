@@ -1,0 +1,21 @@
+{% sw_extends '@Storefront/storefront/page/account/order-history/order-item.html.twig' %}
+
+{% block page_account_order_item_overview_order_status %}
+    {{ parent() }}
+
+    {% set hasPreOrder = false %}
+    {% for lineItem in order.lineItems %}
+        {% if lineItem.payload.isPreOrder %}
+            {% set hasPreOrder = true %}
+        {% endif %}
+    {% endfor %}
+
+    {% if hasPreOrder %}
+        <div class="order-overview-preorder-badge">
+            <span class="line-item-preorder-pill">
+                <span class="preorder-pulse-dot" aria-hidden="true"></span>
+                <span class="line-item-preorder-pill-text">{{ "custom-preorder.badge.preOrder"|trans }}</span>
+            </span>
+        </div>
+    {% endif %}
+{% endblock %}
