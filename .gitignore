@@ -5,6 +5,7 @@
 # Build & Release
 .agent/
 /dist/
+/src/Storefront/
 *.map
 BUILD.md
 task.md
