@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title lang="de-DE">Vorbestellung — Allgemein</title>
+        <title lang="en-GB">Pre-Order — General</title>
+
+        <input-field type="bool">
+            <name>enableListingBadge</name>
+            <label lang="de-DE">Vorbestell-Badge in Kategorieseiten anzeigen</label>
+            <label lang="en-GB">Show pre-order badge on listing pages</label>
+            <helpText lang="de-DE">Zeigt ein „Vorbestellung"-Badge auf den Kategorieseiten bei allen Produkten, die im Vorbestellungsmodus sind.</helpText>
+            <helpText lang="en-GB">Shows a "Pre-Order" badge on category pages for all products in pre-order mode.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>enableScarcityCounter</name>
+            <label lang="de-DE">Restmengen-Zähler auf der Produktdetailseite anzeigen</label>
+            <label lang="en-GB">Show remaining quota counter on product detail page</label>
+            <helpText lang="de-DE">Blendet auf der Produktdetailseite ein Badge mit der noch verfügbaren Vorbestellmenge ein.</helpText>
+            <helpText lang="en-GB">Displays a badge with the remaining pre-order quota on the product detail page.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>lowStockThreshold</name>
+            <label lang="de-DE">Schwellenwert für Dringlichkeits-Anzeige (Restmenge)</label>
+            <label lang="en-GB">Threshold for urgency display (remaining quantity)</label>
+            <helpText lang="de-DE">Ab dieser Restmenge wird das „Fast vergriffen“-Badge angezeigt.</helpText>
+            <helpText lang="en-GB">The urgency badge is shown when remaining quantity drops to this value.</helpText>
+            <defaultValue>5</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title lang="de-DE">Vorbestell-Button — Design &amp; Farben</title>
+        <title lang="en-GB">Pre-Order Button — Design &amp; Colors</title>
+
+        <input-field type="bool">
+            <name>showButtonIcon</name>
+            <label lang="de-DE">Kalender-Icon im Vorbestell-Button anzeigen</label>
+            <label lang="en-GB">Display calendar icon in pre-order button</label>
+            <helpText lang="de-DE">Blendet ein dezentes Kalender-Icon links neben dem Button-Text ein.</helpText>
+            <helpText lang="en-GB">Displays a subtle calendar icon to the left of the button text.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>buttonBackgroundColor</name>
+            <label lang="de-DE">Button Hintergrundfarbe</label>
+            <label lang="en-GB">Button background color</label>
+            <helpText lang="de-DE">Hintergrundfarbe des Vorbestell-Buttons im Normalzustand.</helpText>
+            <helpText lang="en-GB">Background color of the pre-order button in default state.</helpText>
+            <defaultValue>#1a1a2e</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>buttonHoverBackgroundColor</name>
+            <label lang="de-DE">Button Hintergrundfarbe (Hover / Fokus)</label>
+            <label lang="en-GB">Button background color (hover / focus)</label>
+            <helpText lang="de-DE">Hintergrundfarbe bei Mouseover oder Tastatur-Fokus.</helpText>
+            <helpText lang="en-GB">Background color on mouseover or keyboard focus.</helpText>
+            <defaultValue>#2b2b48</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>buttonTextColor</name>
+            <label lang="de-DE">Button Text- &amp; Icon-Farbe</label>
+            <label lang="en-GB">Button text &amp; icon color</label>
+            <helpText lang="de-DE">Schrift- und Symbolfarbe im Normalzustand.</helpText>
+            <helpText lang="en-GB">Font and icon color in default state.</helpText>
+            <defaultValue>#ffffff</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>buttonHoverTextColor</name>
+            <label lang="de-DE">Button Text- &amp; Icon-Farbe (Hover / Fokus)</label>
+            <label lang="en-GB">Button text &amp; icon color (hover / focus)</label>
+            <helpText lang="de-DE">Schrift- und Symbolfarbe bei Mouseover oder Tastatur-Fokus.</helpText>
+            <helpText lang="en-GB">Font and icon color on mouseover or keyboard focus.</helpText>
+            <defaultValue>#ffffff</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>buttonBorderColor</name>
+            <label lang="de-DE">Button Rahmenfarbe</label>
+            <label lang="en-GB">Button border color</label>
+            <helpText lang="de-DE">Rahmenfarbe des Vorbestell-Buttons im Normalzustand.</helpText>
+            <helpText lang="en-GB">Border color of the pre-order button in default state.</helpText>
+            <defaultValue>#1a1a2e</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>buttonHoverBorderColor</name>
+            <label lang="de-DE">Button Rahmenfarbe (Hover / Fokus)</label>
+            <label lang="en-GB">Button border color (hover / focus)</label>
+            <helpText lang="de-DE">Rahmenfarbe bei Mouseover oder Tastatur-Fokus.</helpText>
+            <helpText lang="en-GB">Border color on mouseover or keyboard focus.</helpText>
+            <defaultValue>#2b2b48</defaultValue>
+        </input-field>
+    </card>
+</config>

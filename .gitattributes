@@ -1,0 +1,21 @@
+# Line-Endings: LF auf allen Plattformen erzwingen
+* text=auto eol=lf
+
+# Binärdateien
+*.png binary
+*.jpg binary
+*.gif binary
+*.woff binary
+*.woff2 binary
+
+# Export-Ignore: Wird NICHT in git archive / Release-ZIP aufgenommen
+/.agent          export-ignore
+/.github         export-ignore
+/.gitattributes  export-ignore
+/.gitignore      export-ignore
+/.sw-zip-blacklist export-ignore
+/tests           export-ignore
+/phpunit.xml.dist export-ignore
+/.phpunit.cache  export-ignore
+/README.md       export-ignore
+/LICENSE.md      export-ignore

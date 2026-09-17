@@ -1,0 +1,35 @@
+{
+    "custom-preorder-manager": {
+        "general": {
+            "mainMenuItemGeneral": "Pre-Orders",
+            "descriptionTextModule": "Management of pre-orders and inbound stock quotas"
+        },
+        "list": {
+            "cardTitle": "Pre-Order Orders",
+            "columnOrderNumber": "Order Number",
+            "columnCustomer": "Customer",
+            "columnDate": "Order Date",
+            "columnStatus": "Status",
+            "columnAmount": "Total Amount",
+            "searchPlaceholder": "Search pre-orders...",
+            "buttonRefresh": "Refresh",
+            "contextViewOrder": "View order",
+            "emptyStateTitle": "No pre-orders found",
+            "emptyStateSubline": "As soon as customers order items in pre-order mode, they will be listed here automatically."
+        },
+        "productDetail": {
+            "cardTitle": "Pre-Order",
+            "activeLabel": "Enable Pre-Order",
+            "activeHelp": "Enables pre-order mode for this product if physical stock is 0.",
+            "releaseDateLabel": "Release Date",
+            "releaseDateHelp": "Expected date of availability.",
+            "releaseTextLabel": "Frontend Display Text",
+            "releaseTextHelp": "Custom text displayed in the storefront.",
+            "inboundStockLabel": "Inbound Quota",
+            "inboundStockHelp": "Maximum quantity that can be pre-ordered.",
+            "soldCountLabel": "Sold Pre-Order Quantity",
+            "soldCountHelp": "Automatically incremented on completed orders.",
+            "remainingStockLabel": "Remaining Quota"
+        }
+    }
+}

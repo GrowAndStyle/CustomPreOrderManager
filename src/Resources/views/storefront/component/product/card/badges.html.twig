@@ -1,0 +1,16 @@
+{% sw_extends '@Storefront/storefront/component/product/card/badges.html.twig' %}
+
+{% block component_product_badges %}
+    {{ parent() }}
+
+    {% set currentProduct = product|default(page.product) %}
+    {% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
+    {% set isPreOrder = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
+    {% set hasStock = currentProduct.stock > 0 %}
+
+    {% if isPreOrder and not hasStock and config('CustomPreOrderManager.config.enableListingBadge') %}
+        <span class="badge badge-preorder">
+            {{ "custom-preorder.badge.preOrder"|trans }}
+        </span>
+    {% endif %}
+{% endblock %}

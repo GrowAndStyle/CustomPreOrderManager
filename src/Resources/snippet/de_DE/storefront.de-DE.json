@@ -1,0 +1,27 @@
+{
+    "custom-preorder": {
+        "button": {
+            "preOrder": "Jetzt vorbestellen",
+            "notifyMe": "Benachrichtigen wenn verfügbar"
+        },
+        "badge": {
+            "preOrder": "Vorbestellung",
+            "preOrderImage": "Vorbestellbar",
+            "availableFrom": "Lieferbar ab %date%",
+            "urgentFewLeft": "Fast vergriffen: Nur noch %count% Stück!",
+            "quotaExhausted": "Kontingent erschöpft"
+        },
+        "cart": {
+            "lineItemNotice": "Vorbestellung — %releaseText%"
+        },
+        "scarcity": {
+            "remaining": "Noch %remaining% von %total% verfügbar",
+            "fewLeft": "Nur noch %remaining% Stück für %releaseText% sicherbar"
+        }
+    },
+    "preOrder": {
+        "scarcity": {
+            "fewLeft": "Fast vergriffen: Nur noch %count% Stück!"
+        }
+    }
+}

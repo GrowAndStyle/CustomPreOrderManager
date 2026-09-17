@@ -1,0 +1,46 @@
+.custom-preorder-manager-list {
+    &__content {
+        height: 100%;
+    }
+
+    &__customer-name {
+        font-weight: 600;
+        color: var(--color-text-primary, #18253a);
+        text-decoration: none;
+
+        &:hover {
+            color: var(--color-primary, #1890ff);
+            text-decoration: underline;
+        }
+    }
+
+    &__empty-state {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: calc(100vh - 200px);
+        min-height: 400px;
+        padding: 40px 20px;
+        text-align: center;
+    }
+
+    &__empty-state-svg {
+        display: block;
+        margin: 0 auto 20px auto;
+    }
+
+    &__order-number {
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--color-primary, #1890ff);
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__amount {
+        font-weight: 600;
+    }
+}
+

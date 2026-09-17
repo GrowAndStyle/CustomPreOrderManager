@@ -1,0 +1,36 @@
+{
+    "name": "growandstyle/custom-pre-order-manager",
+    "description": "Autarkes Vorbestellungs-System für Shopware 6",
+    "type": "shopware-platform-plugin",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "GrowAndStyle",
+            "homepage": "https://growandstyle.de"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "CustomPreOrderManager\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CustomPreOrderManager\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "shopware-plugin-class": "CustomPreOrderManager\\CustomPreOrderManager",
+        "label": {
+            "de-DE": "Vorbestellung (Pre-Order)",
+            "en-GB": "Pre-Order"
+        },
+        "description": {
+            "de-DE": "Autarkes Vorbestellungs-System mit Scarcity-Engine für Shopware 6",
+            "en-GB": "Self-contained pre-order system with scarcity engine for Shopware 6"
+        }
+    },
+    "require": {
+        "shopware/core": "~6.5.8.0 || ^6.6.0 || ^6.7.0"
+    }
+}

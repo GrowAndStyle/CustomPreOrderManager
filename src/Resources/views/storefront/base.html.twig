@@ -1,0 +1,23 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_head %}
+    {{ parent() }}
+
+    {% set btnBg = config('CustomPreOrderManager.config.buttonBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#1a1a2e') %}
+    {% set btnHoverBg = config('CustomPreOrderManager.config.buttonHoverBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#2b2b48') %}
+    {% set btnColor = config('CustomPreOrderManager.config.buttonTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#ffffff') %}
+    {% set btnHoverColor = config('CustomPreOrderManager.config.buttonHoverTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#ffffff') %}
+    {% set btnBorder = config('CustomPreOrderManager.config.buttonBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#1a1a2e') %}
+    {% set btnHoverBorder = config('CustomPreOrderManager.config.buttonHoverBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#2b2b48') %}
+
+    <style>
+        :root {
+            --custom-preorder-btn-bg: {{ btnBg }};
+            --custom-preorder-btn-hover-bg: {{ btnHoverBg }};
+            --custom-preorder-btn-color: {{ btnColor }};
+            --custom-preorder-btn-hover-color: {{ btnHoverColor }};
+            --custom-preorder-btn-border: {{ btnBorder }};
+            --custom-preorder-btn-hover-border: {{ btnHoverBorder }};
+        }
+    </style>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% sw_extends '@Storefront/storefront/component/buy-widget/buy-widget-form.html.twig' %}
+
+{% block buy_widget_buy_container %}
+    {% set currentProduct = product|default(page.product) %}
+    {% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
+    {% set isPreOrder = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
+    {% set hasStock = currentProduct.stock > 0 %}
+    {% set inboundStock = customFields.custom_preorder_inbound_stock|default(0) %}
+    {% set soldCount = customFields.custom_preorder_sold_count|default(0) %}
+    {% set remainingQuota = inboundStock - soldCount %}
+
+    {% if isPreOrder and not hasStock %}
+        {% if inboundStock > 0 and remainingQuota <= 0 %}
+            <div class="alert alert-info preorder-exhausted-notice">
+                {{ "custom-preorder.badge.quotaExhausted"|trans }}
+            </div>
+        {% else %}
+            {# LineItem-Payload-Inputs: Zwingend erforderlich, da Core-buyable-Guard (stock=0) den buy_info Block ausblendet #}
+            <input type="hidden"
+                   name="lineItems[{{ currentProduct.id }}][id]"
+                   value="{{ currentProduct.id }}">
+            <input type="hidden"
+                   name="lineItems[{{ currentProduct.id }}][type]"
+                   value="product">
+            <input type="hidden"
+                   name="lineItems[{{ currentProduct.id }}][referencedId]"
+                   value="{{ currentProduct.id }}">
+            <input type="hidden"
+                   name="lineItems[{{ currentProduct.id }}][stackable]"
+                   value="1">
+            <input type="hidden"
+                   name="lineItems[{{ currentProduct.id }}][removable]"
+                   value="1">
+            <input type="hidden"
+                   name="product-name"
+                   value="{{ currentProduct.translated.name|default(currentProduct.name) }}">
+            <input type="hidden"
+                   name="redirectTo"
+                   value="frontend.cart.offcanvas">
+
+            {% set preorderBtnStyle = '' %}
+            {% set cBg = config('CustomPreOrderManager.config.buttonBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cHoverBg = config('CustomPreOrderManager.config.buttonHoverBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cText = config('CustomPreOrderManager.config.buttonTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cHoverText = config('CustomPreOrderManager.config.buttonHoverTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cBorder = config('CustomPreOrderManager.config.buttonBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cHoverBorder = config('CustomPreOrderManager.config.buttonHoverBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+
+            {% if cBg is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-bg: ' ~ cBg ~ ';' %}{% endif %}
+            {% if cHoverBg is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-hover-bg: ' ~ cHoverBg ~ ';' %}{% endif %}
+            {% if cText is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-color: ' ~ cText ~ ';' %}{% endif %}
+            {% if cHoverText is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-hover-color: ' ~ cHoverText ~ ';' %}{% endif %}
+            {% if cBorder is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-border: ' ~ cBorder ~ ';' %}{% endif %}
+            {% if cHoverBorder is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-hover-border: ' ~ cHoverBorder ~ ';' %}{% endif %}
+
+            <div class="row g-2 buy-widget-container">
+                {% set maxQuantity = currentProduct.calculatedMaxPurchase|default(0) %}
+                {% if maxQuantity <= 0 %}
+                    {% set maxQuantity = (inboundStock > 0 and remainingQuota > 0) ? remainingQuota : 10 %}
+                {% endif %}
+                {% set minQuantity = currentProduct.minPurchase|default(1) %}
+                {% set step = currentProduct.purchaseSteps|default(1) %}
+
+                {% if maxQuantity > minQuantity %}
+                    <div class="col-4">
+                        <select name="lineItems[{{ currentProduct.id }}][quantity]"
+                                class="form-select">
+                            {% for quantity in range(minQuantity, min(maxQuantity, 20), step) %}
+                                <option value="{{ quantity }}">{{ quantity }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-8">
+                {% else %}
+                    <input type="hidden"
+                           name="lineItems[{{ currentProduct.id }}][quantity]"
+                           value="{{ minQuantity }}">
+                    <div class="col-12">
+                {% endif %}
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-buy btn-preorder"
+                                    style="{{ preorderBtnStyle }}"
+                                    title="{{ "custom-preorder.button.preOrder"|trans|striptags }}"
+                                    aria-label="{{ "custom-preorder.button.preOrder"|trans|striptags }}">
+                                {% if config('CustomPreOrderManager.config.showButtonIcon')|default(true) %}
+                                    <span class="btn-preorder-icon me-2">
+                                        {% sw_icon 'calendar' style { size: 'sm' } %}
+                                    </span>
+                                {% endif %}
+                                {{ "custom-preorder.button.preOrder"|trans|sw_sanitize }}
+                            </button>
+                        </div>
+                    </div>
+            </div>
+        {% endif %}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

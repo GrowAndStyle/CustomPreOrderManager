@@ -1,0 +1,153 @@
+$breakpoint-mobile: 575px;
+
+.badge-preorder {
+    background-color: #1a1a2e;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 4px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.preorder-delivery-box {
+    background: #f8f9fa;
+    border-left: 4px solid #1a1a2e;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    color: #333333;
+
+    .is-preorder {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #ff9800;
+        display: inline-block;
+        margin-right: 8px;
+    }
+}
+
+button.btn-preorder,
+a.btn-preorder,
+.btn-preorder {
+    background-color: var(--custom-preorder-btn-bg, #1a1a2e) !important;
+    border-color: var(--custom-preorder-btn-border, #1a1a2e) !important;
+    color: var(--custom-preorder-btn-color, #ffffff) !important;
+    text-decoration: none !important;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+    &[style*="--custom-preorder-btn-bg"] {
+        background-color: var(--custom-preorder-btn-bg) !important;
+    }
+    &[style*="--custom-preorder-btn-border"] {
+        border-color: var(--custom-preorder-btn-border) !important;
+    }
+    &[style*="--custom-preorder-btn-color"] {
+        color: var(--custom-preorder-btn-color) !important;
+    }
+
+    .btn-preorder-icon {
+        display: inline-flex;
+        align-items: center;
+        vertical-align: middle;
+
+        .icon, svg {
+            color: inherit !important;
+            vertical-align: middle;
+            margin-right: 0;
+
+            path, circle, line, polyline, rect {
+                fill: currentColor !important;
+                stroke: currentColor !important;
+            }
+        }
+    }
+
+    &:hover,
+    &:focus {
+        background-color: var(--custom-preorder-btn-hover-bg, #2b2b48) !important;
+        border-color: var(--custom-preorder-btn-hover-border, #2b2b48) !important;
+        color: var(--custom-preorder-btn-hover-color, #ffffff) !important;
+        text-decoration: none !important;
+
+        &[style*="--custom-preorder-btn-hover-bg"] {
+            background-color: var(--custom-preorder-btn-hover-bg) !important;
+        }
+        &[style*="--custom-preorder-btn-hover-border"] {
+            border-color: var(--custom-preorder-btn-hover-border) !important;
+        }
+        &[style*="--custom-preorder-btn-hover-color"] {
+            color: var(--custom-preorder-btn-hover-color) !important;
+        }
+
+        .btn-preorder-icon .icon,
+        .btn-preorder-icon svg {
+            color: inherit !important;
+
+            path, circle, line, polyline, rect {
+                fill: currentColor !important;
+                stroke: currentColor !important;
+            }
+        }
+    }
+
+    &:focus-visible {
+        background-color: var(--custom-preorder-btn-hover-bg, #2b2b48) !important;
+        border-color: var(--custom-preorder-btn-hover-border, #2b2b48) !important;
+        color: var(--custom-preorder-btn-hover-color, #ffffff) !important;
+        outline: 2px solid var(--custom-preorder-btn-border, #1a1a2e) !important;
+        outline-offset: 2px;
+    }
+
+    &:active {
+        background-color: var(--custom-preorder-btn-hover-bg, #2b2b48) !important;
+        border-color: var(--custom-preorder-btn-hover-border, #2b2b48) !important;
+        color: var(--custom-preorder-btn-hover-color, #ffffff) !important;
+        filter: brightness(0.95);
+    }
+
+    &:disabled,
+    &.disabled {
+        opacity: 0.65 !important;
+        pointer-events: none !important;
+        cursor: not-allowed !important;
+    }
+}
+
+.line-item-preorder-badge {
+    margin-top: 4px;
+
+    .badge {
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+}
+
+.preorder-image-wrapper {
+    position: relative;
+}
+
+.preorder-image-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #ff9800;
+    color: #fff;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border-radius: 4px;
+    z-index: 10;
+
+    @media (max-width: $breakpoint-mobile) {
+        top: 5px;
+        left: 5px;
+        font-size: 0.7rem;
+        padding: 0.15rem 0.3rem;
+    }
+}
