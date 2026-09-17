@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/Shopware-6.5%20|%206.6%20|%206.7-189eff?style=flat-square&logo=shopware&logoColor=white" alt="Shopware">
   <img src="https://img.shields.io/badge/Version-v1.0.0-0f62fe?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/PHP-8.1+-777bb4?style=flat-square&logo=php&logoColor=white" alt="PHP">
-  <img src="https://img.shields.io/badge/Tests-35%20passed-2ea44f?style=flat-square&logo=githubactions&logoColor=white" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-42%20passed-2ea44f?style=flat-square&logo=githubactions&logoColor=white" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-100%25-2ea44f?style=flat-square" alt="Coverage">
   <img src="https://img.shields.io/badge/Architecture-Enterprise%20Tier--1-blueviolet?style=flat-square" alt="Architecture">
   <img src="https://img.shields.io/badge/Security-Zero--Trust%20%7C%20XSS--Proof-success?style=flat-square" alt="Security">
@@ -103,7 +103,7 @@ Engineered with a **Non-Destructive Architecture**, the plugin enriches line ite
 ### 🛍️ Storefront & Conversion UX
 * **Dynamischer Kauf-Button:** Ersetzt den Standard-Warenkorbbutton auf der Produktdetailseite durch einen markanten Vorbestell-Button mit dynamischem Icon.
 * **Psychologische Scarcity Engine:** Ermittelt die Restquote in Echtzeit. Fällt das Kontingent unter den konfigurierbaren Schwellenwert (`lowStockThreshold`, z. B. 5 Stück), signalisiert ein pulsierendes Badge: *„Fast vergriffen: Nur noch X Stück verfügbar!“*.
-* **Präzise Lieferzeit-Information:** Zeigt entweder ein formatiertes Erscheinungsdatum (*„Lieferbar ab MM/YYYY“*) oder einen frei pflegbaren Hinweistext an.
+* **Präzise Lieferzeit-Information:** Zeigt entweder ein formatiertes Erscheinungsdatum (*„Lieferbar ab DD.MM.YYYY“*) oder einen frei pflegbaren Hinweistext an.
 * **Listing- & Suchergebnis-Badges:** Visuelle Auszeichnung von Vorbestellartikeln direkt auf Kategorieseiten und im Such-Listing.
 * **Mischwarenkörbe (Seamless Checkout):** Kunden können Vorbestellartikel und sofort lieferbare Lagerartikel in einer gemeinsamen Bestellung kombinieren.
 * **Mobile-First UX:** Sämtliche interaktiven Elemente besitzen Touch-Targets von mindestens 48px, optimierte Tap-Abstände und verhindern Layout-Shifts (CLS = 0).
@@ -198,6 +198,13 @@ Pflegbar im Shopware Administration Panel unter *Einstellungen → Erweiterungen
 | `CustomPreOrderManager.config.enableListingBadge` | `bool` | `true` | Zeigt das Vorbestellungs-Badge auf Kategorieseiten und in der Suche an. | Display pre-order badge on category and search listing cards. |
 | `CustomPreOrderManager.config.enableScarcityCounter` | `bool` | `true` | Aktiviert den Restmengen-Zähler auf der Produktdetailseite. | Enable remaining quota counter on the product detail page. |
 | `CustomPreOrderManager.config.lowStockThreshold` | `int` | `5` | Schwellenwert für das Dringlichkeits-Badge (*„Fast vergriffen“*). | Remaining stock threshold to trigger urgency badge. |
+| `CustomPreOrderManager.config.showButtonIcon` | `bool` | `true` | Kalender-Icon im Vorbestell-Button anzeigen. | Display calendar icon in pre-order button. |
+| `CustomPreOrderManager.config.buttonBackgroundColor` | `colorpicker` | `#1a1a2e` | Button Hintergrundfarbe (Normalzustand). | Button background color (default state). |
+| `CustomPreOrderManager.config.buttonHoverBackgroundColor` | `colorpicker` | `#2b2b48` | Button Hintergrundfarbe (Hover / Fokus). | Button background color (hover / focus). |
+| `CustomPreOrderManager.config.buttonTextColor` | `colorpicker` | `#ffffff` | Button Text- und Icon-Farbe (Normalzustand). | Button text and icon color (default state). |
+| `CustomPreOrderManager.config.buttonHoverTextColor` | `colorpicker` | `#ffffff` | Button Text- und Icon-Farbe (Hover / Fokus). | Button text and icon color (hover / focus). |
+| `CustomPreOrderManager.config.buttonBorderColor` | `colorpicker` | `#1a1a2e` | Button Rahmenfarbe (Normalzustand). | Button border color (default state). |
+| `CustomPreOrderManager.config.buttonHoverBorderColor` | `colorpicker` | `#2b2b48` | Button Rahmenfarbe (Hover / Fokus). | Button border color (hover / focus). |
 
 ---
 
@@ -335,12 +342,13 @@ Die Qualitätssicherung erfolgt nach striktem Enterprise Tier-1 Standard mit vol
 
 ```
 tests/
-├── Unit/ (28 Tests, 64 Assertions)
+├── Unit/ (35 Tests, 100+ Assertions)
 │   ├── Cart/PreOrderCartCollectorTest.php               # 8 Tests: Payload, Sanitizing, Fallbacks, Stock-Priorisierung
 │   ├── Subscriber/OrderPlacedSubscriberTest.php          # 5 Tests: Event-Handling, atomarer Zähler, Auto-Tagging
 │   ├── Event/PreOrderPlacedEventTest.php                # 1 Test:  Flow Builder Datenstrukturen & ScalarValues
 │   ├── DependencyInjection/CustomPreOrderManagerExtTest # 3 Tests: DI Prepend & Symfony Rate-Limiter Config
-│   └── Plugin/PluginUninstallTest.php                   # 7 Tests: Alle 5 Lifecycle-Hooks & Deinstallations-Cleanup
+│   ├── Plugin/PluginUninstallTest.php                   # 7 Tests: Alle 5 Lifecycle-Hooks & Deinstallations-Cleanup
+│   └── Config/ConfigXmlTest.php                         # 7 Tests: Wohlgeformtheit, bilinguale Labels/HelpTexts & Hex-Defaults
 └── Integration/ (7 Tests, 19 Assertions)
     ├── Subscriber/OrderPlacedSubscriberTest.php         # Echte Repositories, DBAL & Test-Container ohne Mocks
     └── PluginLifecycleTest.php                          # Kernel Plugin-Loader, DI Boot & vollständiger Lifecycle-Cleanup
@@ -404,6 +412,7 @@ Grundlegende Architekturentscheidungen sind nach dem Michael Nygard ADR-Standard
 | **[ADR-002](docs/adr/ADR-002-atomic-dbal-counter.md)** | Atomarer DBAL Counter vs. DAL Entity Write | `AKZEPTIERT` | Direktes DBAL-Update mit `Defaults::LIVE_VERSION` garantiert Race-Condition-Freiheit bei simultanen Checkouts. |
 | **[ADR-003](docs/adr/ADR-003-lineitem-payload-enrichment.md)** | LineItem Payload Enrichment vs. Mail-Override | `AKZEPTIERT` | Priorität 4100 im CartCollector schleust Vorbestell-Flags konfliktfrei durch Core-Mails und PDF-Belege. |
 | **[ADR-004](docs/adr/ADR-004-autarkic-scarcity-no-waitlist.md)** | Autarkes Scarcity-System vs. externe Warteliste | `AKZEPTIERT` | Verknappungsanzeige mit Button-Sperre schützt Kontingente ohne DSGVO- und DOI-Risiken externer E-Mail-Listen. |
+| **[ADR-005](docs/adr/ADR-005-native-button-theming-color-picker.md)** | Natives Button-Theming & Color-Picker | `AKZEPTIERT` | Bereinigung harter Maße zugunsten nativer Theme-Klassen und dynamischer Farb-Injektion via CSS-Variablen. |
 
 ---
 

@@ -8,6 +8,7 @@
 | [ADR-002](docs/adr/ADR-002-atomic-dbal-counter.md) | Atomares DBAL JSON-Counter-Inkrement | ENTSCHIEDEN | 2026-09-14 |
 | [ADR-003](docs/adr/ADR-003-lineitem-payload-enrichment.md) | LineItem-Payload-Enrichment statt Mail-Template-Override | ENTSCHIEDEN | 2026-09-14 |
 | [ADR-004](docs/adr/ADR-004-autarkic-scarcity-no-waitlist.md) | Autarkes Scarcity-System ohne Warteliste | ENTSCHIEDEN | 2026-09-14 |
+| [ADR-005](docs/adr/ADR-005-native-button-theming-color-picker.md) | Natives Button-Theming und dynamische Farb-Konfiguration via CSS Custom Properties | ENTSCHIEDEN | 2026-09-15 |
 
 ---
 
@@ -33,8 +34,8 @@ CustomPreOrderManager/
 │           ├── storefront/                      # JS-Plugin & SCSS (Mobile-First)
 │           └── administration/                  # Vue.js 3 Admin-Modul & Dashboard-Listing
 └── tests/
-    ├── Unit/                                    # Isolierte Unit-Tests mit Mocks (28 Tests)
-    └── Integration/                             # IntegrationTests mit echtem Container (6 Tests)
+    ├── Unit/                                    # Isolierte Unit-Tests mit Mocks (35 Tests)
+    └── Integration/                             # IntegrationTests mit echtem Container (7 Tests)
 ```
 
 ---
@@ -54,7 +55,7 @@ CustomPreOrderManager/
 [Checkout / OrderPlaced]
        │
        ├─► [OrderPlacedSubscriber]
-       │        ├─► Atomares DBAL-Statement: sold_count += quantity (WHERE version_id = LIVE_VERSION)
+       │        ├─► Atomares DBAL-Statement: sold_count += quantity (product_translation, WHERE version_id = LIVE_VERSION)
        │        ├─► Tag 'Vorbestellung' idempotent suchen/erstellen & Order taggen
        │        └─► PreOrderPlacedEvent dispatchen
        │

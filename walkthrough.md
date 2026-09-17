@@ -139,10 +139,51 @@ CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
 
 ---
 
+## Phase 4: Natives Button-Theming & Dynamischer Color-Picker (`TASK-017`, `ADR-005`)
+
+### 1. Bereinigung der Dimensionen & Theme-Integrität
+- **Problem:** Feste Maße (`min-height: 48px`, `font-size: 1rem`, `font-weight: 700`) im SCSS sowie veraltetes `btn-block` im Twig verzerrten die Button-Proportionen und führten zu ungleichmäßigen Kachelhöhen im Kategorie-Grid. Zudem wirkte das Unicode-Emoji `📅` unprofessionell.
+- **Lösung:**
+  - `min-height`, `font-size` und `font-weight` ersatzlos aus `.btn-preorder` in `src/Resources/app/storefront/src/scss/base.scss` entfernt.
+  - Buttons nutzen `.btn.btn-primary.btn-buy.btn-preorder` und erben exakte Paddings und Zeilenhöhen aus dem Shopware-Theme.
+  - Veraltetes `btn-block` durch Bootstrap 5 `<div class="d-grid">` ersetzt.
+  - Mengen-Dropdown auf Standard-Höhe `form-select` angepasst (entfernt `form-select-lg`).
+  - Unicode-Emoji `📅` in allen Templates (PDP, Component, Listing-Card) durch das native Shopware-SVG `{% sw_icon 'calendar' style { size: 'sm' } %}` ersetzt.
+
+### 2. Dynamische Farb-Konfiguration via CSS Custom Properties
+- **Lösung:**
+  - Neue Card „Vorbestell-Button — Design & Farben“ in `src/Resources/config/config.xml` angelegt:
+    - `showButtonIcon` (Bool, Default `true`)
+    - `buttonBackgroundColor` (Colorpicker, Default `#1a1a2e`)
+    - `buttonHoverBackgroundColor` (Colorpicker, Default `#2b2b48`)
+    - `buttonTextColor` (Colorpicker, Default `#ffffff`)
+    - `buttonHoverTextColor` (Colorpicker, Default `#ffffff`)
+    - `buttonBorderColor` (Colorpicker, Default `#1a1a2e`)
+    - `buttonHoverBorderColor` (Colorpicker, Default `#2b2b48`)
+  - Bereitstellung als globale CSS Custom Properties auf `:root` via `src/Resources/views/storefront/base.html.twig` im Block `base_head`.
+  - Zero-Trust Injection-Schutz mit `|striptags|escape('css')`.
+  - Barrierefreier Fokus-Indikator: `:focus-visible` mit 2px Outline und `outline-offset: 2px` definiert.
+  - Robuste Fallbacks und Disabled-State-Handling (`opacity: 0.65`, `pointer-events: none`).
+  - Kill-Kriterium (§7) gewahrt: Null Inline-Styles an Buttons. Farbwechsel greifen nach Cache-Flush ohne `theme:compile`.
+
+### 3. Unit-Testabsicherung (`ConfigXmlTest.php`)
+- **Lösung:**
+  - Neuer Unit-Test `tests/Unit/Config/ConfigXmlTest.php` mit 7 Tests:
+    1. `testConfigXmlHasCards`: Mindestens 2 Cards vorhanden.
+    2. `testAllCardsHaveBilingualTitles`: Jede Card besitzt Titel in `de-DE` und `en-GB`.
+    3. `testAllExpectedConfigKeysExist`: Exakt 10 Felder vorhanden und typkonform gemappt.
+    4. `testAllFieldsHaveBilingualLabelsAndHelpTexts`: Lückenlose Abdeckung mit `de-DE` und `en-GB` Labels & HelpTexts.
+    5. `testColorPickerFieldsHaveValidHexDefaults`: Alle 6 Colorpicker besitzen valide 6-stellige Hex-Farbcodes (`^#[0-9a-fA-F]{6}$`).
+    6. `testBooleanFieldsHaveBooleanDefaults`: Alle Bool-Felder haben gültige Defaults (`true`/`false`).
+    7. `testIntegerFieldsHavePositiveDefaults`: `lowStockThreshold` ist ein positiver Integer.
+
+---
+
 ## Aktueller Status
-- Feature-Branch `feat/scaffold-and-architecture` implementiert und durch Benutzer-Test auf Teststation (192.168.2.222:8080) verifiziert.
-- Testsuite: 35 Tests (100% bestanden, 83 Assertions, 100.00% Coverage).
-- Storefront-Snippets und Cart-Additions-Payload vollständig intakt.
-- Nächster Schritt: ADR-005 für natives Button-Theming und dynamischen Color-Picker ausarbeiten.
+- Feature-Branch `feat/scaffold-and-architecture` um `TASK-017` / `ADR-005` erweitert.
+- `ADR-005` als ENTSCHIEDEN dokumentiert und im Index von `ARCHITECTURE.md` und `README.md` verankert.
+- `config.xml` via `xmllint` validiert (0 Schema-Fehler).
+- SCSS und Twig-Templates 100 % harmonisiert mit Shopware Core & Enterprise Tier-1 Standards.
+- Testsuite: 42 Tests (35 Unit, 7 Integration). Neuer `ConfigXmlTest.php` sichert die Konfiguration vor Regressionen.
 
 
