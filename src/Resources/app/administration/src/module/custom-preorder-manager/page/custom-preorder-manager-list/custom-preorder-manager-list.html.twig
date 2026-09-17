@@ -1,23 +1,108 @@
 <sw-page class="custom-preorder-manager-list">
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="order"
+            :initial-search="term"
+            :placeholder="$tc('custom-preorder-manager.list.searchPlaceholder')"
+            @search="onSearch">
+        </sw-search-bar>
+    </template>
+
     <template #smart-bar-header>
-        <h2>{{ $tc('custom-preorder-manager.general.mainMenuItemGeneral') }}</h2>
+        <h2>
+            {{ $tc('custom-preorder-manager.general.mainMenuItemGeneral') }}
+            <span v-if="!isLoading && total > 0" class="sw-page__smart-bar-amount">
+                ({{ total }})
+            </span>
+        </h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button
+            variant="ghost"
+            size="small"
+            :disabled="isLoading"
+            @click="getList">
+            <sw-icon name="regular-undo" size="14px"></sw-icon>
+            {{ $tc('custom-preorder-manager.list.buttonRefresh') }}
+        </sw-button>
     </template>
 
     <template #content>
-        <sw-card-view>
-            <sw-card :title="$tc('custom-preorder-manager.list.cardTitle')" :isLoading="isLoading">
-                <template #grid>
-                    <sw-entity-listing
-                        v-if="items"
-                        :items="items"
-                        :repository="orderRepository"
-                        :columns="columns"
-                        :showSelection="false"
-                        :isLoading="isLoading"
-                        :fullPage="true">
-                    </sw-entity-listing>
+        <div class="custom-preorder-manager-list__content">
+            <sw-entity-listing
+                v-if="items"
+                :items="items"
+                :repository="orderRepository"
+                :columns="columns"
+                :showSelection="false"
+                :isLoading="isLoading"
+                :fullPage="true"
+                @page-change="onPageChange"
+                @column-sort="onSortColumn">
+
+                <template #column-orderNumber="{ item }">
+                    <router-link
+                        class="custom-preorder-manager-list__order-number"
+                        :to="{ name: 'sw.order.detail', params: { id: item.id } }">
+                        {{ item.orderNumber }}
+                    </router-link>
                 </template>
-            </sw-card>
-        </sw-card-view>
+
+                <template #column-orderCustomer.firstName="{ item }">
+                    <router-link
+                        v-if="item.orderCustomer && item.orderCustomer.customerId"
+                        class="custom-preorder-manager-list__customer-name"
+                        :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }">
+                        {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
+                    </router-link>
+                    <span v-else-if="item.orderCustomer" class="custom-preorder-manager-list__customer-name">
+                        {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
+                    </span>
+                    <span v-else>-</span>
+                    <div v-if="item.orderCustomer && item.orderCustomer.email" class="custom-preorder-manager-list__customer-email">
+                        {{ item.orderCustomer.email }}
+                    </div>
+                </template>
+
+                <template #column-orderDateTime="{ item }">
+                    {{ dateFilter(item.orderDateTime, { hour: '2-digit', minute: '2-digit' }) }}
+                </template>
+
+                <template #column-stateMachineState.name="{ item }">
+                    <sw-label
+                        v-if="item.stateMachineState"
+                        appearance="pill"
+                        size="small"
+                        :variant="getOrderStatusVariant(item)">
+                        {{ item.stateMachineState.translated ? item.stateMachineState.translated.name : item.stateMachineState.name }}
+                    </sw-label>
+                    <span v-else>-</span>
+                </template>
+
+                <template #column-amountTotal="{ item }">
+                    <span class="custom-preorder-manager-list__amount">
+                        {{ currencyFilter(item.amountTotal, item.currency ? item.currency.isoCode : 'EUR') }}
+                    </span>
+                </template>
+
+                <template #actions="{ item }">
+                    <sw-context-menu-item
+                        :router-link="{ name: 'sw.order.detail', params: { id: item.id } }">
+                        {{ $tc('custom-preorder-manager.list.contextViewOrder') }}
+                    </sw-context-menu-item>
+                </template>
+
+                <template #empty-state>
+                    <sw-empty-state
+                        icon="regular-shopping-bag"
+                        :title="$tc('custom-preorder-manager.list.emptyStateTitle')"
+                        :subline="$tc('custom-preorder-manager.list.emptyStateSubline')">
+                    </sw-empty-state>
+                </template>
+            </sw-entity-listing>
+
+            <sw-loader v-else-if="isLoading"></sw-loader>
+        </div>
     </template>
 </sw-page>

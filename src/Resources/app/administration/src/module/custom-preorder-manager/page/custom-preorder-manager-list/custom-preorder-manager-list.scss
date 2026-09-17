@@ -1,5 +1,37 @@
 .custom-preorder-manager-list {
-    .sw-card__content {
-        padding: 0;
+    &__content {
+        height: 100%;
+    }
+
+    &__customer-name {
+        font-weight: 600;
+        color: var(--color-text-primary, #18253a);
+        text-decoration: none;
+
+        &:hover {
+            color: var(--color-primary, #1890ff);
+            text-decoration: underline;
+        }
+    }
+
+    &__customer-email {
+        font-size: 12px;
+        color: var(--color-text-secondary, #758ca3);
+        margin-top: 2px;
+    }
+
+    &__order-number {
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--color-primary, #1890ff);
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__amount {
+        font-weight: 600;
     }
 }
+

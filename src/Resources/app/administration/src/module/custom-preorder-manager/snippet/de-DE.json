@@ -10,7 +10,12 @@
             "columnCustomer": "Kunde",
             "columnDate": "Bestelldatum",
             "columnStatus": "Status",
-            "columnAmount": "Gesamtbetrag"
+            "columnAmount": "Gesamtbetrag",
+            "searchPlaceholder": "Vorbestellungen durchsuchen...",
+            "buttonRefresh": "Aktualisieren",
+            "contextViewOrder": "Bestellung anzeigen",
+            "emptyStateTitle": "Keine Vorbestellungen vorhanden",
+            "emptyStateSubline": "Sobald Kunden Artikel im Vorbestellungsmodus bestellen, werden diese hier automatisch aufgelistet."
         },
         "productDetail": {
             "cardTitle": "Vorbestellung (Pre-Order)",

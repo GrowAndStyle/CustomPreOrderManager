@@ -10,7 +10,12 @@
             "columnCustomer": "Customer",
             "columnDate": "Order Date",
             "columnStatus": "Status",
-            "columnAmount": "Total Amount"
+            "columnAmount": "Total Amount",
+            "searchPlaceholder": "Search pre-orders...",
+            "buttonRefresh": "Refresh",
+            "contextViewOrder": "View order",
+            "emptyStateTitle": "No pre-orders found",
+            "emptyStateSubline": "As soon as customers order items in pre-order mode, they will be listed here automatically."
         },
         "productDetail": {
             "cardTitle": "Pre-Order",

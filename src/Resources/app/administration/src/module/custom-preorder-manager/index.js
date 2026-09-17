@@ -21,6 +21,9 @@ Module.register('custom-preorder-manager', {
         list: {
             component: 'custom-preorder-manager-list',
             path: 'list',
+            meta: {
+                parentPath: 'sw.order.index',
+            },
         },
     },
 
