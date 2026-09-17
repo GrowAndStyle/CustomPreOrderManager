@@ -8,7 +8,7 @@
     {% set isPreOrder = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
     {% set hasStock = currentProduct.stock > 0 %}
 
-    {% if isPreOrder and not hasStock and config('CustomPreOrderManager.config.enableListingBadge') %}
+    {% if isPreOrder and not hasStock and config('CustomPreOrderManager.config.enableListingBadge')|default(true) %}
         <span class="badge badge-preorder">
             {{ "custom-preorder.badge.preOrder"|trans }}
         </span>
