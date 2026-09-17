@@ -14,10 +14,19 @@
         }
     }
 
-    &__customer-email {
-        font-size: 12px;
-        color: var(--color-text-secondary, #758ca3);
-        margin-top: 2px;
+    &__empty-state {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: calc(100vh - 200px);
+        min-height: 400px;
+        padding: 40px 20px;
+        text-align: center;
+    }
+
+    &__empty-state-svg {
+        display: block;
+        margin: 0 auto 20px auto;
     }
 
     &__order-number {

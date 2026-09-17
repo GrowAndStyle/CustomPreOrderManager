@@ -30,8 +30,32 @@
 
     <template #content>
         <div class="custom-preorder-manager-list__content">
+            <!-- Leerer Zustand: Reines Empty-State mit SVG (kein Tabellen-Header) -->
+            <div v-if="!isLoading && (!total || total === 0)" class="custom-preorder-manager-list__empty-state">
+                <sw-empty-state
+                    :title="$tc('custom-preorder-manager.list.emptyStateTitle')"
+                    :subline="$tc('custom-preorder-manager.list.emptyStateSubline')">
+                    <template #icon>
+                        <svg
+                            class="custom-preorder-manager-list__empty-state-svg"
+                            viewBox="0 0 120 120"
+                            width="120"
+                            height="120"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="60" cy="60" r="56" fill="#f0f2f5" stroke="#d1d9e0" stroke-width="2" />
+                            <rect x="36" y="44" width="48" height="42" rx="4" fill="#ffffff" stroke="#758ca3" stroke-width="2" />
+                            <path d="M44 44V36C44 31.5817 47.5817 28 52 28H68C72.4183 28 76 31.5817 76 36V44" stroke="#758ca3" stroke-width="2" stroke-linecap="round" />
+                            <circle cx="70" cy="72" r="14" fill="#ffffff" stroke="#1890ff" stroke-width="2" />
+                            <path d="M70 66V72L74 74" stroke="#1890ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </template>
+                </sw-empty-state>
+            </div>
+
+            <!-- Vorbestellungs-Listing wenn Einträge vorhanden sind -->
             <sw-entity-listing
-                v-if="items"
+                v-else-if="items"
                 :items="items"
                 :repository="orderRepository"
                 :columns="columns"
@@ -60,9 +84,6 @@
                         {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
                     </span>
                     <span v-else>-</span>
-                    <div v-if="item.orderCustomer && item.orderCustomer.email" class="custom-preorder-manager-list__customer-email">
-                        {{ item.orderCustomer.email }}
-                    </div>
                 </template>
 
                 <template #column-orderDateTime="{ item }">
@@ -91,14 +112,6 @@
                         :router-link="{ name: 'sw.order.detail', params: { id: item.id } }">
                         {{ $tc('custom-preorder-manager.list.contextViewOrder') }}
                     </sw-context-menu-item>
-                </template>
-
-                <template #empty-state>
-                    <sw-empty-state
-                        icon="regular-shopping-bag"
-                        :title="$tc('custom-preorder-manager.list.emptyStateTitle')"
-                        :subline="$tc('custom-preorder-manager.list.emptyStateSubline')">
-                    </sw-empty-state>
                 </template>
             </sw-entity-listing>
 

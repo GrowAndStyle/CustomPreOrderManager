@@ -100,7 +100,8 @@ class AdminModuleStructureTest extends TestCase
             'column status slot' => '<template #column-stateMachineState.name="{ item }">',
             'column amount slot' => '<template #column-amountTotal="{ item }">',
             'actions context menu slot' => '<template #actions="{ item }">',
-            'empty-state slot' => '<template #empty-state>',
+            'empty-state component' => '<sw-empty-state',
+            'empty-state svg' => 'custom-preorder-manager-list__empty-state-svg',
             'deep-link to sw.order.detail' => "to=\"{ name: 'sw.order.detail'",
             'deep-link to sw.customer.detail' => "to=\"{ name: 'sw.customer.detail'",
         ];
