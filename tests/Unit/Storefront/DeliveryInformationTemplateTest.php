@@ -137,6 +137,21 @@ class DeliveryInformationTemplateTest extends TestCase
 
         $content = (string) file_get_contents($templatePath);
 
+        static::assertStringContainsString('component_product_box_image', $content);
+        static::assertStringContainsString('product-image-preorder-banner', $content);
+        static::assertStringContainsString('preorder-banner-prefix', $content);
+        static::assertStringContainsString('preorder-banner-date', $content);
+        static::assertStringContainsString('custom-preorder.listing.availableFromPrefix', $content);
+    }
+
+    public function testProductCardBoxImageTemplateContainsPreOrderBanner(): void
+    {
+        $templatePath = $this->viewsPath . '/component/product/card/box-image.html.twig';
+        static::assertFileExists($templatePath);
+
+        $content = (string) file_get_contents($templatePath);
+
+        static::assertStringContainsString('component_product_box_image', $content);
         static::assertStringContainsString('product-image-preorder-banner', $content);
         static::assertStringContainsString('preorder-banner-prefix', $content);
         static::assertStringContainsString('preorder-banner-date', $content);
