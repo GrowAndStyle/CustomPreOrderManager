@@ -86,11 +86,6 @@
                                     style="{{ preorderBtnStyle }}"
                                     title="{{ "custom-preorder.button.preOrder"|trans|striptags }}"
                                     aria-label="{{ "custom-preorder.button.preOrder"|trans|striptags }}">
-                                {% if config('CustomPreOrderManager.config.showButtonIcon')|default(true) %}
-                                    <span class="btn-preorder-icon me-2">
-                                        {% sw_icon 'calendar' style { size: 'sm' } %}
-                                    </span>
-                                {% endif %}
                                 {{ "custom-preorder.button.preOrder"|trans|sw_sanitize }}
                             </button>
                         </div>

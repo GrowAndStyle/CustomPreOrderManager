@@ -7,7 +7,7 @@
         "badge": {
             "preOrder": "Vorbestellung",
             "preOrderImage": "Vorbestellbar",
-            "availableFrom": "Lieferbar ab %date%",
+            "availableFrom": "Voraussichtlich lieferbar ab %date%",
             "urgentFewLeft": "Fast vergriffen: Nur noch %count% Stück!",
             "quotaExhausted": "Kontingent erschöpft"
         },

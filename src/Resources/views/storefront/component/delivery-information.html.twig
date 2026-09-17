@@ -10,17 +10,25 @@
         {% set releaseText = customFields.custom_preorder_release_text %}
         {% set releaseDate = customFields.custom_preorder_release_date %}
 
-        <div class="product-delivery-information preorder-delivery-box">
-            <span class="delivery-status-indicator is-preorder"></span>
-            <span class="preorder-delivery-text">
-                {% if releaseText %}
+        <div class="product-delivery-information preorder-delivery-information preorder-delivery-box">
+            <div class="preorder-delivery-headline">
+                <span class="delivery-status-indicator is-preorder"></span>
+                <span class="preorder-delivery-status">
+                    {% if releaseDate %}
+                        {{ "custom-preorder.badge.availableFrom"|trans({'%date%': releaseDate|date('d.m.Y')}) }}
+                    {% elseif releaseText %}
+                        {{ releaseText }}
+                    {% else %}
+                        {{ "custom-preorder.badge.preOrder"|trans }}
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if releaseDate and releaseText %}
+                <div class="preorder-delivery-notice">
                     {{ releaseText }}
-                {% elseif releaseDate %}
-                    {{ "custom-preorder.badge.availableFrom"|trans({'%date%': releaseDate|date('d.m.Y')}) }}
-                {% else %}
-                    {{ "custom-preorder.badge.preOrder"|trans }}
-                {% endif %}
-            </span>
+                </div>
+            {% endif %}
         </div>
     {% else %}
         {{ parent() }}

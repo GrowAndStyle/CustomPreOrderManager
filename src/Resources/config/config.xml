@@ -43,7 +43,7 @@
             <label lang="en-GB">Display calendar icon in pre-order button</label>
             <helpText lang="de-DE">Blendet ein dezentes Kalender-Icon links neben dem Button-Text ein.</helpText>
             <helpText lang="en-GB">Displays a subtle calendar icon to the left of the button text.</helpText>
-            <defaultValue>true</defaultValue>
+            <defaultValue>false</defaultValue>
         </input-field>
 
         <input-field type="colorpicker">

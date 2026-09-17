@@ -32,7 +32,7 @@ class PreOrderCartCollector implements CartDataCollectorInterface
             if (empty($releaseText) && !empty($customFields['custom_preorder_release_date'])) {
                 try {
                     $date = new \DateTimeImmutable((string) $customFields['custom_preorder_release_date']);
-                    $releaseText = 'Lieferbar ab ' . $date->format('d.m.Y');
+                    $releaseText = 'Voraussichtlich lieferbar ab ' . $date->format('d.m.Y');
                 } catch (\Throwable) {
                     $releaseText = 'Vorbestellung';
                 }

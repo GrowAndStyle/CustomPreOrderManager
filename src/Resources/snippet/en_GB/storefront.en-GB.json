@@ -7,7 +7,7 @@
         "badge": {
             "preOrder": "Pre-Order",
             "preOrderImage": "Pre-Order",
-            "availableFrom": "Available from %date%",
+            "availableFrom": "Expected to be available from %date%",
             "urgentFewLeft": "Almost gone: Only %count% left!",
             "quotaExhausted": "Quota exhausted"
         },
