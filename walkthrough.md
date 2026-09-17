@@ -181,32 +181,43 @@ CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
 
 ## Phase 5: Kategorieseite Bild-Overlay-Banner & Core-Alignment (`TASK-021`)
 
+> Ausführlicher Walkthrough & Root-Cause-Dokumentation:  
+> 🔗 [`docs/walkthrough/walkthrough-listing-banner-and-core-alignment.md`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/walkthrough/walkthrough-listing-banner-and-core-alignment.md)
+
 ### 1. Root-Cause-Analyse & Shopware 6.5.x CE Core-Abgleich
-- **Problem:** Auf der Kategorieseite fehlte die Vorbestellungs-Kennzeichnung am Bild vollständig, wenn `image.html.twig` verwendet wurde. Zudem zerstörte eine Infobox über dem Button in `action.html.twig` die horizontale Fluchtlinie des Kategorie-Grids.
-- **Shopware Core Verifikation (v6.5.8.0):**
-  - Im Shopware Core Bundle `Storefront` existiert unter `component/product/card/` **keine** Datei `image.html.twig`.
-  - Die zentrale Basis aller Produktkarten ist `box-standard.html.twig`. Die Layout-Varianten `box-image.html.twig` und `box-minimal.html.twig` erben direkt von `box-standard.html.twig`.
-  - Der Block für das Produktbild lautet `component_product_box_image` mit dem inneren Block `component_product_box_image_link`.
+- **Problem:** Auf der Kategorieseite fehlte die Vorbestellungs-Kennzeichnung am Bild vollständig.
+- **Ursache:** Im Shopware 6.5 CE Core existiert der Block `component_product_box_image_link` nicht mehr. Twig ignorierte den Block stillschweigend.
+- **Shopware Core Verifikation (v6.5.x CE):**
+  - Der offizielle Basis-Block für das Produktbild in `box-standard.html.twig` und `box-image.html.twig` lautet `component_product_box_image`.
 
 ### 2. Technische Umsetzung
-- **Löschung veralteter Templates:** `src/Resources/views/storefront/component/product/card/image.html.twig` ersatzlos entfernt.
-- **Core-konforme Template-Erweiterung:** `src/Resources/views/storefront/component/product/card/box-standard.html.twig` erweitert `component_product_box_image_link`.
+- **Core-Block Integration:** `box-standard.html.twig` und `box-image.html.twig` erweitern `component_product_box_image`.
+- **Relative Kapselung:** `{{ parent() }}` ist in `<div class="position-relative">` gefasst, sodass `.product-image-preorder-banner` (`position: absolute; bottom: 0`) exakt an der Bild-Unterkante sitzt.
 - **2-Zeiliges Frosted-Banner (Option 2):**
-  - Zeile 1: `preorder-banner-prefix`: „Voraussichtlich ab“ (`custom-preorder.listing.availableFromPrefix`)
-  - Zeile 2: `preorder-banner-date`: `DD.MM.YYYY` (z. B. `30.09.2026`)
-  - Kein vorangestellter Dot, kein zusätzlicher Hinweistext im Listing (spart vertikalen Raum).
-  - Halbtransparenter Hintergrund `rgba(15, 23, 42, 0.72)` mit `backdrop-filter: blur(6px)`.
-  - `pointer-events: none` für Klick-Durchlässigkeit zum Produktlink.
-- **100% Horizontale Grid-Symmetrie:** In `action.html.twig` existiert keine Infobox über dem Button; alle Buttons fluchten exakt auf gleicher Höhe wie bei regulären Nachbarartikeln.
-- **SCSS-Positionierung:** `.product-image-wrapper { position: relative; }` in `base.scss` verankert, damit absolute Positionierung (`bottom: 0`) am Bild verankert bleibt.
-- **Unit-Test:** `DeliveryInformationTemplateTest.php` angepasst auf `testProductCardBoxStandardTemplateContainsPreOrderBanner`.
+  - Zeile 1: `custom-preorder.listing.availableFromPrefix` („Voraussichtlich ab“)
+  - Zeile 2: `releaseDate|date('d.m.Y')` (z. B. `30.09.2026`)
+  - Halbtransparenter Frosted-Hintergrund, kein Dot, kein Zusatztext.
+  - `pointer-events: none` für Klick-Durchlässigkeit.
+- **100% Horizontale Grid-Symmetrie:** Keine Infoboxen über dem Kaufen-Button in `action.html.twig`.
+- **Bereinigte Altlasten:**
+  - `badges.html.twig` gelöscht (kein doppeltes Badge in der Ecke).
+  - Toter SCSS-Code (`.product-card-preorder-info`, `.preorder-image-badge`) aus `base.scss` entfernt.
+  - Skill-Datei `.agent/skills/rules_preorder_storefront/SKILL.md` wieder im Originalzustand.
+
+---
+
+## Index aller Walkthrough-Dokumente (`docs/walkthrough/`)
+
+| Datum | Thema | Pfad |
+|---|---|---|
+| 18.09.2026 | Listing-Bild-Overlay Banner & Core-Alignment | [`docs/walkthrough/walkthrough-listing-banner-and-core-alignment.md`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/walkthrough/walkthrough-listing-banner-and-core-alignment.md) |
 
 ---
 
 ## Aktueller Status
-- Feature-Branch `feat/storefront-delivery-styling` sauber synchronisiert.
-- Core-Abgleich gegen Shopware 6.5.x CE lückenlos verifiziert (0 spekulativer Code).
-- 100% Test-Coverage und saubere Git-Historie nach Conventional Commits.
+- Feature-Branch `feat/storefront-delivery-styling` synchronisiert.
+- Release-Artefakt `dist/CustomPreOrderManager.zip` mit `shopware-cli` frisch gebaut (Commit `755aa3c`).
+- Verifikation auf Teststation (`192.168.2.222:8080`) dokumentiert.
 
 
 
