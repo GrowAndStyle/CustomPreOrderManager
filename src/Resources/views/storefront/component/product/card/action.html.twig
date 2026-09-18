@@ -32,6 +32,8 @@
             {% if cBorder is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-border: ' ~ cBorder ~ ';' %}{% endif %}
             {% if cHoverBorder is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-hover-border: ' ~ cHoverBorder ~ ';' %}{% endif %}
 
+            {% set releaseDate = customFields.custom_preorder_release_date %}
+
             {% if config('core.listing.allowBuyInListing') and currentProduct.childCount <= 0 %}
                 <form action="{{ path('frontend.checkout.line-item.add') }}"
                       method="post"
@@ -65,6 +67,12 @@
                        aria-label="{{ "custom-preorder.button.preOrder"|trans|striptags }}">
                         {{ "custom-preorder.button.preOrder"|trans|sw_sanitize }}
                     </a>
+                </div>
+            {% endif %}
+
+            {% if releaseDate %}
+                <div class="preorder-listing-date">
+                    {{ "custom-preorder.listing.availableFromPrefix"|trans }} {{ releaseDate|date('d.m.Y') }}
                 </div>
             {% endif %}
         {% endif %}
