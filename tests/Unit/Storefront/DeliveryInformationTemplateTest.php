@@ -263,12 +263,13 @@ class DeliveryInformationTemplateTest extends TestCase
         static::assertStringContainsString("variant: 'card'", $content);
     }
 
-    public function testListingBadgeIncludesScarcityPartial(): void
+    public function testListingBadgesIncludesScarcityPartial(): void
     {
+        // Scarcity als absolut positioniertes Overlay in badges.html.twig (ADR-010)
+        // Gleiche Technik wie product-preorder-date-banner
         $templatePath = $this->viewsPath . '/component/product/card/badges.html.twig';
         $content = (string) file_get_contents($templatePath);
 
-        // Scarcity auf Listing-Karten (ADR-010)
         static::assertStringContainsString('scarcityDisplayMode', $content);
         static::assertStringContainsString('sw_include', $content);
         static::assertStringContainsString('component/preorder/scarcity-badge.html.twig', $content);

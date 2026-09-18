@@ -444,16 +444,39 @@ a.btn-preorder,
     }
 }
 
-// Scarcity-Badge auf Listing-Karten (ADR-010)
+// Scarcity-Badge auf Listing-Karten als Overlay (ADR-010)
+// Gleiche Technik wie .product-preorder-date-banner — absolut positioniert auf dem Produktbild
 .preorder-scarcity-listing {
-    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem 0.5rem;
+    color: var(--custom-preorder-banner-color, #ffffff);
     font-size: 0.6875rem;
     font-weight: 600;
-    color: var(--custom-preorder-card-accent, #b45309);
     letter-spacing: 0.03em;
-    margin-top: 0.25rem;
+    text-align: center;
+    pointer-events: none;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-color: var(--custom-preorder-card-accent, #b45309);
+        opacity: var(--custom-preorder-banner-opacity, 0.55);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: -1;
+        transition: background-color 0.2s ease, opacity 0.2s ease;
+    }
 
     @media (max-width: $breakpoint-mobile) {
         font-size: 0.625rem;
+        padding: 0.2rem 0.35rem;
     }
 }
