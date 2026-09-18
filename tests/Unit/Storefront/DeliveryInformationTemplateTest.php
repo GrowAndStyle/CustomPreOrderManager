@@ -263,19 +263,23 @@ class DeliveryInformationTemplateTest extends TestCase
         static::assertStringContainsString("variant: 'card'", $content);
     }
 
-    public function testListingBadgesIncludesScarcityPartial(): void
+    public function testListingBadgesContainsInlineScarcityLogic(): void
     {
-        // Scarcity als absolut positioniertes Overlay in badges.html.twig (ADR-010)
-        // Gleiche Technik wie product-preorder-date-banner
+        // Scarcity-Badge ist direkt inline in badges.html.twig (ADR-010).
+        // sw_include '@CustomPreOrderManager/...' funktioniert nicht, da das Partial
+        // nicht in der @Storefront Theme-Chain liegt und silently nichts rendert.
         $templatePath = $this->viewsPath . '/component/product/card/badges.html.twig';
         static::assertFileExists($templatePath);
 
         $content = (string) file_get_contents($templatePath);
 
         static::assertStringContainsString('scarcityDisplayMode', $content);
-        static::assertStringContainsString('sw_include', $content);
-        static::assertStringContainsString('component/preorder/scarcity-badge.html.twig', $content);
-        static::assertStringContainsString("variant: 'listing'", $content);
+        static::assertStringContainsString('custom_preorder_inbound_stock', $content);
+        static::assertStringContainsString('custom_preorder_sold_count', $content);
+        static::assertStringContainsString('preorder-scarcity-listing', $content);
+        static::assertStringContainsString('custom-preorder.badge.urgentFewLeft', $content);
+        static::assertStringContainsString("'listing_only'", $content);
+        static::assertStringContainsString("'everywhere'", $content);
     }
 
     public function testBuyWidgetTemplatesRemovedAfterCardIntegration(): void
