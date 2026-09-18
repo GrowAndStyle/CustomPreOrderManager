@@ -124,11 +124,10 @@ Falls in der Erlebniswelt der Kategorie `/freizeit-elektro/` das Box-Layout **â€
     transition: background-color 0.2s ease;
 
     .preorder-banner-prefix {
-        font-size: 0.625rem;
+        font-size: 0.75rem;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        opacity: 0.85;
         line-height: 1.2;
     }
 
@@ -144,7 +143,7 @@ Falls in der Erlebniswelt der Kategorie `/freizeit-elektro/` das Box-Layout **â€
         padding: 0.25rem 0.35rem;
 
         .preorder-banner-prefix {
-            font-size: 0.5625rem;
+            font-size: 0.75rem;
         }
 
         .preorder-banner-date {
