@@ -263,23 +263,63 @@ class DeliveryInformationTemplateTest extends TestCase
         static::assertStringContainsString("variant: 'card'", $content);
     }
 
-    public function testListingBadgesContainsInlineScarcityLogic(): void
+    public function testListingBadgesStrippedToMinimumAfterAdr011(): void
     {
-        // Scarcity-Badge ist direkt inline in badges.html.twig (ADR-010).
-        // sw_include '@CustomPreOrderManager/...' funktioniert nicht, da das Partial
-        // nicht in der @Storefront Theme-Chain liegt und silently nichts rendert.
+        // Nach ADR-011: badges.html.twig delegiert Overlays an box-standard.html.twig.
+        // Keine Overlay-Logik mehr in badges.html.twig.
         $templatePath = $this->viewsPath . '/component/product/card/badges.html.twig';
         static::assertFileExists($templatePath);
 
         $content = (string) file_get_contents($templatePath);
 
-        static::assertStringContainsString('scarcityDisplayMode', $content);
-        static::assertStringContainsString('custom_preorder_inbound_stock', $content);
-        static::assertStringContainsString('custom_preorder_sold_count', $content);
+        static::assertStringNotContainsString('preorder-date-banner', $content, 'Date-Banner darf nicht mehr in badges.html.twig stehen (ADR-011)');
+        static::assertStringNotContainsString('preorder-scarcity-listing', $content, 'Scarcity-Overlay darf nicht mehr in badges.html.twig stehen (ADR-011)');
+        static::assertStringNotContainsString('custom_preorder_inbound_stock', $content, 'Scarcity-Logik darf nicht mehr in badges.html.twig stehen (ADR-011)');
+    }
+
+    public function testBoxStandardContainsListingOverlaysAdr011(): void
+    {
+        // ADR-011: Overlays liegen in box-standard.html.twig, block component_product_box_image.
+        // Verifizierter Block gegen Shopware v6.5.8.19 (offiziell).
+        $templatePath = $this->viewsPath . '/component/product/card/box-standard.html.twig';
+        static::assertFileExists($templatePath, 'box-standard.html.twig muss nach ADR-011 vorhanden sein');
+
+        $content = (string) file_get_contents($templatePath);
+
+        // Korrekter Block-Name (verifiziert v6.5.8.19)
+        static::assertStringContainsString('component_product_box_image', $content);
+
+        // Korrekter Containing Block
+        static::assertStringContainsString('preorder-image-overlay-root', $content);
+
+        // enableListingBadge-Gate
+        static::assertStringContainsString('enableListingBadge', $content);
+
+        // Date-Banner komplett
+        static::assertStringContainsString('product-preorder-date-banner', $content);
+        static::assertStringContainsString('preorder-banner-prefix', $content);
+        static::assertStringContainsString('preorder-banner-date', $content);
+
+        // Scarcity-Badge mit korrekten Config-Gates
         static::assertStringContainsString('preorder-scarcity-listing', $content);
-        static::assertStringContainsString('custom-preorder.badge.urgentFewLeft', $content);
+        static::assertStringContainsString('custom_preorder_inbound_stock', $content);
         static::assertStringContainsString("'listing_only'", $content);
         static::assertStringContainsString("'everywhere'", $content);
+    }
+
+    public function testBaseScssHasCorrectOverlayPositioningAdr011(): void
+    {
+        // ADR-011: Kein Pixel-Hack, korrekter Containing Block und explizite top/bottom-Werte
+        $scssPath = dirname(__DIR__, 3) . '/src/Resources/app/storefront/src/scss/base.scss';
+        $content = (string) file_get_contents($scssPath);
+
+        // Containing Block vorhanden
+        static::assertStringContainsString('preorder-image-overlay-root', $content);
+        static::assertStringContainsString('position: relative', $content);
+
+        // Pixel-Hack entfernt
+        static::assertStringNotContainsString('top: calc(var(--bs-card-spacer-y', $content, 'Pixel-Hack darf nach ADR-011 nicht mehr im SCSS stehen');
+        static::assertStringNotContainsString('translateY(-100%)', $content, 'transform-Hack darf nach ADR-011 nicht mehr im SCSS stehen');
     }
 
     public function testBuyWidgetTemplatesRemovedAfterCardIntegration(): void
