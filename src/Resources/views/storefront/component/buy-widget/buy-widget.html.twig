@@ -1,7 +1,0 @@
-{% sw_extends '@Storefront/storefront/component/buy-widget/buy-widget.html.twig' %}
-
-{% block buy_widget %}
-    {{ parent() }}
-
-    {% sw_include '@CustomPreOrderManager/storefront/component/preorder/scarcity-badge.html.twig' with { currentProduct: product|default(page.product) } %}
-{% endblock %}

@@ -55,7 +55,7 @@ class ConfigXmlTest extends TestCase
     {
         $expectedKeys = [
             'enableListingBadge' => 'bool',
-            'enableScarcityCounter' => 'bool',
+            'scarcityDisplayMode' => 'single-select',
             'lowStockThreshold' => 'int',
             'buttonBackgroundColor' => 'colorpicker',
             'buttonHoverBackgroundColor' => 'colorpicker',

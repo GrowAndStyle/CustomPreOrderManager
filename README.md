@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/Shopware-6.5%20|%206.6%20|%206.7-189eff?style=flat-square&logo=shopware&logoColor=white" alt="Shopware">
   <img src="https://img.shields.io/badge/Version-v1.0.0-0f62fe?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/PHP-8.1+-777bb4?style=flat-square&logo=php&logoColor=white" alt="PHP">
-  <img src="https://img.shields.io/badge/Tests-42%20passed-2ea44f?style=flat-square&logo=githubactions&logoColor=white" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-112%20passed-2ea44f?style=flat-square&logo=githubactions&logoColor=white" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-100%25-2ea44f?style=flat-square" alt="Coverage">
   <img src="https://img.shields.io/badge/Architecture-Enterprise%20Tier--1-blueviolet?style=flat-square" alt="Architecture">
   <img src="https://img.shields.io/badge/Security-Zero--Trust%20%7C%20XSS--Proof-success?style=flat-square" alt="Security">
@@ -197,7 +197,7 @@ Pflegbar im Shopware Administration Panel unter *Einstellungen → Erweiterungen
 | Konfigurations-Schlüssel | Typ | Standard | Beschreibung (DE) | Description (EN) |
 |---|:---:|:---:|---|---|
 | `CustomPreOrderManager.config.enableListingBadge` | `bool` | `true` | Zeigt das Vorbestellungs-Badge auf Kategorieseiten und in der Suche an. | Display pre-order badge on category and search listing cards. |
-| `CustomPreOrderManager.config.enableScarcityCounter` | `bool` | `true` | Aktiviert den Restmengen-Zähler auf der Produktdetailseite. | Enable remaining quota counter on the product detail page. |
+| `CustomPreOrderManager.config.scarcityDisplayMode` | `select` | `disabled` | Steuert Restmengen-Anzeige: `disabled`, `detail_only`, `listing_only`, `everywhere`. | Controls scarcity badge visibility: `disabled`, `detail_only`, `listing_only`, `everywhere`. |
 | `CustomPreOrderManager.config.lowStockThreshold` | `int` | `5` | Schwellenwert für das Dringlichkeits-Badge (*„Fast vergriffen“*). | Remaining stock threshold to trigger urgency badge. |
 | `CustomPreOrderManager.config.buttonBackgroundColor` | `colorpicker` | `#1a1a2e` | Button Hintergrundfarbe (Normalzustand). | Button background color (default state). |
 | `CustomPreOrderManager.config.buttonHoverBackgroundColor` | `colorpicker` | `#2b2b48` | Button Hintergrundfarbe (Hover / Fokus). | Button background color (hover / focus). |
@@ -254,7 +254,7 @@ Available Payload:
 CustomPreOrderManager/
 ├── .agent/                                      # Agent Governance & Quality Skill Blueprints
 ├── docs/
-│   └── adr/                                     # Architecture Decision Records (ADR-001 bis ADR-009)
+│   └── adr/                                     # Architecture Decision Records (ADR-001 bis ADR-010)
 ├── src/
 │   ├── CustomPreOrderManager.php                # Plugin-Hauptklasse (Lifecycle & Container-Extension)
 │   ├── Core/Checkout/
@@ -503,6 +503,7 @@ Grundlegende Architekturentscheidungen sind nach dem Michael Nygard ADR-Standard
 | **[ADR-007](docs/adr/ADR-007-storefront-delivery-information-and-clean-cta.md)** | Storefront Lieferinformation & Clean CTA | `AKZEPTIERT` | Semantische 2-Ebenen-Hierarchie (Termin + Hinweistext), 'Voraussichtlich'-Rechtssicherheit und Icon-Entfall am CTA-Button. |
 | **[ADR-008](docs/adr/ADR-008-end-to-end-preorder-delivery-information.md)** | Full-Funnel Vorbestellungs-Architektur, Quota Guard & Mischwarenkorb | `AKZEPTIERT` | Durchgängige Begleitung (Listing bis Kundenkonto), aktiver Cart-Quota-Guard mit Shopware-Alerts und flexibler Mischwarenkorb-Versandhinweis. |
 | **[ADR-009](docs/adr/ADR-009-payment-aware-sold-counter.md)** | Payment-Aware Sold Counter | `AKZEPTIERT` | `sold_count` erst bei Zahlungseingang (`paid`), automatischer Rollback bei Storno/Refund, GREATEST-Guard gegen negative Werte. |
+| **[ADR-010](docs/adr/ADR-010-scarcity-badge-card-integration-uwg.md)** | Scarcity-Badge Card-Integration (UWG-konform) | `AKZEPTIERT` | Badge in Delivery-Card integriert, Listing-Support, granulare Config (`scarcityDisplayMode`), UWG §5 / Omnibus-RL konform. |
 
 ---
 

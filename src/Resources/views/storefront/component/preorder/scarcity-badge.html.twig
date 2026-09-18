@@ -1,18 +1,32 @@
+{# Shared Partial: Scarcity-Badge — Single Source of Truth (ADR-010) #}
+{# Varianten: 'card' (in Delivery-Card) oder 'listing' (auf Kategorieseite) #}
+{# Config-Prüfung (scarcityDisplayMode) liegt beim einbindenden Template #}
+
 {% set currentProduct = currentProduct|default(product)|default(page.product) %}
 {% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
 {% set preorderActive = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
 {% set hasStock = currentProduct.stock > 0 %}
-{% set enableScarcity = config('CustomPreOrderManager.config.enableScarcityCounter') %}
 {% set threshold = config('CustomPreOrderManager.config.lowStockThreshold') %}
 
-{% if preorderActive and not hasStock and enableScarcity %}
+{% if preorderActive and not hasStock %}
     {% set inboundStock = customFields.custom_preorder_inbound_stock|default(0) %}
     {% set soldCount = customFields.custom_preorder_sold_count|default(0) %}
     {% set remaining = inboundStock - soldCount %}
 
     {% if remaining > 0 and remaining <= threshold %}
-        <div class="preorder-scarcity-badge badge-preorder">
-            {{ "custom-preorder.badge.urgentFewLeft"|trans({'%count%': remaining}) }}
-        </div>
+        {% if variant|default('card') == 'card' %}
+            <div class="preorder-scarcity-line">
+                <svg class="preorder-scarcity-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span class="preorder-scarcity-text">{{ "custom-preorder.badge.urgentFewLeft"|trans({'%count%': remaining}) }}</span>
+            </div>
+        {% else %}
+            <span class="preorder-scarcity-listing">
+                {{ "custom-preorder.badge.urgentFewLeft"|trans({'%count%': remaining}) }}
+            </span>
+        {% endif %}
     {% endif %}
 {% endif %}

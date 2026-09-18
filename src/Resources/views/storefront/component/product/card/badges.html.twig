@@ -21,5 +21,11 @@
                 </span>
             </div>
         {% endif %}
+
+        {# Scarcity-Badge auf Listing (ADR-010, UWG-konform) #}
+        {% set scarcityMode = config('CustomPreOrderManager.config.scarcityDisplayMode') %}
+        {% if scarcityMode == 'listing_only' or scarcityMode == 'everywhere' %}
+            {% sw_include '@CustomPreOrderManager/storefront/component/preorder/scarcity-badge.html.twig' with { currentProduct: currentProduct, variant: 'listing' } %}
+        {% endif %}
     {% endif %}
 {% endblock %}

@@ -216,48 +216,82 @@ class DeliveryInformationTemplateTest extends TestCase
         static::assertStringContainsString('order-overview-preorder-badge', $overviewContent);
     }
 
-    public function testScarcityBadgePartialContainsFullLogic(): void
+    public function testScarcityPartialContainsFullLogic(): void
     {
         $partialPath = $this->viewsPath . '/component/preorder/scarcity-badge.html.twig';
         static::assertFileExists($partialPath);
 
         $content = (string) file_get_contents($partialPath);
 
-        // Gesamte Scarcity-Logik liegt im Partial (Single Source of Truth)
-        static::assertStringContainsString('preorder-scarcity-badge', $content);
-        static::assertStringContainsString('enableScarcityCounter', $content);
+        // Gesamte Scarcity-Logik liegt im Partial (Single Source of Truth, ADR-010)
         static::assertStringContainsString('lowStockThreshold', $content);
         static::assertStringContainsString('custom_preorder_inbound_stock', $content);
         static::assertStringContainsString('custom_preorder_sold_count', $content);
         static::assertStringContainsString('custom-preorder.badge.urgentFewLeft', $content);
     }
 
-    public function testScarcityBadgeComponentTemplateDelegatesToPartial(): void
+    public function testScarcityPartialSupportsCardVariant(): void
     {
-        $templatePath = $this->viewsPath . '/component/buy-widget/buy-widget.html.twig';
-        static::assertFileExists($templatePath);
+        $partialPath = $this->viewsPath . '/component/preorder/scarcity-badge.html.twig';
+        $content = (string) file_get_contents($partialPath);
 
-        $content = (string) file_get_contents($templatePath);
-
-        // CMS-Standard: Block buy_widget, delegiert an Partial
-        static::assertStringContainsString('buy_widget', $content);
-        static::assertStringNotContainsString('page_product_detail_buy_container', $content);
-        static::assertStringContainsString('sw_include', $content);
-        static::assertStringContainsString('component/preorder/scarcity-badge.html.twig', $content);
+        // Card-Variante: SVG-Icon + preorder-scarcity-line Klasse
+        static::assertStringContainsString('preorder-scarcity-line', $content);
+        static::assertStringContainsString('preorder-scarcity-icon', $content);
+        static::assertStringContainsString('preorder-scarcity-text', $content);
+        static::assertStringContainsString("variant|default('card') == 'card'", $content);
     }
 
-    public function testScarcityBadgePageFallbackDelegatesToPartial(): void
+    public function testScarcityPartialSupportsListingVariant(): void
     {
-        $templatePath = $this->viewsPath . '/page/product-detail/buy-widget.html.twig';
-        static::assertFileExists($templatePath);
+        $partialPath = $this->viewsPath . '/component/preorder/scarcity-badge.html.twig';
+        $content = (string) file_get_contents($partialPath);
 
+        // Listing-Variante: kompakter Badge ohne Icon
+        static::assertStringContainsString('preorder-scarcity-listing', $content);
+    }
+
+    public function testDeliveryCardIncludesScarcityPartial(): void
+    {
+        $templatePath = $this->viewsPath . '/component/delivery-information.html.twig';
         $content = (string) file_get_contents($templatePath);
 
-        // Non-CMS Fallback: Block page_product_detail_buy_inner, delegiert an gleiches Partial
-        static::assertStringContainsString('page_product_detail_buy_inner', $content);
-        static::assertStringNotContainsString('page_product_detail_buy_container', $content);
+        // Scarcity in Delivery-Card integriert (ADR-010)
+        static::assertStringContainsString('scarcityDisplayMode', $content);
         static::assertStringContainsString('sw_include', $content);
         static::assertStringContainsString('component/preorder/scarcity-badge.html.twig', $content);
+        static::assertStringContainsString("variant: 'card'", $content);
+    }
+
+    public function testListingBadgeIncludesScarcityPartial(): void
+    {
+        $templatePath = $this->viewsPath . '/component/product/card/badges.html.twig';
+        $content = (string) file_get_contents($templatePath);
+
+        // Scarcity auf Listing-Karten (ADR-010)
+        static::assertStringContainsString('scarcityDisplayMode', $content);
+        static::assertStringContainsString('sw_include', $content);
+        static::assertStringContainsString('component/preorder/scarcity-badge.html.twig', $content);
+        static::assertStringContainsString("variant: 'listing'", $content);
+    }
+
+    public function testBuyWidgetTemplatesRemovedAfterCardIntegration(): void
+    {
+        // Buy-Widget Templates nach ADR-010 gelöscht — Badge wanderte in Delivery-Card
+        $componentPath = $this->viewsPath . '/component/buy-widget/buy-widget.html.twig';
+        $pagePath = $this->viewsPath . '/page/product-detail/buy-widget.html.twig';
+
+        static::assertFileDoesNotExist($componentPath, 'component/buy-widget/buy-widget.html.twig muss nach ADR-010 gelöscht sein');
+        static::assertFileDoesNotExist($pagePath, 'page/product-detail/buy-widget.html.twig muss nach ADR-010 gelöscht sein');
+    }
+
+    public function testScarcityPartialUsesCorrectConfigKey(): void
+    {
+        // Sicherstellen, dass der alte Config-Key nicht mehr referenziert wird
+        $partialPath = $this->viewsPath . '/component/preorder/scarcity-badge.html.twig';
+        $content = (string) file_get_contents($partialPath);
+
+        static::assertStringNotContainsString('enableScarcityCounter', $content, 'Alter Config-Key enableScarcityCounter darf nicht mehr im Partial stehen');
     }
 }
 

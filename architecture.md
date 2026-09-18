@@ -1,15 +1,14 @@
-# Architecture Decision Record (ADR-001) — CustomPreOrderManager
+# Architektur-Entscheidungen
 
-## Status: Akzeptiert (Tier-1 Enterprise)
-
-## Kontext
-Grow & Style benötigt eine Lösung, um Neuheiten (z. B. die Spectron 7 AI+ Cam von AC Infinity) bereits vor Verkaufsstart im Oktober vorbestellbar zu machen, ohne das bestehende Theme oder Dritt-Plugins zu beeinträchtigen.
-
-## Entscheidungen
-1. **Autarkie:** Keine Abhängigkeiten zu Drittanbieter-Plugins oder anderen GrowAndStyle-Plugins.
-2. **Kaufabwicklung:** Regulärer Kauf mit Sofortbezahlung im Checkout (keine ungesicherten Autorisierungen wegen 28-Tage-Verfall).
-3. **Mischwarenkörbe:** Vollständig zulässig; keine künstlichen Sperren im Warenkorb (Conversion-First).
-4. **Zulaufbestand:** Dynamische Mengensteuerung (`inbound_stock`) mit atomarem DBAL-Inkrement (`sold_count`).
-5. **Warteliste:** Bei Kontingent 0 greift eine autarke Warteliste mit Double-Opt-In und CIS-identischen E-Mail-Tokens.
-6. **Mail-Integrität:** Line-Item Payload Anreicherung statt Überschreiben von DB-Templates.
-7. **Lifecycle:** Physischer Bestand (`stock > 0`) sticht Vorbestellung und schaltet automatisch auf Normalverkauf um.
+| ADR | Titel | Status | Datum |
+|-----|-------|--------|-------|
+| [ADR-001](docs/adr/ADR-001-customfield-set-vs-dedicated-table.md) | CustomField-Set vs. Dedicated Table | ENTSCHIEDEN | 2026-09-01 |
+| [ADR-002](docs/adr/ADR-002-atomic-dbal-counter.md) | Atomarer DBAL Counter | ENTSCHIEDEN | 2026-09-01 |
+| [ADR-003](docs/adr/ADR-003-lineitem-payload-enrichment.md) | LineItem Payload Enrichment | ENTSCHIEDEN | 2026-09-01 |
+| [ADR-004](docs/adr/ADR-004-autarkic-scarcity-no-waitlist.md) | Autarke Scarcity ohne Waitlist | ENTSCHIEDEN | 2026-09-01 |
+| [ADR-005](docs/adr/ADR-005-native-button-theming-color-picker.md) | Native Button-Theming per Color Picker | ENTSCHIEDEN | 2026-09-01 |
+| [ADR-006](docs/adr/ADR-006-admin-preorder-dashboard-listing.md) | Admin Pre-Order Dashboard Listing | ENTSCHIEDEN | 2026-09-01 |
+| [ADR-007](docs/adr/ADR-007-storefront-delivery-information-and-clean-cta.md) | Storefront Delivery-Information & Clean CTA | ENTSCHIEDEN | 2026-09-01 |
+| [ADR-008](docs/adr/ADR-008-end-to-end-preorder-delivery-information.md) | End-to-End Pre-Order Delivery Information | ENTSCHIEDEN | 2026-09-01 |
+| [ADR-009](docs/adr/ADR-009-payment-aware-sold-counter.md) | Payment-Aware Sold Counter | ENTSCHIEDEN | 2026-09-18 |
+| [ADR-010](docs/adr/ADR-010-scarcity-badge-card-integration-uwg.md) | Scarcity-Badge Card-Integration (UWG-konform) | ENTSCHIEDEN | 2026-09-18 |

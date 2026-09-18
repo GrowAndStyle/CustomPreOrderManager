@@ -53,6 +53,12 @@
                         <span class="preorder-notice-text">{{ releaseText }}</span>
                     </div>
                 {% endif %}
+
+                {# Scarcity-Badge: UWG-konforme Restmengen-Anzeige (ADR-010) #}
+                {% set scarcityMode = config('CustomPreOrderManager.config.scarcityDisplayMode') %}
+                {% if scarcityMode == 'detail_only' or scarcityMode == 'everywhere' %}
+                    {% sw_include '@CustomPreOrderManager/storefront/component/preorder/scarcity-badge.html.twig' with { currentProduct: currentProduct, variant: 'card' } %}
+                {% endif %}
             </div>
         </div>
     {% else %}
