@@ -370,10 +370,11 @@ a.btn-preorder,
 
 // Vorbestelldatum-Banner auf Kategorie-Listing-Cards (via box-standard.html.twig, ADR-011)
 // Farben und Deckkraft konfigurierbar über Plugin-Config → CSS Custom Properties
+// top: calc(-1 * var(--bs-card-spacer-y)) — theme-aware Offset, kein Magic Number
 // Opacity liegt auf ::before (Hintergrund), Text bleibt 100 % deckend
 .product-preorder-date-banner {
     position: absolute;
-    top: 0;
+    top: calc(-1 * var(--bs-card-spacer-y, 1rem));
     left: 0;
     right: 0;
     z-index: 2;
@@ -387,6 +388,8 @@ a.btn-preorder,
     pointer-events: none;
     border-radius: 0 0 8px 8px;
     overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
 
     &::before {
         content: '';
@@ -470,8 +473,10 @@ a.btn-preorder,
     color: var(--custom-preorder-listing-scarcity-color, #ffffff);
     text-align: center;
     pointer-events: none;
-    border-radius: 8px 8px 0 0;
+    border-radius: 8px;
     overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
 
     &::before {
         content: '';
