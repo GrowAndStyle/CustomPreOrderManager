@@ -363,7 +363,7 @@ a.btn-preorder,
 }
 
 // Vorbestelldatum-Banner auf Kategorie-Listing-Cards (via badges.html.twig)
-// Positioniert sich absolut im .card-body über dem Produktbild
+// Farben und Deckkraft konfigurierbar über Plugin-Config → CSS Custom Properties
 .product-preorder-date-banner {
     position: absolute;
     left: 0;
@@ -374,20 +374,20 @@ a.btn-preorder,
     align-items: center;
     justify-content: center;
     padding: 0.35rem 0.5rem;
-    background: rgba(15, 23, 42, 0.72);
+    background-color: var(--custom-preorder-banner-bg, #0f172a);
+    opacity: var(--custom-preorder-banner-opacity, 0.55);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    color: #ffffff;
+    color: var(--custom-preorder-banner-color, #ffffff);
     text-align: center;
     pointer-events: none;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
 
     .preorder-banner-prefix {
         font-size: 0.625rem;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        opacity: 0.85;
         line-height: 1.2;
     }
 
@@ -396,7 +396,6 @@ a.btn-preorder,
         font-weight: 700;
         letter-spacing: 0.02em;
         line-height: 1.25;
-        color: #ffffff;
     }
 
     @media (max-width: $breakpoint-mobile) {

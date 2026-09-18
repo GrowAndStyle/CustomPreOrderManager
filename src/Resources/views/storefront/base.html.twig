@@ -18,6 +18,11 @@
     {% set cardShadow = config('CustomPreOrderManager.config.cardEnableShadow') %}
     {% set cardGradient = config('CustomPreOrderManager.config.cardEnableGradient') %}
 
+    {% set bannerBg = config('CustomPreOrderManager.config.listingBannerBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#0f172a') %}
+    {% set bannerColor = config('CustomPreOrderManager.config.listingBannerTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#ffffff') %}
+    {% set bannerOpacityRaw = config('CustomPreOrderManager.config.listingBannerOpacity')|default(55) %}
+    {% set bannerOpacity = (bannerOpacityRaw < 20 ? 20 : (bannerOpacityRaw > 100 ? 100 : bannerOpacityRaw)) / 100 %}
+
     <style>
         :root {
             --custom-preorder-btn-bg: {{ btnBg }};
@@ -34,6 +39,10 @@
             --custom-preorder-card-color: {{ cardColor }};
             --custom-preorder-card-shadow: {{ (cardShadow is null or cardShadow == true) ? '0 1px 3px rgba(15, 23, 42, 0.04), 0 6px 16px -4px rgba(15, 23, 42, 0.06)' : 'none' }};
             --custom-preorder-card-bg-render: {{ (cardGradient is null or cardGradient == true) ? ('linear-gradient(135deg, #ffffff 0%, ' ~ cardBg ~ ' 100%)') : cardBg }};
+
+            --custom-preorder-banner-bg: {{ bannerBg }};
+            --custom-preorder-banner-color: {{ bannerColor }};
+            --custom-preorder-banner-opacity: {{ bannerOpacity }};
         }
     </style>
 {% endblock %}

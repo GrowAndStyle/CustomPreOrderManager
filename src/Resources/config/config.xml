@@ -161,6 +161,38 @@
     </card>
 
     <card>
+        <title lang="de-DE">Listing-Banner — Design &amp; Transparenz</title>
+        <title lang="en-GB">Listing Banner — Design &amp; Transparency</title>
+
+        <input-field type="colorpicker">
+            <name>listingBannerBackgroundColor</name>
+            <label lang="de-DE">Banner Hintergrundfarbe</label>
+            <label lang="en-GB">Banner background color</label>
+            <helpText lang="de-DE">Hintergrundfarbe des Vorbestell-Banners auf dem Produktbild in der Kategorieübersicht.</helpText>
+            <helpText lang="en-GB">Background color of the pre-order banner on the product image in category listings.</helpText>
+            <defaultValue>#0f172a</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>listingBannerTextColor</name>
+            <label lang="de-DE">Banner Textfarbe</label>
+            <label lang="en-GB">Banner text color</label>
+            <helpText lang="de-DE">Schriftfarbe für Präfix und Datum im Listing-Banner.</helpText>
+            <helpText lang="en-GB">Font color for prefix and date in the listing banner.</helpText>
+            <defaultValue>#ffffff</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>listingBannerOpacity</name>
+            <label lang="de-DE">Banner Deckkraft (in %)</label>
+            <label lang="en-GB">Banner opacity (in %)</label>
+            <helpText lang="de-DE">Transparenz des Banners: 100 = vollständig deckend, 20 = stark durchscheinend. Empfohlen: 50–60 %.</helpText>
+            <helpText lang="en-GB">Banner transparency: 100 = fully opaque, 20 = highly translucent. Recommended: 50–60 %.</helpText>
+            <defaultValue>55</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
         <title lang="de-DE">Mischwarenkorb — Versandhinweis &amp; Fulfillment</title>
         <title lang="en-GB">Mixed Cart — Shipping Notice &amp; Fulfillment</title>
 
