@@ -179,30 +179,37 @@ CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
 
 ---
 
-## Phase 5: Kategorieseite Bild-Overlay-Banner & Core-Alignment (`TASK-021`)
+### Phase 5: Kategorieseite Lieferdatum-Banner & Listing-Banner-Config (`TASK-021`)
 
 > Ausführlicher Walkthrough & Root-Cause-Dokumentation:  
 > 🔗 [`docs/walkthrough/walkthrough-listing-banner-and-core-alignment.md`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/walkthrough/walkthrough-listing-banner-and-core-alignment.md)
 
-### 1. Root-Cause-Analyse & Shopware 6.5.x CE Core-Abgleich
-- **Problem:** Auf der Kategorieseite fehlte die Vorbestellungs-Kennzeichnung am Bild vollständig.
-- **Ursache:** Im Shopware 6.5 CE Core existiert der Block `component_product_box_image_link` nicht mehr. Twig ignorierte den Block stillschweigend.
-- **Shopware Core Verifikation (v6.5.x CE):**
-  - Der offizielle Basis-Block für das Produktbild in `box-standard.html.twig` und `box-image.html.twig` lautet `component_product_box_image`.
+### 1. Root-Cause-Analyse
 
-### 2. Technische Umsetzung
-- **Core-Block Integration:** `box-standard.html.twig` und `box-image.html.twig` erweitern `component_product_box_image`.
-- **Relative Kapselung:** `{{ parent() }}` ist in `<div class="position-relative">` gefasst, sodass `.product-image-preorder-banner` (`position: absolute; bottom: 0`) exakt an der Bild-Unterkante sitzt.
-- **2-Zeiliges Frosted-Banner (Option 2):**
-  - Zeile 1: `custom-preorder.listing.availableFromPrefix` („Voraussichtlich ab“)
-  - Zeile 2: `releaseDate|date('d.m.Y')` (z. B. `30.09.2026`)
-  - Halbtransparenter Frosted-Hintergrund, kein Dot, kein Zusatztext.
-  - `pointer-events: none` für Klick-Durchlässigkeit.
-- **100% Horizontale Grid-Symmetrie:** Keine Infoboxen über dem Kaufen-Button in `action.html.twig`.
-- **Bereinigte Altlasten:**
-  - `badges.html.twig` gelöscht (kein doppeltes Badge in der Ecke).
-  - Toter SCSS-Code (`.product-card-preorder-info`, `.preorder-image-badge`) aus `base.scss` entfernt.
-  - Skill-Datei `.agent/skills/rules_preorder_storefront/SKILL.md` wieder im Originalzustand.
+- **Problem:** Auf der Kategorieseite fehlte das Vorbestellungs-Lieferdatum auf dem Produktbild. Der Button „Jetzt vorbestellen" wurde korrekt gerendert, das Bild-Banner aber nicht.
+- **Fehlgeschlagener Ansatz (Vorgänger-Agent):** Block-Override `component_product_box_image` in `box-standard.html.twig` — greift nicht, weil Shopware im `sw_include`-Kontext Block-Overrides aus `sw_extends`-Dateien nicht zuverlässig auflöst.
+- **Beweis:** `curl`-Analyse zeigte 0 Treffer für `position-relative` bei 24 Produktkarten, obwohl `action.html.twig` (separate Datei per `sw_include`) einwandfrei funktionierte.
+- **Schlüsselerkenntnis:** Rabatt-Badges (`%`) nutzen `badges.html.twig` per `sw_include` als eigenständige Datei — Plugin-Override greift nachweislich.
+
+### 2. Technische Lösung
+
+- **Template:** `badges.html.twig` erweitert `component_product_badges` via `sw_extends` + `{{ parent() }}`.
+- **Positionierung:** `position: absolute` im `.card-body` (gleicher Mechanismus wie Core-Rabatt-Badges).
+- **Nur Datum, kein Hinweistext** — Präfix + Datum (`dd.mm.YYYY`).
+- **`::before` Pseudo-Element:** Hintergrund + Opacity auf `::before`, Text bleibt 100% deckend.
+
+### 3. Plugin-Config (3 neue Felder)
+
+| Feld | Typ | Default | CSS Custom Property |
+|---|---|---|---|
+| `listingBannerBackgroundColor` | Colorpicker | `#0f172a` | `--custom-preorder-banner-bg` |
+| `listingBannerTextColor` | Colorpicker | `#ffffff` | `--custom-preorder-banner-color` |
+| `listingBannerOpacity` | Int (20–100) | `55` | `--custom-preorder-banner-opacity` |
+
+### 4. Bereinigte Altlasten
+
+- `box-standard.html.twig` und `box-image.html.twig` gelöscht (toter Code)
+- `.product-image-preorder-banner` SCSS-Klasse entfernt (verwaist)
 
 ---
 
@@ -215,9 +222,6 @@ CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
 ---
 
 ## Aktueller Status
-- Feature-Branch `feat/storefront-delivery-styling` synchronisiert.
-- Release-Artefakt `dist/CustomPreOrderManager.zip` mit `shopware-cli` frisch gebaut (Commit `755aa3c`).
-- Verifikation auf Teststation (`192.168.2.222:8080`) dokumentiert.
-
-
-
+- Merge `feat/storefront-delivery-styling` → `main`, Tag `v1.1.0`.
+- Release-Artefakt `dist/CustomPreOrderManager.zip` gebaut (Commit `3865801`).
+- Visuell verifiziert auf Teststation (`192.168.2.222:8080/freizeit-elektro/`).
