@@ -364,6 +364,7 @@ a.btn-preorder,
 
 // Vorbestelldatum-Banner auf Kategorie-Listing-Cards (via badges.html.twig)
 // Farben und Deckkraft konfigurierbar über Plugin-Config → CSS Custom Properties
+// Opacity liegt auf ::before (Hintergrund), Text bleibt 100 % deckend
 .product-preorder-date-banner {
     position: absolute;
     left: 0;
@@ -374,14 +375,21 @@ a.btn-preorder,
     align-items: center;
     justify-content: center;
     padding: 0.35rem 0.5rem;
-    background-color: var(--custom-preorder-banner-bg, #0f172a);
-    opacity: var(--custom-preorder-banner-opacity, 0.55);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
     color: var(--custom-preorder-banner-color, #ffffff);
     text-align: center;
     pointer-events: none;
-    transition: background-color 0.2s ease, opacity 0.2s ease;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-color: var(--custom-preorder-banner-bg, #0f172a);
+        opacity: var(--custom-preorder-banner-opacity, 0.55);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: -1;
+        transition: background-color 0.2s ease, opacity 0.2s ease;
+    }
 
     .preorder-banner-prefix {
         font-size: 0.625rem;
