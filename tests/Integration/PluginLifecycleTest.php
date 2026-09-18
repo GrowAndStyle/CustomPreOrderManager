@@ -72,6 +72,13 @@ class PluginLifecycleTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
+    /**
+     * Läuft in einem eigenen Prozess, da DROP TABLE einen impliziten MySQL-Commit
+     * auslöst, der mit IntegrationTestBehaviour's Rollback-Transaktion inkompatibel ist.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testUninstallRemoveUserDataExecutesCleanup(): void
     {
         $context = $this->createMock(UninstallContext::class);

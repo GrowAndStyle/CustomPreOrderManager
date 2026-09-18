@@ -100,15 +100,17 @@ class CustomPreOrderManager extends Plugin
             // Tabelle product besitzt in Shopware 6.5+ keine custom_fields Spalte (liegt auf product_translation)
         }
 
-        // 4. Tag "Vorbestellung" und Order-Tag-Verknüpfungen vollständig entfernen
+        // 5. Tag "Vorbestellung" und Order-Tag-Verknüpfungen vollständig entfernen
         $connection->executeStatement("
-            DELETE ot, t
-            FROM tag t
-            LEFT JOIN order_tag ot ON ot.tag_id = t.id
+            DELETE ot FROM `order_tag` ot
+            INNER JOIN `tag` t ON ot.tag_id = t.id
             WHERE t.name = 'Vorbestellung'
         ");
+        $connection->executeStatement("
+            DELETE FROM `tag` WHERE name = 'Vorbestellung'
+        ");
 
-        // 5. Gespeicherte Plugin-Konfigurationen bereinigen
+        // 6. Gespeicherte Plugin-Konfigurationen bereinigen
         $connection->executeStatement("
             DELETE FROM system_config
             WHERE configuration_key LIKE 'CustomPreOrderManager.config.%'
