@@ -14,7 +14,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * Integrationstest für die Plugin-Hauptklasse.
  *
- * Testet Lifecycle-Hooks und saubere Initialisierung im Test-Container.
+ * Testet alle Lifecycle-Hooks im echten Shopware Test-Container.
+ * Die Uninstall-Cleanup-Logik (keepUserData=false) wird ausschließlich in
+ * PluginUninstallTest per Mock mit Argument-Verifikation abgedeckt, da
+ * DROP TABLE einen impliziten MySQL-Commit auslöst und damit mit dem
+ * Rollback-Mechanismus von IntegrationTestBehaviour inkompatibel ist.
  */
 class PluginLifecycleTest extends TestCase
 {
@@ -67,22 +71,6 @@ class PluginLifecycleTest extends TestCase
     {
         $context = $this->createMock(UninstallContext::class);
         $context->method('keepUserData')->willReturn(true);
-
-        $this->plugin->uninstall($context);
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Läuft in einem eigenen Prozess, da DROP TABLE einen impliziten MySQL-Commit
-     * auslöst, der mit IntegrationTestBehaviour's Rollback-Transaktion inkompatibel ist.
-     *
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
-     */
-    public function testUninstallRemoveUserDataExecutesCleanup(): void
-    {
-        $context = $this->createMock(UninstallContext::class);
-        $context->method('keepUserData')->willReturn(false);
 
         $this->plugin->uninstall($context);
         $this->addToAssertionCount(1);

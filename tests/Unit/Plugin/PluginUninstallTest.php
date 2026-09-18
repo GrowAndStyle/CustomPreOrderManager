@@ -15,9 +15,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Unit-Tests für den Plugin-Lifecycle und Uninstall.
  *
- * Testet alle 5 Lifecycle-Methoden und stellt sicher, dass bei keepUserData=false
- * sowohl das CustomField-Set als auch system_config und custom_fields an Produkten
- * bereinigt werden.
+ * Testet alle 5 Lifecycle-Methoden und verifiziert per Argument-Matching,
+ * dass uninstall(keepUserData=false) exakt die erwarteten SQL-Statements
+ * in der richtigen Reihenfolge ausführt.
  */
 class PluginUninstallTest extends TestCase
 {
@@ -86,7 +86,18 @@ class PluginUninstallTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::exactly(9))
-            ->method('executeStatement');
+            ->method('executeStatement')
+            ->withConsecutive(
+                [static::stringContains('DROP TABLE IF EXISTS `custom_preorder_waitlist`')],
+                [static::stringContains('DELETE cf FROM `custom_field` cf')],
+                [static::stringContains('DELETE cfsr FROM `custom_field_set_relation` cfsr')],
+                [static::stringContains('DELETE FROM `custom_field_set`')],
+                [static::stringContains('UPDATE `product_translation`')],
+                [static::stringContains('UPDATE `product`')],
+                [static::stringContains('DELETE ot FROM `order_tag` ot')],
+                [static::stringContains('DELETE FROM `tag`')],
+                [static::stringContains('DELETE FROM system_config')],
+            );
 
         $container = $this->createMock(ContainerInterface::class);
         $container->method('get')
@@ -94,7 +105,6 @@ class PluginUninstallTest extends TestCase
             ->willReturn($connection);
 
         $this->plugin->setContainer($container);
-
         $this->plugin->uninstall($context);
     }
 }
