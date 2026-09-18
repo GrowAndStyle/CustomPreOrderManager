@@ -43,6 +43,7 @@
   - [Systemvoraussetzungen](#systemvoraussetzungen)
   - [Release-Build mit shopware-cli](#release-build-mit-shopware-cli)
   - [Manuelle Installation im Shop](#manuelle-installation-im-shop)
+  - [Nach der Installation — Bestellbestätigung anpassen](#nach-der-installation--bestellbestätigung-anpassen-pflichtschritt)
 - [Testing & Qualitätssicherung (100% Coverage)](#-testing--qualitätssicherung-100-coverage)
   - [Test-Architektur & Test-Matrix](#test-architektur--test-matrix)
   - [Offizieller PHPUnit-Prüfbericht (Dockware Teststation)](#offizieller-phpunit-prüfbericht-dockware-teststation)
@@ -339,6 +340,55 @@ bin/console plugin:install --activate CustomPreOrderManager
 # Caches leeren und Assets kompilieren
 bin/console cache:clear
 bin/console theme:compile
+```
+
+### Nach der Installation — Bestellbestätigung anpassen (Pflichtschritt)
+
+> **Wichtig:** Das Plugin reichert jede Bestellposition automatisch mit Vorbestellungs-Metadaten an (LineItem Payload Enrichment). Diese Daten stehen im Bestellbestätigungs-Mail-Template zur Verfügung, werden vom Standard-Template aber **nicht** angezeigt. Damit Kunden in der Bestellbestätigung erkennen, welche Positionen Vorbestellungen sind und wann die Lieferung voraussichtlich erfolgt, muss das Mail-Template einmalig angepasst werden.
+
+#### Schritt-für-Schritt
+
+1. Im Shopware Administration Panel navigieren: **Einstellungen → E-Mail-Templates**
+2. Das Template **„Bestellbestätigung"** (`order_confirmation_mail`) öffnen
+3. Im HTML-Bereich die Stelle finden, an der die Bestellpositionen aufgelistet werden (innerhalb der `{% for lineItem in order.lineItems %}` Schleife)
+4. Direkt **nach** dem Produktnamen bzw. der Artikelbezeichnung folgenden Twig-Block einfügen:
+
+```twig
+{% if lineItem.payload.isPreOrder is defined and lineItem.payload.isPreOrder %}
+    <br>
+    <small style="color: #555555; font-size: 12px;">
+        📅 Vorbestellung
+        {% if lineItem.payload.preOrderReleaseText is defined and lineItem.payload.preOrderReleaseText %}
+            — {{ lineItem.payload.preOrderReleaseText }}
+        {% endif %}
+    </small>
+{% endif %}
+```
+
+5. Änderung speichern und eine Test-Bestellung mit einem Vorbestellartikel auslösen.
+
+#### Verfügbare Payload-Felder pro Bestellposition
+
+| Feld | Typ | Beschreibung | Beispielwert |
+|---|:---:|---|---|
+| `lineItem.payload.isPreOrder` | `bool` | `true` wenn die Position eine Vorbestellung ist | `true` |
+| `lineItem.payload.preOrderReleaseText` | `string` | Lieferhinweis — entweder der vom Händler gepflegte Freitext oder ein automatisch generiertes Datum im Format `mm/YYYY` | `"Lieferbar ab 11/2026"` |
+
+#### Verhalten bei Mischwarenkörben
+
+Die Payload-Felder sind **positionsbezogen**. Bei einer Bestellung mit Vorbestellartikeln und sofort lieferbaren Lagerartikeln erscheint der Vorbestellhinweis nur an den betroffenen Positionen. Lagerartikel bleiben unverändert — der Hinweis greift ausschließlich bei `isPreOrder === true`.
+
+#### Beispiel: Bestellbestätigung mit Vorbestellposition
+
+```text
+Ihre Bestellung #10234
+
+  1x  Hydroponic Starter Kit Pro          49,90 €
+      📅 Vorbestellung — Lieferbar ab 11/2026
+
+  2x  LED Grow Light 600W                 89,90 €
+
+  Gesamt:                                229,70 €
 ```
 
 ---
