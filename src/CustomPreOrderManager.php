@@ -53,12 +53,7 @@ class CustomPreOrderManager extends Plugin
         /** @var Connection $connection */
         $connection = $this->container->get(Connection::class);
 
-        // 1. Waitlist-Tabelle entfernen (ADR-004: Waitlist-Feature wurde verworfen)
-        $connection->executeStatement('
-            DROP TABLE IF EXISTS `custom_preorder_waitlist`
-        ');
-
-        // 2. Custom-Field-Set, Relationen und Felder in korrekter FK-Reihenfolge entfernen
+        // 1. Custom-Field-Set, Relationen und Felder in korrekter FK-Reihenfolge entfernen
         $connection->executeStatement("
             DELETE cf FROM `custom_field` cf
             INNER JOIN `custom_field_set` cfs ON cf.set_id = cfs.id

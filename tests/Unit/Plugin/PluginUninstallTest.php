@@ -85,10 +85,9 @@ class PluginUninstallTest extends TestCase
         $context->method('keepUserData')->willReturn(false);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::exactly(9))
+        $connection->expects(static::exactly(8))
             ->method('executeStatement')
             ->withConsecutive(
-                [static::stringContains('DROP TABLE IF EXISTS `custom_preorder_waitlist`')],
                 [static::stringContains('DELETE cf FROM `custom_field` cf')],
                 [static::stringContains('DELETE cfsr FROM `custom_field_set_relation` cfsr')],
                 [static::stringContains('DELETE FROM `custom_field_set`')],
