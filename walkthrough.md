@@ -303,3 +303,22 @@ Bei der Analyse des Bluelab EC-Pen (Zulauf 10, `sold_count` 7, alle unbezahlt) w
 
 ### Subagent-Governance
 - 1 Subagent (`storefront-worker`) für Template-Erstellung (Aufgaben B6–B9).
+
+---
+
+## Phase 8: Scarcity-Badge Card & Listing Integration (ADR-010, UWG-konform)
+
+### Kontext & Entscheidung
+- **ADR-010:** Scarcity-Badge („Fast vergriffen: Nur noch X Stück!“) wird auf der PDP in die Delivery-Information-Card integriert und auf Listing-Karten am unteren Rand des Produktbildes als Overlay gerendert.
+- **Listing-Architektur:** In Shopware 6.5 box-standard Cards wird das Badge über `src/Resources/views/storefront/component/product/card/badges.html.twig` sauber in den Card-Body integriert.
+- **SCSS-Positionierung:** Statt fragiler Template-Eingriffe in `box-standard.html.twig` nutzt `.preorder-scarcity-listing` die exakte Geometrie der Bildbox:
+  ```scss
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--bs-card-spacer-y, 1rem) + 200px);
+  transform: translateY(-100%);
+  ```
+  Dadurch liegt das Badge pixelgenau am unteren Bildrand, identisch zu `.product-preorder-date-banner` am oberen Rand.
+- **Verifikation & Test-Hygiene:** `DeliveryInformationTemplateTest.php` validiert `badges.html.twig` und das Fehlen veralteter Buy-Widget Badges. Alle XML/JSON-Dateien sind 100% valide.
+

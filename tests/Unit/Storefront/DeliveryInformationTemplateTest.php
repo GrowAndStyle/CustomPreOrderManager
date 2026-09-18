@@ -268,6 +268,8 @@ class DeliveryInformationTemplateTest extends TestCase
         // Scarcity als absolut positioniertes Overlay in badges.html.twig (ADR-010)
         // Gleiche Technik wie product-preorder-date-banner
         $templatePath = $this->viewsPath . '/component/product/card/badges.html.twig';
+        static::assertFileExists($templatePath);
+
         $content = (string) file_get_contents($templatePath);
 
         static::assertStringContainsString('scarcityDisplayMode', $content);

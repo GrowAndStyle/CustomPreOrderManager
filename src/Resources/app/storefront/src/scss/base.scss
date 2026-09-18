@@ -445,12 +445,13 @@ a.btn-preorder,
 }
 
 // Scarcity-Badge auf Listing-Karten als Overlay (ADR-010)
-// Gleiche Technik wie .product-preorder-date-banner — absolut positioniert auf dem Produktbild
+// Via badges.html.twig — absolut über dem unteren Bildrand positioniert
 .preorder-scarcity-listing {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
+    top: calc(var(--bs-card-spacer-y, 1rem) + 200px);
+    transform: translateY(-100%);
     z-index: 2;
     display: flex;
     align-items: center;
