@@ -320,7 +320,8 @@ class DeliveryInformationTemplateTest extends TestCase
 
     public function testBaseScssHasCorrectOverlayPositioningAdr011(): void
     {
-        // ADR-011: Kein Pixel-Hack, korrekter Containing Block und explizite top/bottom-Werte
+        // ADR-011: Kein Pixel-Hack, korrekter Containing Block, explizite top/bottom-Werte,
+        // border-radius + overflow: hidden für sauberes Frosted-Glass-Clipping
         $scssPath = dirname(__DIR__, 3) . '/src/Resources/app/storefront/src/scss/base.scss';
         $content = (string) file_get_contents($scssPath);
 
@@ -331,6 +332,36 @@ class DeliveryInformationTemplateTest extends TestCase
         // Pixel-Hack entfernt
         static::assertStringNotContainsString('top: calc(var(--bs-card-spacer-y', $content, 'Pixel-Hack darf nach ADR-011 nicht mehr im SCSS stehen');
         static::assertStringNotContainsString('translateY(-100%)', $content, 'transform-Hack darf nach ADR-011 nicht mehr im SCSS stehen');
+
+        // border-radius: Date-Banner unten abgerundet, Scarcity oben abgerundet
+        static::assertStringContainsString('border-radius: 0 0 8px 8px', $content, 'Date-Banner muss border-radius 0 0 8px 8px besitzen');
+        static::assertStringContainsString('border-radius: 8px 8px 0 0', $content, 'Scarcity-Badge muss border-radius 8px 8px 0 0 besitzen');
+
+        // overflow: hidden zwingend für backdrop-filter-Clipping an Rundungen
+        $dateBannerSection = substr($content, strpos($content, '.product-preorder-date-banner'), 600);
+        static::assertStringContainsString('overflow: hidden', $dateBannerSection, 'Date-Banner muss overflow: hidden für border-radius-Clipping besitzen');
+
+        $scarcitySection = substr($content, strpos($content, '.preorder-scarcity-listing {'), 600);
+        static::assertStringContainsString('overflow: hidden', $scarcitySection, 'Scarcity-Badge muss overflow: hidden für border-radius-Clipping besitzen');
+    }
+
+    public function testBadgesTemplateSupressesDiscountBadgeForPreorder(): void
+    {
+        // Rabatt-% Badge wird unterdrückt wenn Preorder-Overlays aktiv.
+        // Verifiziert gegen Shopware 6.5.8.19: Block component_product_badges_discount.
+        $badgesPath = $this->viewsPath . '/component/product/card/badges.html.twig';
+        $content = (string) file_get_contents($badgesPath);
+
+        // Override des korrekten 6.5.x Blocks vorhanden
+        static::assertStringContainsString('component_product_badges_discount', $content);
+
+        // Preorder-Logik korrekt verknüpft
+        static::assertStringContainsString('custom_preorder_active', $content);
+        static::assertStringContainsString('enableListingBadge', $content);
+        static::assertStringContainsString('hasStock', $content);
+
+        // Fallback: parent() wird gerufen wenn kein Preorder-Overlay aktiv
+        static::assertStringContainsString('{{ parent() }}', $content);
     }
 
     public function testBuyWidgetTemplatesRemovedAfterCardIntegration(): void

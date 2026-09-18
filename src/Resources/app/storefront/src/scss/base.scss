@@ -385,6 +385,8 @@ a.btn-preorder,
     color: var(--custom-preorder-banner-color, #ffffff);
     text-align: center;
     pointer-events: none;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
 
     &::before {
         content: '';
@@ -392,8 +394,8 @@ a.btn-preorder,
         inset: 0;
         background-color: var(--custom-preorder-banner-bg, #0f172a);
         opacity: var(--custom-preorder-banner-opacity, 0.55);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         z-index: -1;
         transition: background-color 0.2s ease, opacity 0.2s ease;
     }
@@ -468,6 +470,8 @@ a.btn-preorder,
     color: var(--custom-preorder-listing-scarcity-color, #ffffff);
     text-align: center;
     pointer-events: none;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
 
     &::before {
         content: '';
@@ -475,14 +479,14 @@ a.btn-preorder,
         inset: 0;
         background-color: var(--custom-preorder-listing-scarcity-bg, #b45309);
         opacity: var(--custom-preorder-listing-scarcity-opacity, 0.65);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         z-index: -1;
         transition: background-color 0.2s ease, opacity 0.2s ease;
     }
 
     .scarcity-listing-prefix {
-        font-size: 0.625rem;
+        font-size: 0.75rem;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -500,7 +504,7 @@ a.btn-preorder,
         padding: 0.2rem 0.35rem;
 
         .scarcity-listing-prefix {
-            font-size: 0.5625rem;
+            font-size: 0.75rem;
         }
 
         .scarcity-listing-count {
