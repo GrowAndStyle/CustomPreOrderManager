@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/Shopware-6.5%20|%206.6%20|%206.7-189eff?style=flat-square&logo=shopware&logoColor=white" alt="Shopware">
   <img src="https://img.shields.io/badge/Version-v1.0.0-0f62fe?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/PHP-8.1+-777bb4?style=flat-square&logo=php&logoColor=white" alt="PHP">
-  <img src="https://img.shields.io/badge/Tests-112%20passed-2ea44f?style=flat-square&logo=githubactions&logoColor=white" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-103%20passed-2ea44f?style=flat-square&logo=githubactions&logoColor=white" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-100%25-2ea44f?style=flat-square" alt="Coverage">
   <img src="https://img.shields.io/badge/Architecture-Enterprise%20Tier--1-blueviolet?style=flat-square" alt="Architecture">
   <img src="https://img.shields.io/badge/Security-Zero--Trust%20%7C%20XSS--Proof-success?style=flat-square" alt="Security">
@@ -215,6 +215,12 @@ Pflegbar im Shopware Administration Panel unter *Einstellungen → Erweiterungen
 | `CustomPreOrderManager.config.enableMixedCartNotice` | `bool` | `true` | Mischwarenkorb-Hinweis im Offcanvas & Checkout aktivieren. | Enable mixed cart notice in offcanvas & checkout. |
 | `CustomPreOrderManager.config.mixedCartNoticeMode` | `select` | `flexible` | Fulfillment-Modus für Mischwarenkörbe (`flexible`, `split`, `consolidated`, `custom`). | Fulfillment mode for mixed carts (`flexible`, `split`, `consolidated`, `custom`). |
 | `CustomPreOrderManager.config.mixedCartCustomNoticeText` | `text` | `""` | Individueller Hinweistext bei Modus `custom`. | Custom notice text when mode is set to `custom`. |
+| `CustomPreOrderManager.config.listingBannerBackgroundColor` | `colorpicker` | `#0f172a` | Datum-Banner Hintergrundfarbe (Kategorielisting). | Date banner background color (category listing). |
+| `CustomPreOrderManager.config.listingBannerTextColor` | `colorpicker` | `#ffffff` | Datum-Banner Textfarbe. | Date banner text color. |
+| `CustomPreOrderManager.config.listingBannerOpacity` | `int` | `55` | Datum-Banner Deckkraft in % (20–100). | Date banner opacity in % (20–100). |
+| `CustomPreOrderManager.config.listingScarcityBackgroundColor` | `colorpicker` | `#b45309` | Scarcity-Badge Hintergrundfarbe (Kategorielisting). | Scarcity badge background color (category listing). |
+| `CustomPreOrderManager.config.listingScarcityTextColor` | `colorpicker` | `#ffffff` | Scarcity-Badge Textfarbe. | Scarcity badge text color. |
+| `CustomPreOrderManager.config.listingScarcityOpacity` | `int` | `65` | Scarcity-Badge Deckkraft in % (20–100). | Scarcity badge opacity in % (20–100). |
 
 ---
 
@@ -279,7 +285,7 @@ CustomPreOrderManager/
 │   │   └── Migration1726200000AddPreOrderCustomFields.php
 │   └── Resources/
 │       ├── config/
-│       │   ├── config.xml                       # 22 Konfigurationsfelder (5 Cards)
+│       │   ├── config.xml                       # 25 Konfigurationsfelder (5 Cards)
 │       │   ├── services.xml                     # Symfony DI Service-Definitionen
 │       │   └── plugin.png                       # Plugin-Icon (128x128)
 │       ├── snippet/
@@ -504,6 +510,7 @@ Grundlegende Architekturentscheidungen sind nach dem Michael Nygard ADR-Standard
 | **[ADR-008](docs/adr/ADR-008-end-to-end-preorder-delivery-information.md)** | Full-Funnel Vorbestellungs-Architektur, Quota Guard & Mischwarenkorb | `AKZEPTIERT` | Durchgängige Begleitung (Listing bis Kundenkonto), aktiver Cart-Quota-Guard mit Shopware-Alerts und flexibler Mischwarenkorb-Versandhinweis. |
 | **[ADR-009](docs/adr/ADR-009-payment-aware-sold-counter.md)** | Payment-Aware Sold Counter | `AKZEPTIERT` | `sold_count` erst bei Zahlungseingang (`paid`), automatischer Rollback bei Storno/Refund, GREATEST-Guard gegen negative Werte. |
 | **[ADR-010](docs/adr/ADR-010-scarcity-badge-card-integration-uwg.md)** | Scarcity-Badge Card-Integration (UWG-konform) | `AKZEPTIERT` | Badge in Delivery-Card integriert, Listing-Support, granulare Config (`scarcityDisplayMode`), UWG §5 / Omnibus-RL konform. |
+| **[ADR-011](docs/adr/ADR-011-listing-overlay-anchor-box-standard-vs-badges.md)** | Listing-Overlay Anker — box-standard.html.twig | `AKZEPTIERT` | Overlays in `component_product_box_image` (verifiziert 6.5.8.19), Containing Block `preorder-image-overlay-root`, kein Pixel-Hack, eigene Listing-Scarcity-Config-Felder. |
 
 ---
 

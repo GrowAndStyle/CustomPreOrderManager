@@ -12,3 +12,4 @@
 | [ADR-008](docs/adr/ADR-008-end-to-end-preorder-delivery-information.md) | End-to-End Pre-Order Delivery Information | ENTSCHIEDEN | 2026-09-01 |
 | [ADR-009](docs/adr/ADR-009-payment-aware-sold-counter.md) | Payment-Aware Sold Counter | ENTSCHIEDEN | 2026-09-18 |
 | [ADR-010](docs/adr/ADR-010-scarcity-badge-card-integration-uwg.md) | Scarcity-Badge Card-Integration (UWG-konform) | ENTSCHIEDEN | 2026-09-18 |
+| [ADR-011](docs/adr/ADR-011-listing-overlay-anchor-box-standard-vs-badges.md) | Listing-Overlay Anker — box-standard.html.twig vs. badges.html.twig | ENTSCHIEDEN | 2026-09-19 |
