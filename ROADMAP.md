@@ -11,7 +11,6 @@
 - Admin-Dashboard mit Vorbestellungs-Listing und Produkt-Detail-Tab
 - Storefront: Vorbestell-Button, Scarcity-Badge, Lieferzeit-Box, Listing-Badges
 - Rate-Limiter via `PrependExtensionInterface`
-- 35 Tests, 100% Coverage (5/5 Klassen, 20/20 Methoden, 102/102 Zeilen)
 - Zweisprachige Snippets (de-DE, en-GB)
 
 ### v1.1.0 — Storefront Refinement
@@ -20,25 +19,35 @@
 - Bereinigung harter Maße zugunsten nativer Theme-Klassen
 - ConfigXmlTest mit 7 Tests für bilinguale Labels und Hex-Defaults
 
----
-
-## Geplant
-
 ### v1.2.0 — Post-Install Mail-Template-Dokumentation
-- README.md-Erweiterung: Post-Installations-Anleitung für die Anpassung des Bestellbestätigungs-Templates
+- README.md: Post-Installations-Anleitung für Bestellbestätigungs-Template-Anpassung
 - Vollständige Payload-Feldreferenz (8/8 Felder), Twig-Snippet, Mischwarenkorb-Dokumentation
 - ROADMAP.md erstellt
 
 ### v1.3.0 — Payment-Aware Counter, Scarcity-Badge-Fix & Checkout-Mischwarenkorb
-- **Status:** In Arbeit
-- **ADR-009:** `sold_count` wird erst bei Zahlungseingang (`paid`) erhöht statt bei Bestelleingang
-- Automatischer Rollback bei Stornierung (`cancelled`) und Rückerstattung (`refunded`)
-- Neuer `PaymentStateSubscriber` für State Machine Events
-- `OrderPlacedSubscriber` refactored: Counter entfernt, Tag + Event bleiben bei Bestelleingang
-- Scarcity-Badge auf PDP: Snippet-Key-Inkonsistenz behoben
-- Mischwarenkorb-Hinweis auf `/checkout/cart` und `/checkout/confirm` ergänzt (Twig-Partial)
+- **ADR-009:** `sold_count` erst bei Zahlungseingang (`paid`), Rollback bei Storno/Refund
+- Neuer `PaymentStateSubscriber` für Shopware State Machine Events
+- `OrderPlacedSubscriber` refactored: Counter entfernt, Tag + Event bleiben
+- Scarcity-Badge PDP: Snippet-Key-Inkonsistenz behoben
+- Mischwarenkorb-Hinweis auf `/checkout/cart` und `/checkout/confirm` (Twig-Partial)
 - Snippet-Bereinigung: Verwaiste Root-Level-Keys entfernt
-- Test-Hygiene: Duplizierte Tests gelöscht, defekte Mocks korrigiert, PaymentStateSubscriberTest neu
+
+### v1.4.0 — ADR-011: Listing-Overlay Structural Refactor & Scarcity-Config
+- **ADR-011:** Overlays (Date-Banner, Scarcity-Badge) in `box-standard.html.twig` via `component_product_box_image` (verifiziert Shopware 6.5.8.19) — kein Pixel-Hack mehr
+- Containing Block `preorder-image-overlay-root` mit `position: relative`, `top: 0`, `bottom: 0`
+- `badges.html.twig` auf minimales `{{ parent() }}` reduziert
+- DROP TABLE aus Uninstaller entfernt — `keepUserData=false` per Integration-Test absicherbar
+- 3 neue Config-Felder für Listing-Scarcity-Badge (Farbe, Textfarbe, Opacity) — entkoppelt von Card/PDP
+- Scarcity-Badge zweizeilig: `listing.scarcityPrefix` / `listing.scarcityCount`
+- 104 Tests, 741 Assertions, 100% Coverage (9/9 Klassen, 41/41 Methoden, 220/220 Zeilen)
+
+### v1.4.1 — Listing-Overlay Visuelles Goldstandard-Finish
+- Date-Banner: `top: calc(-1 * var(--bs-card-spacer-y, 1rem))` — theme-aware Offset via Bootstrap-Variable, kein Magic Number
+- Date-Banner + Scarcity-Badge: `border: 1px solid rgba(255,255,255,0.15/0.18)` — Glassmorphism Micro-Border
+- Date-Banner + Scarcity-Badge: `box-shadow: 0 4px 12px rgba(15,23,42,0.15–0.18)` — Soft Elevation
+- Date-Banner + Scarcity-Badge: `backdrop-filter: blur(8px)` — verstärktes Frosted-Glass
+- Scarcity-Badge: `border-radius: 8px` (alle Ecken) statt `8px 8px 0 0` — kein Flush-Look bei `bottom: 0`
+- Rabatt-% Badge (`component_product_badges_discount`) wird bei aktiven Preorder-Overlays ausgeblendet — Rabattinfo bleibt als Durchstreich-Preis + rote Schrift sichtbar
 
 ---
 
