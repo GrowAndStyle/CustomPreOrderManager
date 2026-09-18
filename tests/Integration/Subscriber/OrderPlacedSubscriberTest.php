@@ -3,7 +3,6 @@
 namespace CustomPreOrderManager\Tests\Integration\Subscriber;
 
 use CustomPreOrderManager\Core\Checkout\Subscriber\OrderPlacedSubscriber;
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -23,7 +22,6 @@ class OrderPlacedSubscriberTest extends TestCase
         $this->subscriber = new OrderPlacedSubscriber(
             $this->getContainer()->get('order.repository'),
             $this->getContainer()->get('tag.repository'),
-            $this->getContainer()->get(Connection::class),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('logger')
         );

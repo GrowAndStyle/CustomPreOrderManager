@@ -2,10 +2,8 @@
 
 namespace CustomPreOrderManager\Core\Checkout\Subscriber;
 
-use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -19,7 +17,6 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly EntityRepository $orderRepository,
         private readonly EntityRepository $tagRepository,
-        private readonly Connection $connection,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly LoggerInterface $logger,
     ) {}
@@ -46,25 +43,6 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
             }
 
             $preOrderItemCount++;
-            $productId = $item->getReferencedId();
-
-            if ($productId) {
-                // Atomares Inkrement der verkauften Menge auf product_translation unter strikter Beachtung der LIVE_VERSION
-                $this->connection->executeStatement(
-                    'UPDATE `product_translation`
-                     SET `custom_fields` = JSON_SET(
-                         COALESCE(`custom_fields`, "{}"),
-                         "$.custom_preorder_sold_count",
-                         COALESCE(JSON_UNQUOTE(JSON_EXTRACT(`custom_fields`, "$.custom_preorder_sold_count")), 0) + :qty
-                     )
-                     WHERE `product_id` = :id AND `product_version_id` = :versionId',
-                    [
-                        'id' => Uuid::fromHexToBytes($productId),
-                        'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                        'qty' => $item->getQuantity(),
-                    ]
-                );
-            }
         }
 
         if ($preOrderItemCount === 0) {

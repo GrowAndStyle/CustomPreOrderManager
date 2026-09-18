@@ -130,33 +130,7 @@ class DeliveryInformationTemplateTest extends TestCase
         static::assertStringNotContainsString('product-card-preorder-info', $content);
     }
 
-    public function testProductCardBoxStandardTemplateContainsPreOrderBanner(): void
-    {
-        $templatePath = $this->viewsPath . '/component/product/card/box-standard.html.twig';
-        static::assertFileExists($templatePath);
 
-        $content = (string) file_get_contents($templatePath);
-
-        static::assertStringContainsString('component_product_box_image', $content);
-        static::assertStringContainsString('product-image-preorder-banner', $content);
-        static::assertStringContainsString('preorder-banner-prefix', $content);
-        static::assertStringContainsString('preorder-banner-date', $content);
-        static::assertStringContainsString('custom-preorder.listing.availableFromPrefix', $content);
-    }
-
-    public function testProductCardBoxImageTemplateContainsPreOrderBanner(): void
-    {
-        $templatePath = $this->viewsPath . '/component/product/card/box-image.html.twig';
-        static::assertFileExists($templatePath);
-
-        $content = (string) file_get_contents($templatePath);
-
-        static::assertStringContainsString('component_product_box_image', $content);
-        static::assertStringContainsString('product-image-preorder-banner', $content);
-        static::assertStringContainsString('preorder-banner-prefix', $content);
-        static::assertStringContainsString('preorder-banner-date', $content);
-        static::assertStringContainsString('custom-preorder.listing.availableFromPrefix', $content);
-    }
 
     public function testLineItemLabelTemplateContainsStructuredInfoAndNoEmojis(): void
     {
@@ -182,11 +156,48 @@ class DeliveryInformationTemplateTest extends TestCase
 
         $content = (string) file_get_contents($templatePath);
 
+        // Offcanvas-Cart bindet das Partial per sw_include ein
         static::assertStringContainsString('mixed-cart-notice', $content);
-        static::assertStringContainsString('mixed-cart-notice-headline', $content);
-        static::assertStringContainsString('mixed-cart-notice-body', $content);
-        static::assertStringContainsString('enableMixedCartNotice', $content);
-        static::assertStringContainsString('mixedCartNoticeMode', $content);
+        static::assertStringContainsString('sw_include', $content);
+        static::assertStringContainsString('component/preorder/mixed-cart-notice.html.twig', $content);
+
+        // Die eigentliche Logik liegt jetzt im Partial
+        $partialPath = $this->viewsPath . '/component/preorder/mixed-cart-notice.html.twig';
+        static::assertFileExists($partialPath);
+
+        $partialContent = (string) file_get_contents($partialPath);
+        static::assertStringContainsString('mixed-cart-notice-headline', $partialContent);
+        static::assertStringContainsString('mixed-cart-notice-body', $partialContent);
+        static::assertStringContainsString('enableMixedCartNotice', $partialContent);
+        static::assertStringContainsString('mixedCartNoticeMode', $partialContent);
+    }
+
+    public function testCheckoutCartTemplateUsesCorrectBlockName(): void
+    {
+        $templatePath = $this->viewsPath . '/page/checkout/cart/index.html.twig';
+        static::assertFileExists($templatePath);
+
+        $content = (string) file_get_contents($templatePath);
+
+        // Block-Name gemäß Shopware 6.5 Quellcode
+        static::assertStringContainsString('page_checkout_cart', $content);
+        static::assertStringNotContainsString('page_checkout_cart_container', $content);
+        static::assertStringContainsString('sw_include', $content);
+        static::assertStringContainsString('component/preorder/mixed-cart-notice.html.twig', $content);
+    }
+
+    public function testCheckoutConfirmTemplateUsesCorrectBlockName(): void
+    {
+        $templatePath = $this->viewsPath . '/page/checkout/confirm/index.html.twig';
+        static::assertFileExists($templatePath);
+
+        $content = (string) file_get_contents($templatePath);
+
+        // Block-Name gemäß Shopware 6.5 Quellcode
+        static::assertStringContainsString('page_checkout_confirm', $content);
+        static::assertStringNotContainsString('page_checkout_confirm_container', $content);
+        static::assertStringContainsString('sw_include', $content);
+        static::assertStringContainsString('component/preorder/mixed-cart-notice.html.twig', $content);
     }
 
     public function testAccountOrderHistoryTemplatesDisplayPreOrderStatus(): void
@@ -203,6 +214,50 @@ class DeliveryInformationTemplateTest extends TestCase
 
         $overviewContent = (string) file_get_contents($orderItemPath);
         static::assertStringContainsString('order-overview-preorder-badge', $overviewContent);
+    }
+
+    public function testScarcityBadgePartialContainsFullLogic(): void
+    {
+        $partialPath = $this->viewsPath . '/component/preorder/scarcity-badge.html.twig';
+        static::assertFileExists($partialPath);
+
+        $content = (string) file_get_contents($partialPath);
+
+        // Gesamte Scarcity-Logik liegt im Partial (Single Source of Truth)
+        static::assertStringContainsString('preorder-scarcity-badge', $content);
+        static::assertStringContainsString('enableScarcityCounter', $content);
+        static::assertStringContainsString('lowStockThreshold', $content);
+        static::assertStringContainsString('custom_preorder_inbound_stock', $content);
+        static::assertStringContainsString('custom_preorder_sold_count', $content);
+        static::assertStringContainsString('custom-preorder.badge.urgentFewLeft', $content);
+    }
+
+    public function testScarcityBadgeComponentTemplateDelegatesToPartial(): void
+    {
+        $templatePath = $this->viewsPath . '/component/buy-widget/buy-widget.html.twig';
+        static::assertFileExists($templatePath);
+
+        $content = (string) file_get_contents($templatePath);
+
+        // CMS-Standard: Block buy_widget, delegiert an Partial
+        static::assertStringContainsString('buy_widget', $content);
+        static::assertStringNotContainsString('page_product_detail_buy_container', $content);
+        static::assertStringContainsString('sw_include', $content);
+        static::assertStringContainsString('component/preorder/scarcity-badge.html.twig', $content);
+    }
+
+    public function testScarcityBadgePageFallbackDelegatesToPartial(): void
+    {
+        $templatePath = $this->viewsPath . '/page/product-detail/buy-widget.html.twig';
+        static::assertFileExists($templatePath);
+
+        $content = (string) file_get_contents($templatePath);
+
+        // Non-CMS Fallback: Block page_product_detail_buy_inner, delegiert an gleiches Partial
+        static::assertStringContainsString('page_product_detail_buy_inner', $content);
+        static::assertStringNotContainsString('page_product_detail_buy_container', $content);
+        static::assertStringContainsString('sw_include', $content);
+        static::assertStringContainsString('component/preorder/scarcity-badge.html.twig', $content);
     }
 }
 

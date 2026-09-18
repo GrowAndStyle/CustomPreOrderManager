@@ -1,24 +1,7 @@
 {% sw_extends '@Storefront/storefront/page/product-detail/buy-widget.html.twig' %}
 
-{% block page_product_detail_buy_container %}
+{% block page_product_detail_buy_inner %}
     {{ parent() }}
 
-    {% set currentProduct = page.product|default(product) %}
-    {% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
-    {% set preorderActive = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
-    {% set hasStock = currentProduct.stock > 0 %}
-    {% set enableScarcity = config('CustomPreOrderManager.config.enableScarcityCounter') %}
-    {% set threshold = config('CustomPreOrderManager.config.lowStockThreshold') %}
-
-    {% if preorderActive and not hasStock and enableScarcity %}
-        {% set inboundStock = customFields.custom_preorder_inbound_stock|default(0) %}
-        {% set soldCount = customFields.custom_preorder_sold_count|default(0) %}
-        {% set remaining = inboundStock - soldCount %}
-
-        {% if remaining > 0 and remaining <= threshold %}
-            <div class="preorder-scarcity-badge badge-preorder">
-                {{ "preOrder.scarcity.fewLeft"|trans({'%count%': remaining}) }}
-            </div>
-        {% endif %}
-    {% endif %}
+    {% sw_include '@CustomPreOrderManager/storefront/component/preorder/scarcity-badge.html.twig' with { currentProduct: page.product|default(product) } %}
 {% endblock %}

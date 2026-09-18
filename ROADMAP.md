@@ -25,9 +25,20 @@
 ## Geplant
 
 ### v1.2.0 — Post-Install Mail-Template-Dokumentation
-- **Status:** In Arbeit
 - README.md-Erweiterung: Post-Installations-Anleitung für die Anpassung des Bestellbestätigungs-Templates
-- Fertiges Twig-Snippet zum Copy-Pasten, Payload-Feldreferenz, Mischwarenkorb-Dokumentation
+- Vollständige Payload-Feldreferenz (8/8 Felder), Twig-Snippet, Mischwarenkorb-Dokumentation
+- ROADMAP.md erstellt
+
+### v1.3.0 — Payment-Aware Counter, Scarcity-Badge-Fix & Checkout-Mischwarenkorb
+- **Status:** In Arbeit
+- **ADR-009:** `sold_count` wird erst bei Zahlungseingang (`paid`) erhöht statt bei Bestelleingang
+- Automatischer Rollback bei Stornierung (`cancelled`) und Rückerstattung (`refunded`)
+- Neuer `PaymentStateSubscriber` für State Machine Events
+- `OrderPlacedSubscriber` refactored: Counter entfernt, Tag + Event bleiben bei Bestelleingang
+- Scarcity-Badge auf PDP: Snippet-Key-Inkonsistenz behoben
+- Mischwarenkorb-Hinweis auf `/checkout/cart` und `/checkout/confirm` ergänzt (Twig-Partial)
+- Snippet-Bereinigung: Verwaiste Root-Level-Keys entfernt
+- Test-Hygiene: Duplizierte Tests gelöscht, defekte Mocks korrigiert, PaymentStateSubscriberTest neu
 
 ---
 

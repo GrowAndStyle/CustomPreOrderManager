@@ -73,6 +73,9 @@ class ConfigXmlTest extends TestCase
             'enableMixedCartNotice' => 'bool',
             'mixedCartNoticeMode' => 'single-select',
             'mixedCartCustomNoticeText' => 'text',
+            'listingBannerBackgroundColor' => 'colorpicker',
+            'listingBannerTextColor' => 'colorpicker',
+            'listingBannerOpacity' => 'int',
         ];
 
         $foundKeys = [];
@@ -87,7 +90,7 @@ class ConfigXmlTest extends TestCase
             static::assertSame($expectedType, $foundKeys[$key], sprintf('Feld "%s" muss Typ "%s" besitzen', $key, $expectedType));
         }
 
-        static::assertCount(19, $foundKeys, 'config.xml muss exakt 19 Konfigurationsfelder enthalten');
+        static::assertCount(22, $foundKeys, 'config.xml muss exakt 22 Konfigurationsfelder enthalten');
     }
 
     public function testAllFieldsHaveBilingualLabelsAndHelpTexts(): void
@@ -136,6 +139,8 @@ class ConfigXmlTest extends TestCase
             'cardBorderColor',
             'cardAccentColor',
             'cardTextColor',
+            'listingBannerBackgroundColor',
+            'listingBannerTextColor',
         ];
 
         foreach ($this->xml->xpath('//input-field[@type="colorpicker"]') as $field) {

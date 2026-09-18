@@ -4,7 +4,6 @@ namespace CustomPreOrderManager\Tests\Unit\Subscriber;
 
 use CustomPreOrderManager\Core\Checkout\Event\PreOrderPlacedEvent;
 use CustomPreOrderManager\Core\Checkout\Subscriber\OrderPlacedSubscriber;
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -19,6 +18,29 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderPlacedSubscriberTest extends TestCase
 {
+    private EntityRepository $orderRepository;
+    private EntityRepository $tagRepository;
+    private EventDispatcherInterface $dispatcher;
+    private LoggerInterface $logger;
+    private OrderPlacedSubscriber $subscriber;
+    private Context $context;
+
+    protected function setUp(): void
+    {
+        $this->orderRepository = $this->createMock(EntityRepository::class);
+        $this->tagRepository = $this->createMock(EntityRepository::class);
+        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->context = Context::createDefaultContext();
+
+        $this->subscriber = new OrderPlacedSubscriber(
+            $this->orderRepository,
+            $this->tagRepository,
+            $this->dispatcher,
+            $this->logger,
+        );
+    }
+
     public function testSubscribedEvents(): void
     {
         $events = OrderPlacedSubscriber::getSubscribedEvents();
@@ -28,158 +50,233 @@ class OrderPlacedSubscriberTest extends TestCase
 
     public function testOnOrderPlacedReturnsEarlyWhenLineItemsNull(): void
     {
-        $orderRepo = $this->createMock(EntityRepository::class);
-        $tagRepo = $this->createMock(EntityRepository::class);
-        $connection = $this->createMock(Connection::class);
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $logger = $this->createMock(LoggerInterface::class);
-
-        $subscriber = new OrderPlacedSubscriber($orderRepo, $tagRepo, $connection, $dispatcher, $logger);
-
         $order = $this->createMock(OrderEntity::class);
         $order->method('getLineItems')->willReturn(null);
 
-        $context = Context::createDefaultContext();
-        $event = new CheckoutOrderPlacedEvent($context, $order, Uuid::randomHex());
+        $event = $this->createMock(CheckoutOrderPlacedEvent::class);
+        $event->method('getOrder')->willReturn($order);
+        $event->method('getContext')->willReturn($this->context);
 
-        $connection->expects(static::never())->method('executeStatement');
-        $orderRepo->expects(static::never())->method('update');
-        $dispatcher->expects(static::never())->method('dispatch');
+        $this->tagRepository->expects(static::never())->method('searchIds');
+        $this->orderRepository->expects(static::never())->method('update');
+        $this->dispatcher->expects(static::never())->method('dispatch');
 
-        $subscriber->onOrderPlaced($event);
+        $this->subscriber->onOrderPlaced($event);
     }
 
     public function testOnOrderPlacedReturnsEarlyWhenNoPreOrderItems(): void
     {
-        $orderRepo = $this->createMock(EntityRepository::class);
-        $tagRepo = $this->createMock(EntityRepository::class);
-        $connection = $this->createMock(Connection::class);
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $logger = $this->createMock(LoggerInterface::class);
-
-        $subscriber = new OrderPlacedSubscriber($orderRepo, $tagRepo, $connection, $dispatcher, $logger);
-
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
 
-        $regularItem = new OrderLineItemEntity();
-        $regularItem->setId(Uuid::randomHex());
-        $regularItem->setReferencedId(Uuid::randomHex());
-        $regularItem->setQuantity(1);
-        $regularItem->setPayload(['isPreOrder' => false]);
+        $normalItem = new OrderLineItemEntity();
+        $normalItem->setId(Uuid::randomHex());
+        $normalItem->setReferencedId(Uuid::randomHex());
+        $normalItem->setQuantity(1);
+        $normalItem->setPayload(['isPreOrder' => false]);
 
-        $order->setLineItems(new OrderLineItemCollection([$regularItem]));
+        $order->setLineItems(new OrderLineItemCollection([$normalItem]));
 
-        $context = Context::createDefaultContext();
-        $event = new CheckoutOrderPlacedEvent($context, $order, Uuid::randomHex());
+        $event = $this->createMock(CheckoutOrderPlacedEvent::class);
+        $event->method('getOrder')->willReturn($order);
+        $event->method('getContext')->willReturn($this->context);
 
-        $connection->expects(static::never())->method('executeStatement');
-        $orderRepo->expects(static::never())->method('update');
-        $dispatcher->expects(static::never())->method('dispatch');
+        $this->tagRepository->expects(static::never())->method('searchIds');
+        $this->orderRepository->expects(static::never())->method('update');
+        $this->dispatcher->expects(static::never())->method('dispatch');
 
-        $subscriber->onOrderPlaced($event);
+        $this->subscriber->onOrderPlaced($event);
     }
 
-    public function testOnOrderPlacedCreatesTagWhenNotExisting(): void
+    public function testOnOrderPlacedTagsOrderWithExistingTag(): void
     {
-        $orderRepo = $this->createMock(EntityRepository::class);
-        $tagRepo = $this->createMock(EntityRepository::class);
-        $connection = $this->createMock(Connection::class);
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $logger = $this->createMock(LoggerInterface::class);
-
-        $subscriber = new OrderPlacedSubscriber($orderRepo, $tagRepo, $connection, $dispatcher, $logger);
+        $orderId = Uuid::randomHex();
+        $tagId = Uuid::randomHex();
 
         $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
+        $order->setId($orderId);
 
-        $lineItem = new OrderLineItemEntity();
-        $lineItem->setId(Uuid::randomHex());
-        $lineItem->setReferencedId(Uuid::randomHex());
-        $lineItem->setQuantity(3);
-        $lineItem->setPayload(['isPreOrder' => true]);
+        $preOrderItem = new OrderLineItemEntity();
+        $preOrderItem->setId(Uuid::randomHex());
+        $preOrderItem->setReferencedId(Uuid::randomHex());
+        $preOrderItem->setQuantity(3);
+        $preOrderItem->setPayload(['isPreOrder' => true]);
 
-        $itemWithoutProductId = new OrderLineItemEntity();
-        $itemWithoutProductId->setId(Uuid::randomHex());
-        $itemWithoutProductId->setReferencedId(null);
-        $itemWithoutProductId->setQuantity(1);
-        $itemWithoutProductId->setPayload(['isPreOrder' => true]);
+        $order->setLineItems(new OrderLineItemCollection([$preOrderItem]));
 
-        $order->setLineItems(new OrderLineItemCollection([$lineItem, $itemWithoutProductId]));
+        $event = $this->createMock(CheckoutOrderPlacedEvent::class);
+        $event->method('getOrder')->willReturn($order);
+        $event->method('getContext')->willReturn($this->context);
 
-        $context = Context::createDefaultContext();
-        $event = new CheckoutOrderPlacedEvent($context, $order, Uuid::randomHex());
+        // Tag existiert bereits
+        $idSearchResult = $this->createMock(IdSearchResult::class);
+        $idSearchResult->method('firstId')->willReturn($tagId);
+        $this->tagRepository->method('searchIds')->willReturn($idSearchResult);
+        $this->tagRepository->expects(static::never())->method('create');
 
-        // Atomares Inkrement nur für das Item mit referencedId
-        $connection->expects(static::once())->method('executeStatement');
+        // Tag an Order verknüpfen
+        $this->orderRepository->expects(static::once())
+            ->method('update')
+            ->with(
+                [
+                    [
+                        'id' => $orderId,
+                        'tags' => [
+                            ['id' => $tagId],
+                        ],
+                    ],
+                ],
+                $this->context
+            );
+
+        // Event wird ausgelöst
+        $this->dispatcher->expects(static::once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(PreOrderPlacedEvent::class), PreOrderPlacedEvent::EVENT_NAME);
+
+        // Logger wird aufgerufen
+        $this->logger->expects(static::once())->method('info');
+
+        $this->subscriber->onOrderPlaced($event);
+    }
+
+    public function testOnOrderPlacedCreatesTagWhenNotExists(): void
+    {
+        $orderId = Uuid::randomHex();
+
+        $order = new OrderEntity();
+        $order->setId($orderId);
+
+        $preOrderItem = new OrderLineItemEntity();
+        $preOrderItem->setId(Uuid::randomHex());
+        $preOrderItem->setReferencedId(Uuid::randomHex());
+        $preOrderItem->setQuantity(1);
+        $preOrderItem->setPayload(['isPreOrder' => true]);
+
+        $order->setLineItems(new OrderLineItemCollection([$preOrderItem]));
+
+        $event = $this->createMock(CheckoutOrderPlacedEvent::class);
+        $event->method('getOrder')->willReturn($order);
+        $event->method('getContext')->willReturn($this->context);
 
         // Tag existiert noch nicht
         $idSearchResult = $this->createMock(IdSearchResult::class);
         $idSearchResult->method('firstId')->willReturn(null);
-        $tagRepo->method('searchIds')->willReturn($idSearchResult);
+        $this->tagRepository->method('searchIds')->willReturn($idSearchResult);
 
-        // Tag erstellen wird aufgerufen
-        $tagRepo->expects(static::once())->method('create');
+        // Neuer Tag wird erstellt
+        $this->tagRepository->expects(static::once())
+            ->method('create')
+            ->with(
+                static::callback(function (array $data) {
+                    return ($data[0]['name'] ?? null) === 'Vorbestellung'
+                        && !empty($data[0]['id']);
+                }),
+                $this->context
+            );
 
-        // Order wird aktualisiert
-        $orderRepo->expects(static::once())->method('update');
+        // Order wird getaggt
+        $this->orderRepository->expects(static::once())->method('update');
 
         // Event wird ausgelöst
-        $dispatcher->expects(static::once())
+        $this->dispatcher->expects(static::once())
             ->method('dispatch')
             ->with(static::isInstanceOf(PreOrderPlacedEvent::class), PreOrderPlacedEvent::EVENT_NAME);
 
-        $logger->expects(static::once())->method('info');
+        $this->logger->expects(static::once())->method('info');
 
-        $subscriber->onOrderPlaced($event);
+        $this->subscriber->onOrderPlaced($event);
     }
 
-    public function testOnOrderPlacedUsesExistingTag(): void
+    public function testOnOrderPlacedHandlesMultiplePreOrderItems(): void
     {
-        $orderRepo = $this->createMock(EntityRepository::class);
-        $tagRepo = $this->createMock(EntityRepository::class);
-        $connection = $this->createMock(Connection::class);
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $logger = $this->createMock(LoggerInterface::class);
-
-        $subscriber = new OrderPlacedSubscriber($orderRepo, $tagRepo, $connection, $dispatcher, $logger);
+        $orderId = Uuid::randomHex();
+        $tagId = Uuid::randomHex();
 
         $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
+        $order->setId($orderId);
 
-        $lineItem = new OrderLineItemEntity();
-        $lineItem->setId(Uuid::randomHex());
-        $lineItem->setReferencedId(Uuid::randomHex());
-        $lineItem->setQuantity(2);
-        $lineItem->setPayload(['isPreOrder' => true]);
+        $itemA = new OrderLineItemEntity();
+        $itemA->setId(Uuid::randomHex());
+        $itemA->setReferencedId(Uuid::randomHex());
+        $itemA->setQuantity(2);
+        $itemA->setPayload(['isPreOrder' => true]);
 
-        $order->setLineItems(new OrderLineItemCollection([$lineItem]));
+        $itemB = new OrderLineItemEntity();
+        $itemB->setId(Uuid::randomHex());
+        $itemB->setReferencedId(Uuid::randomHex());
+        $itemB->setQuantity(5);
+        $itemB->setPayload(['isPreOrder' => true]);
 
-        $context = Context::createDefaultContext();
-        $event = new CheckoutOrderPlacedEvent($context, $order, Uuid::randomHex());
+        $order->setLineItems(new OrderLineItemCollection([$itemA, $itemB]));
 
-        $connection->expects(static::once())->method('executeStatement');
+        $event = $this->createMock(CheckoutOrderPlacedEvent::class);
+        $event->method('getOrder')->willReturn($order);
+        $event->method('getContext')->willReturn($this->context);
 
-        // Tag existiert bereits
-        $existingTagId = Uuid::randomHex();
         $idSearchResult = $this->createMock(IdSearchResult::class);
-        $idSearchResult->method('firstId')->willReturn($existingTagId);
-        $tagRepo->method('searchIds')->willReturn($idSearchResult);
+        $idSearchResult->method('firstId')->willReturn($tagId);
+        $this->tagRepository->method('searchIds')->willReturn($idSearchResult);
 
-        // Tag erstellen wird NICHT aufgerufen
-        $tagRepo->expects(static::never())->method('create');
+        $this->orderRepository->expects(static::once())->method('update');
 
-        // Order aktualisieren
-        $orderRepo->expects(static::once())
-            ->method('update')
-            ->with(static::callback(function (array $payload) use ($existingTagId) {
-                return $payload[0]['tags'][0]['id'] === $existingTagId;
-            }));
-
-        $dispatcher->expects(static::once())
+        // Event mit preOrderItemCount = 2
+        $this->dispatcher->expects(static::once())
             ->method('dispatch')
-            ->with(static::isInstanceOf(PreOrderPlacedEvent::class), PreOrderPlacedEvent::EVENT_NAME);
+            ->with(
+                static::callback(function (PreOrderPlacedEvent $event) {
+                    return $event->getPreOrderItemCount() === 2;
+                }),
+                PreOrderPlacedEvent::EVENT_NAME
+            );
 
-        $subscriber->onOrderPlaced($event);
+        $this->logger->expects(static::once())->method('info');
+
+        $this->subscriber->onOrderPlaced($event);
+    }
+
+    public function testOnOrderPlacedCountsOnlyPreOrderItems(): void
+    {
+        $orderId = Uuid::randomHex();
+        $tagId = Uuid::randomHex();
+
+        $order = new OrderEntity();
+        $order->setId($orderId);
+
+        $preOrderItem = new OrderLineItemEntity();
+        $preOrderItem->setId(Uuid::randomHex());
+        $preOrderItem->setReferencedId(Uuid::randomHex());
+        $preOrderItem->setQuantity(1);
+        $preOrderItem->setPayload(['isPreOrder' => true]);
+
+        $normalItem = new OrderLineItemEntity();
+        $normalItem->setId(Uuid::randomHex());
+        $normalItem->setReferencedId(Uuid::randomHex());
+        $normalItem->setQuantity(3);
+        $normalItem->setPayload(['isPreOrder' => false]);
+
+        $order->setLineItems(new OrderLineItemCollection([$preOrderItem, $normalItem]));
+
+        $event = $this->createMock(CheckoutOrderPlacedEvent::class);
+        $event->method('getOrder')->willReturn($order);
+        $event->method('getContext')->willReturn($this->context);
+
+        $idSearchResult = $this->createMock(IdSearchResult::class);
+        $idSearchResult->method('firstId')->willReturn($tagId);
+        $this->tagRepository->method('searchIds')->willReturn($idSearchResult);
+
+        $this->orderRepository->expects(static::once())->method('update');
+
+        // Event mit preOrderItemCount = 1 (nur die eine Vorbestellposition)
+        $this->dispatcher->expects(static::once())
+            ->method('dispatch')
+            ->with(
+                static::callback(function (PreOrderPlacedEvent $event) {
+                    return $event->getPreOrderItemCount() === 1;
+                }),
+                PreOrderPlacedEvent::EVENT_NAME
+            );
+
+        $this->subscriber->onOrderPlaced($event);
     }
 }

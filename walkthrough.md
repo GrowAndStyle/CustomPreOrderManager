@@ -258,6 +258,48 @@ Kein ADR nötig — die Architekturentscheidung (LineItem Payload Enrichment sta
    - Aktueller Scope v1.2.0
    - Backlog-Eintrag: Dediziertes Flow Builder Mail-Template (P2)
 
+
 ### Subagent-Governance
 - Keine Subagents eingesetzt.
 
+---
+
+## Phase 7: Payment-Aware Counter, Storefront-Fixes & Test-Hygiene (`v1.3.0`)
+
+### Kontext & Entscheidung
+
+Bei der Analyse des Bluelab EC-Pen (Zulauf 10, `sold_count` 7, alle unbezahlt) wurde festgestellt, dass der `OrderPlacedSubscriber` den `sold_count` bei Bestelleingang erhöht — unabhängig vom Zahlungsstatus. Unbezahlte/stornierte Bestellungen blockieren dauerhaft das Kontingent. Zusätzlich wurde das Scarcity-Badge nicht auf der PDP angezeigt (Snippet-Key-Inkonsistenz) und der Mischwarenkorb-Hinweis fehlte im Checkout.
+
+**ADR-009:** Counter-Logik von `CheckoutOrderPlacedEvent` auf Shopware State Machine Events verschoben:
+- `paid` → Inkrement
+- `cancelled` / `refunded` → Dekrement mit `GREATEST(..., 0)` Guard
+- Tag und Event bleiben bei Bestelleingang (Klassifikation, nicht Buchung)
+
+### Änderungen
+
+#### A. Payment-Aware Counter (ADR-009)
+1. **[`ADR-009-payment-aware-sold-counter.md`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/adr/ADR-009-payment-aware-sold-counter.md):** Architekturentscheidung dokumentiert.
+2. **[`PaymentStateSubscriber.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Core/Checkout/Subscriber/PaymentStateSubscriber.php):** Neuer Subscriber für State Machine Events. Atomares DBAL-Inkrement bei `paid`, Dekrement bei `cancelled`/`refunded`.
+3. **[`OrderPlacedSubscriber.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Core/Checkout/Subscriber/OrderPlacedSubscriber.php):** DBAL-Counter und `Connection`-Dependency entfernt. Tagging, Logging und Event-Dispatch bleiben.
+4. **[`services.xml`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/config/services.xml):** `PaymentStateSubscriber` registriert, `Connection` aus `OrderPlacedSubscriber` entfernt.
+
+#### B. Scarcity-Badge Fix
+5. **[`buy-widget.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/page/product-detail/buy-widget.html.twig):** Snippet-Key von `preOrder.scarcity.fewLeft` auf `custom-preorder.badge.urgentFewLeft` korrigiert.
+
+#### C. Mischwarenkorb im Checkout
+6. **[`mixed-cart-notice.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/component/preorder/mixed-cart-notice.html.twig):** Shared Twig-Partial mit Mischwarenkorb-Detection und -Anzeige.
+7. **[`offcanvas-cart.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig):** Refactored auf `{% sw_include %}` des Partials.
+8. **[`cart/index.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/page/checkout/cart/index.html.twig):** Neues Template-Override für `/checkout/cart`.
+9. **[`confirm/index.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/page/checkout/confirm/index.html.twig):** Neues Template-Override für `/checkout/confirm`.
+
+#### D. Snippet-Bereinigung
+10. **[`storefront.de-DE.json`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/snippet/de_DE/storefront.de-DE.json):** Verwaiste Root-Level-Keys (`preOrder.*`, Duplikate) entfernt.
+11. **[`storefront.en-GB.json`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/snippet/en_GB/storefront.en-GB.json):** Analog bereinigt.
+
+#### E. Test-Hygiene
+12. **`tests/Unit/Core/Checkout/Subscriber/OrderPlacedSubscriberTest.php`:** Defekte Duplikat-Datei gelöscht.
+13. **[`OrderPlacedSubscriberTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Unit/Subscriber/OrderPlacedSubscriberTest.php):** Komplett überarbeitet — Counter-Asserts entfernt, alle 4 Dependencies korrekt gemockt, neuer Mischwarenkorb-Test.
+14. **[`PaymentStateSubscriberTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Unit/Subscriber/PaymentStateSubscriberTest.php):** Neue Test-Suite mit 10 Tests: Events, Inkrement, Dekrement, GREATEST-Guard, Multi-Product, Mixed Cart, Null-ReferencedId, Order-Not-Found.
+
+### Subagent-Governance
+- 1 Subagent (`storefront-worker`) für Template-Erstellung (Aufgaben B6–B9).
