@@ -2,7 +2,9 @@
 
 {% block component_delivery_information %}
     {% set currentProduct = product|default(page.product) %}
-    {% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
+    {% set baseCustomFields = currentProduct.customFields|default({}) %}
+    {% set transCustomFields = currentProduct.translated.customFields|default({}) %}
+    {% set customFields = baseCustomFields|merge(transCustomFields) %}
     {% set isPreOrder = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
     {% set hasStock = currentProduct.stock > 0 %}
 
@@ -56,7 +58,7 @@
 
                 {# Scarcity-Badge: UWG-konforme Restmengen-Anzeige (ADR-010) #}
                 {% set scarcityMode = config('CustomPreOrderManager.config.scarcityDisplayMode') %}
-                {% if scarcityMode == 'detail_only' or scarcityMode == 'everywhere' %}
+                {% if scarcityMode == 'detail_only' or scarcityMode == 'everywhere' or (scarcityMode != 'disabled' and scarcityMode != 'listing_only') %}
                     {% sw_include '@CustomPreOrderManager/storefront/component/preorder/scarcity-badge.html.twig' with { currentProduct: currentProduct, variant: 'card' } %}
                 {% endif %}
             </div>

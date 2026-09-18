@@ -4,7 +4,9 @@
     {{ parent() }}
 
     {% set currentProduct = product %}
-    {% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
+    {% set baseCustomFields = currentProduct.customFields|default({}) %}
+    {% set transCustomFields = currentProduct.translated.customFields|default({}) %}
+    {% set customFields = baseCustomFields|merge(transCustomFields) %}
     {% set isPreOrder = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
     {% set hasStock = currentProduct.stock > 0 %}
 
@@ -24,7 +26,7 @@
 
         {# Scarcity-Badge als Overlay auf Listing-Bild (ADR-010, UWG-konform) #}
         {% set scarcityMode = config('CustomPreOrderManager.config.scarcityDisplayMode') %}
-        {% if scarcityMode == 'listing_only' or scarcityMode == 'everywhere' %}
+        {% if scarcityMode == 'listing_only' or scarcityMode == 'everywhere' or scarcityMode != 'disabled' %}
             {% sw_include '@CustomPreOrderManager/storefront/component/preorder/scarcity-badge.html.twig' with { currentProduct: currentProduct, variant: 'listing' } %}
         {% endif %}
     {% endif %}

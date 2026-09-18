@@ -3,14 +3,17 @@
 {# Config-Prüfung (scarcityDisplayMode) liegt beim einbindenden Template #}
 
 {% set currentProduct = currentProduct|default(product)|default(page.product) %}
-{% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
+{% set baseCustomFields = currentProduct.customFields|default({}) %}
+{% set transCustomFields = currentProduct.translated.customFields|default({}) %}
+{% set customFields = baseCustomFields|merge(transCustomFields) %}
 {% set preorderActive = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
 {% set hasStock = currentProduct.stock > 0 %}
-{% set threshold = config('CustomPreOrderManager.config.lowStockThreshold') %}
+{% set rawThreshold = config('CustomPreOrderManager.config.lowStockThreshold') %}
+{% set threshold = (rawThreshold is not empty and rawThreshold > 0) ? rawThreshold : 5 %}
 
 {% if preorderActive and not hasStock %}
-    {% set inboundStock = customFields.custom_preorder_inbound_stock|default(0) %}
-    {% set soldCount = customFields.custom_preorder_sold_count|default(0) %}
+    {% set inboundStock = customFields.custom_preorder_inbound_stock|default(transCustomFields.custom_preorder_inbound_stock|default(baseCustomFields.custom_preorder_inbound_stock|default(0))) %}
+    {% set soldCount = customFields.custom_preorder_sold_count|default(transCustomFields.custom_preorder_sold_count|default(baseCustomFields.custom_preorder_sold_count|default(0))) %}
     {% set remaining = inboundStock - soldCount %}
 
     {% if remaining > 0 and remaining <= threshold %}
