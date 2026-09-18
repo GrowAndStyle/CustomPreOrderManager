@@ -362,65 +362,8 @@ a.btn-preorder,
     margin-top: 0.35rem;
 }
 
-
-.product-image-wrapper,
-.preorder-image-wrapper {
-    position: relative;
-}
-
-.product-image-preorder-banner {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0.35rem 0.5rem;
-    background: rgba(15, 23, 42, 0.72);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    color: #ffffff;
-    text-align: center;
-    pointer-events: none;
-    z-index: 5;
-    transition: background-color 0.2s ease;
-
-    .preorder-banner-prefix {
-        font-size: 0.625rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        opacity: 0.85;
-        line-height: 1.2;
-    }
-
-    .preorder-banner-date {
-        font-size: 0.8125rem;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        line-height: 1.25;
-        color: #ffffff;
-    }
-
-    @media (max-width: $breakpoint-mobile) {
-        padding: 0.25rem 0.35rem;
-
-        .preorder-banner-prefix {
-            font-size: 0.5625rem;
-        }
-
-        .preorder-banner-date {
-            font-size: 0.75rem;
-        }
-    }
-}
-
 // Vorbestelldatum-Banner auf Kategorie-Listing-Cards (via badges.html.twig)
-// Das Banner sitzt im DOM vor dem .product-image-wrapper (Geschwister im .card-body)
-// Positionierung: absolut am unteren Rand des Bildbereichs
+// Positioniert sich absolut im .card-body über dem Produktbild
 .product-preorder-date-banner {
     position: absolute;
     left: 0;
@@ -468,12 +411,3 @@ a.btn-preorder,
         }
     }
 }
-
-// Produktkarten: Bild-Wrapper als Positioning-Context für das Banner nutzen
-.product-box .card-body {
-    // product-image-wrapper ist der Referenzpunkt
-    .product-image-wrapper {
-        position: relative;
-    }
-}
-
