@@ -12,7 +12,9 @@
             "quotaExhausted": "Quota exhausted"
         },
         "listing": {
-            "availableFromPrefix": "Expected from"
+            "availableFromPrefix": "Expected from",
+            "scarcityPrefix": "Almost gone:",
+            "scarcityCount": "Only %count% left in stock!"
         },
         "cart": {
             "lineItemNotice": "Pre-order — %releaseText%",

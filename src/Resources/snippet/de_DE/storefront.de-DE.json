@@ -12,7 +12,9 @@
             "quotaExhausted": "Kontingent erschöpft"
         },
         "listing": {
-            "availableFromPrefix": "Voraussichtlich ab"
+            "availableFromPrefix": "Voraussichtlich ab",
+            "scarcityPrefix": "Fast vergriffen:",
+            "scarcityCount": "Nur noch %count% Stück verfügbar!"
         },
         "cart": {
             "lineItemNotice": "Vorbestellung — %releaseText%",

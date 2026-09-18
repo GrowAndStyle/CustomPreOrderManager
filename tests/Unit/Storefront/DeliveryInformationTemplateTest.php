@@ -300,11 +300,22 @@ class DeliveryInformationTemplateTest extends TestCase
         static::assertStringContainsString('preorder-banner-prefix', $content);
         static::assertStringContainsString('preorder-banner-date', $content);
 
-        // Scarcity-Badge mit korrekten Config-Gates
+        // Scarcity-Badge: listing-spezifische Snippet-Keys (entkoppelt von badge.urgentFewLeft)
         static::assertStringContainsString('preorder-scarcity-listing', $content);
+        static::assertStringContainsString('scarcity-listing-prefix', $content);
+        static::assertStringContainsString('scarcity-listing-count', $content);
+        static::assertStringContainsString('custom-preorder.listing.scarcityPrefix', $content);
+        static::assertStringContainsString('custom-preorder.listing.scarcityCount', $content);
         static::assertStringContainsString('custom_preorder_inbound_stock', $content);
         static::assertStringContainsString("'listing_only'", $content);
         static::assertStringContainsString("'everywhere'", $content);
+
+        // urgentFewLeft darf nicht mehr im Listing-Overlay stehen (Card/PDP-only)
+        static::assertStringNotContainsString(
+            'custom-preorder.badge.urgentFewLeft',
+            $content,
+            'urgentFewLeft ist Card/PDP-only — Listing nutzt listing.scarcityPrefix/Count'
+        );
     }
 
     public function testBaseScssHasCorrectOverlayPositioningAdr011(): void

@@ -45,8 +45,13 @@
 
                 {% if remaining > 0 and remaining <= threshold %}
                     <span class="preorder-scarcity-listing"
-                          aria-label="{{ 'custom-preorder.badge.urgentFewLeft'|trans({'%count%': remaining})|striptags }}">
-                        {{ "custom-preorder.badge.urgentFewLeft"|trans({'%count%': remaining}) }}
+                          aria-label="{{ 'custom-preorder.listing.scarcityPrefix'|trans }} {{ 'custom-preorder.listing.scarcityCount'|trans({'%count%': remaining})|striptags }}">
+                        <span class="scarcity-listing-prefix">
+                            {{ "custom-preorder.listing.scarcityPrefix"|trans }}
+                        </span>
+                        <span class="scarcity-listing-count">
+                            {{ "custom-preorder.listing.scarcityCount"|trans({'%count%': remaining}) }}
+                        </span>
                     </span>
                 {% endif %}
             {% endif %}
