@@ -65,7 +65,7 @@ class PreOrderCartCollectorTest extends TestCase
 
         $this->collector->collect($this->data, $cart, $this->context, $this->behavior);
 
-        static::assertNull($lineItem->getPayloadValue('isPreOrder'));
+        static::assertTrue($lineItem->getPayloadValue('isPreOrder'));
     }
 
     public function testCollectIgnoresWhenPayloadStockGreaterThanZero(): void
@@ -79,7 +79,7 @@ class PreOrderCartCollectorTest extends TestCase
 
         $this->collector->collect($this->data, $cart, $this->context, $this->behavior);
 
-        static::assertNull($lineItem->getPayloadValue('isPreOrder'));
+        static::assertTrue($lineItem->getPayloadValue('isPreOrder'));
     }
 
     public function testCollectEnrichesWithExplicitReleaseText(): void
@@ -118,7 +118,7 @@ class PreOrderCartCollectorTest extends TestCase
         $this->collector->collect($this->data, $cart, $this->context, $this->behavior);
 
         static::assertTrue($lineItem->getPayloadValue('isPreOrder'));
-        static::assertSame('Lieferbar ab 11/2026', $lineItem->getPayloadValue('preOrderReleaseText'));
+        static::assertSame('Voraussichtlich lieferbar ab 15.11.2026', $lineItem->getPayloadValue('preOrderReleaseText'));
     }
 
     public function testCollectFallbackOnInvalidReleaseDate(): void

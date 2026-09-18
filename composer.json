@@ -22,8 +22,8 @@
     "extra": {
         "shopware-plugin-class": "CustomPreOrderManager\\CustomPreOrderManager",
         "label": {
-            "de-DE": "Vorbestellung (Pre-Order)",
-            "en-GB": "Pre-Order"
+            "de-DE": "CustomPreOrderManager",
+            "en-GB": "CustomPreOrderManager"
         },
         "description": {
             "de-DE": "Autarkes Vorbestellungs-System mit Scarcity-Engine für Shopware 6",

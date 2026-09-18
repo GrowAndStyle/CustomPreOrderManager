@@ -12,7 +12,9 @@
             "quotaExhausted": "Quota exhausted"
         },
         "listing": {
-            "availableFromPrefix": "Expected from"
+            "availableFromPrefix": "Expected from",
+            "scarcityPrefix": "Almost gone:",
+            "scarcityCount": "Only %count% left in stock!"
         },
         "cart": {
             "lineItemNotice": "Pre-order — %releaseText%",
@@ -29,16 +31,5 @@
             "quantityAdjusted": "The requested quantity for \"%productName%\" was adjusted to %maxQuantity% as the remaining pre-order quota is limited.",
             "quotaExhausted": "The product \"%productName%\" had to be removed from your cart because the pre-order quota is now fully exhausted."
         }
-    },
-    "preOrder": {
-        "scarcity": {
-            "fewLeft": "Almost gone: Only %count% left!"
-        }
-    },
-    "custom-preorder-quantity-adjusted": "The requested quantity for \"%productName%\" was adjusted to %maxQuantity% as the remaining pre-order quota is limited.",
-    "custom-preorder-quota-exhausted": "The product \"%productName%\" had to be removed from your cart because the pre-order quota is now fully exhausted.",
-    "checkout": {
-        "custom-preorder-quantity-adjusted": "The requested quantity for \"%productName%\" was adjusted to %maxQuantity% as the remaining pre-order quota is limited.",
-        "custom-preorder-quota-exhausted": "The product \"%productName%\" had to be removed from your cart because the pre-order quota is now fully exhausted."
     }
 }

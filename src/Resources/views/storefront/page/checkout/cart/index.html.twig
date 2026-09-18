@@ -1,6 +1,6 @@
-{% sw_extends '@Storefront/storefront/component/checkout/offcanvas-cart.html.twig' %}
+{% sw_extends '@Storefront/storefront/page/checkout/cart/index.html.twig' %}
 
-{% block component_offcanvas_cart_actions_checkout %}
+{% block page_checkout_cart %}
     {% sw_include '@CustomPreOrderManager/storefront/component/preorder/mixed-cart-notice.html.twig' with { lineItems: page.cart.lineItems } %}
 
     {{ parent() }}

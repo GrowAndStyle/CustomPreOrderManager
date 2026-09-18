@@ -13,12 +13,18 @@
             <tag name="shopware.cart.validator" />
         </service>
 
-        <!-- Order-Placed Subscriber: Auto-Tagging, DBAL-Counter & Event-Dispatch -->
+        <!-- Order-Placed Subscriber: Auto-Tagging & Event-Dispatch (kein Counter — siehe ADR-009) -->
         <service id="CustomPreOrderManager\Core\Checkout\Subscriber\OrderPlacedSubscriber">
             <argument type="service" id="order.repository" />
             <argument type="service" id="tag.repository" />
-            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="logger" />
+            <tag name="kernel.event_subscriber" />
+        </service>
+
+        <!-- Payment-State Subscriber: Counter-Inkrement bei Zahlungseingang, Dekrement bei Storno/Refund (ADR-009) -->
+        <service id="CustomPreOrderManager\Core\Checkout\Subscriber\PaymentStateSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="logger" />
             <tag name="kernel.event_subscriber" />
         </service>

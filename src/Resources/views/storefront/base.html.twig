@@ -23,6 +23,11 @@
     {% set bannerOpacityRaw = config('CustomPreOrderManager.config.listingBannerOpacity')|default(55) %}
     {% set bannerOpacity = (bannerOpacityRaw < 20 ? 20 : (bannerOpacityRaw > 100 ? 100 : bannerOpacityRaw)) / 100 %}
 
+    {% set scarcityBg = config('CustomPreOrderManager.config.listingScarcityBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#b45309') %}
+    {% set scarcityColor = config('CustomPreOrderManager.config.listingScarcityTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#ffffff') %}
+    {% set scarcityOpacityRaw = config('CustomPreOrderManager.config.listingScarcityOpacity')|default(65) %}
+    {% set scarcityOpacity = (scarcityOpacityRaw < 20 ? 20 : (scarcityOpacityRaw > 100 ? 100 : scarcityOpacityRaw)) / 100 %}
+
     <style>
         :root {
             --custom-preorder-btn-bg: {{ btnBg }};
@@ -43,6 +48,10 @@
             --custom-preorder-banner-bg: {{ bannerBg }};
             --custom-preorder-banner-color: {{ bannerColor }};
             --custom-preorder-banner-opacity: {{ bannerOpacity }};
+
+            --custom-preorder-listing-scarcity-bg: {{ scarcityBg }};
+            --custom-preorder-listing-scarcity-color: {{ scarcityColor }};
+            --custom-preorder-listing-scarcity-opacity: {{ scarcityOpacity }};
         }
     </style>
 {% endblock %}

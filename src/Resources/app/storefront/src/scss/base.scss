@@ -362,11 +362,19 @@ a.btn-preorder,
     margin-top: 0.35rem;
 }
 
-// Vorbestelldatum-Banner auf Kategorie-Listing-Cards (via badges.html.twig)
+// ADR-011: Containing Block für Listing-Overlays (box-standard.html.twig)
+// Umschließt product-image-wrapper — ermöglicht top: 0 / bottom: 0 ohne Pixel-Hack
+.preorder-image-overlay-root {
+    position: relative;
+}
+
+// Vorbestelldatum-Banner auf Kategorie-Listing-Cards (via box-standard.html.twig, ADR-011)
 // Farben und Deckkraft konfigurierbar über Plugin-Config → CSS Custom Properties
+// top: calc(-1 * var(--bs-card-spacer-y)) — theme-aware Offset, kein Magic Number
 // Opacity liegt auf ::before (Hintergrund), Text bleibt 100 % deckend
 .product-preorder-date-banner {
     position: absolute;
+    top: calc(-1 * var(--bs-card-spacer-y, 1rem));
     left: 0;
     right: 0;
     z-index: 2;
@@ -378,6 +386,10 @@ a.btn-preorder,
     color: var(--custom-preorder-banner-color, #ffffff);
     text-align: center;
     pointer-events: none;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
 
     &::before {
         content: '';
@@ -385,14 +397,14 @@ a.btn-preorder,
         inset: 0;
         background-color: var(--custom-preorder-banner-bg, #0f172a);
         opacity: var(--custom-preorder-banner-opacity, 0.55);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         z-index: -1;
         transition: background-color 0.2s ease, opacity 0.2s ease;
     }
 
     .preorder-banner-prefix {
-        font-size: 0.625rem;
+        font-size: 0.75rem;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -410,10 +422,97 @@ a.btn-preorder,
         padding: 0.25rem 0.35rem;
 
         .preorder-banner-prefix {
-            font-size: 0.5625rem;
+            font-size: 0.75rem;
         }
 
         .preorder-banner-date {
+            font-size: 0.75rem;
+        }
+    }
+}
+
+// Scarcity-Badge in Delivery-Card (ADR-010, UWG-konform)
+// Gleiche Abstände wie .preorder-delivery-notice, nutzt Card Custom Properties
+.preorder-scarcity-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--custom-preorder-card-accent, #b45309);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed #e2e8f0;
+    line-height: 1.45;
+
+    .preorder-scarcity-icon {
+        flex-shrink: 0;
+        margin-top: 2px;
+        color: var(--custom-preorder-card-accent, #e67e22);
+    }
+
+    .preorder-scarcity-text {
+        flex: 1 1 auto;
+    }
+}
+
+// Scarcity-Badge auf Listing-Karten als Overlay (ADR-010, ADR-011)
+// Via box-standard.html.twig — relativ zu .preorder-image-overlay-root (position: relative)
+// Eigene CSS-Variablen — entkoppelt von card-accent und banner-Variablen
+.preorder-scarcity-listing {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem 0.5rem;
+    color: var(--custom-preorder-listing-scarcity-color, #ffffff);
+    text-align: center;
+    pointer-events: none;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-color: var(--custom-preorder-listing-scarcity-bg, #b45309);
+        opacity: var(--custom-preorder-listing-scarcity-opacity, 0.65);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: -1;
+        transition: background-color 0.2s ease, opacity 0.2s ease;
+    }
+
+    .scarcity-listing-prefix {
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        line-height: 1.2;
+    }
+
+    .scarcity-listing-count {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        line-height: 1.25;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+        padding: 0.2rem 0.35rem;
+
+        .scarcity-listing-prefix {
+            font-size: 0.75rem;
+        }
+
+        .scarcity-listing-count {
             font-size: 0.75rem;
         }
     }

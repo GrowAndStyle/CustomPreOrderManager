@@ -1,25 +1,26 @@
 {% sw_extends '@Storefront/storefront/component/product/card/badges.html.twig' %}
 
+{#
+ # Overlays (Date-Banner, Scarcity-Badge) sind nach ADR-011 in box-standard.html.twig.
+ # badges.html.twig überschreibt nur component_product_badges_discount:
+ # Das % Rabatt-Badge wird ausgeblendet wenn Preorder-Overlays aktiv sind —
+ # der Rabattpreis ist bereits als durchgestrichener Preis + rote Schrift unterhalb
+ # der Kachel sichtbar. Kein Informationsverlust für den Kunden.
+ # Verifiziert gegen Shopware 6.5.8.19 (component_product_badges_discount Block).
+ #}
 {% block component_product_badges %}
     {{ parent() }}
+{% endblock %}
 
-    {% set currentProduct = product %}
-    {% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
-    {% set isPreOrder = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
-    {% set hasStock = currentProduct.stock > 0 %}
+{% block component_product_badges_discount %}
+    {% set customFields = product.translated.customFields|default(product.customFields)|default({}) %}
+    {% set isPreOrder = customFields.custom_preorder_active|default(false)
+        or (customFields.custom_preorder_release_date is defined
+            and customFields.custom_preorder_release_date is not empty) %}
+    {% set hasStock = product.stock > 0 %}
+    {% set listingBadgeEnabled = config('CustomPreOrderManager.config.enableListingBadge')|default(true) %}
 
-    {% if isPreOrder and not hasStock %}
-        {% set releaseDate = customFields.custom_preorder_release_date %}
-
-        {% if releaseDate %}
-            <div class="product-preorder-date-banner">
-                <span class="preorder-banner-prefix">
-                    {{ "custom-preorder.listing.availableFromPrefix"|trans }}
-                </span>
-                <span class="preorder-banner-date">
-                    {{ releaseDate|date('d.m.Y') }}
-                </span>
-            </div>
-        {% endif %}
+    {% if not (isPreOrder and not hasStock and listingBadgeEnabled) %}
+        {{ parent() }}
     {% endif %}
 {% endblock %}

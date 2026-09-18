@@ -53,12 +53,19 @@ class CustomPreOrderManager extends Plugin
         /** @var Connection $connection */
         $connection = $this->container->get(Connection::class);
 
+        // 1. Custom-Field-Set, Relationen und Felder in korrekter FK-Reihenfolge entfernen
         $connection->executeStatement("
-            DELETE cf, cfsr, cfs
-            FROM custom_field_set cfs
-            LEFT JOIN custom_field_set_relation cfsr ON cfsr.set_id = cfs.id
-            LEFT JOIN custom_field cf ON cf.set_id = cfs.id
+            DELETE cf FROM `custom_field` cf
+            INNER JOIN `custom_field_set` cfs ON cf.set_id = cfs.id
             WHERE cfs.name = 'custom_preorder_set'
+        ");
+        $connection->executeStatement("
+            DELETE cfsr FROM `custom_field_set_relation` cfsr
+            INNER JOIN `custom_field_set` cfs ON cfsr.set_id = cfs.id
+            WHERE cfs.name = 'custom_preorder_set'
+        ");
+        $connection->executeStatement("
+            DELETE FROM `custom_field_set` WHERE name = 'custom_preorder_set'
         ");
 
         $jsonRemoveSql = "JSON_REMOVE(
@@ -88,15 +95,17 @@ class CustomPreOrderManager extends Plugin
             // Tabelle product besitzt in Shopware 6.5+ keine custom_fields Spalte (liegt auf product_translation)
         }
 
-        // 4. Tag "Vorbestellung" und Order-Tag-Verknüpfungen vollständig entfernen
+        // 5. Tag "Vorbestellung" und Order-Tag-Verknüpfungen vollständig entfernen
         $connection->executeStatement("
-            DELETE ot, t
-            FROM tag t
-            LEFT JOIN order_tag ot ON ot.tag_id = t.id
+            DELETE ot FROM `order_tag` ot
+            INNER JOIN `tag` t ON ot.tag_id = t.id
             WHERE t.name = 'Vorbestellung'
         ");
+        $connection->executeStatement("
+            DELETE FROM `tag` WHERE name = 'Vorbestellung'
+        ");
 
-        // 5. Gespeicherte Plugin-Konfigurationen bereinigen
+        // 6. Gespeicherte Plugin-Konfigurationen bereinigen
         $connection->executeStatement("
             DELETE FROM system_config
             WHERE configuration_key LIKE 'CustomPreOrderManager.config.%'

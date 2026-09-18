@@ -1,0 +1,62 @@
+{% sw_extends '@Storefront/storefront/component/product/card/box-standard.html.twig' %}
+
+{#
+ # ADR-011: Listing-Overlays im product-image-wrapper
+ # Block component_product_box_image verifiziert gegen Shopware v6.5.8.19 (offiziell).
+ # parent() rendert <div class="product-image-wrapper">...</div>.
+ # preorder-image-overlay-root = position: relative → korrekter Containing Block
+ # Overlays: top: 0 (Date-Banner) und bottom: 0 (Scarcity) — kein Pixel-Hack.
+ #}
+{% block component_product_box_image %}
+    {% set isPreOrder = product.customFields.custom_preorder_active|default(false) or
+        (product.translated.customFields.custom_preorder_release_date is defined and
+         product.translated.customFields.custom_preorder_release_date is not empty) %}
+    {% set hasStock = product.stock > 0 %}
+    {% set enableBadge = config('CustomPreOrderManager.config.enableListingBadge') %}
+
+    {% if isPreOrder and not hasStock and enableBadge %}
+        <div class="preorder-image-overlay-root">
+            {{- parent() -}}
+
+            {% set releaseDate = product.translated.customFields.custom_preorder_release_date
+                |default(product.customFields.custom_preorder_release_date) %}
+
+            {% if releaseDate %}
+                <div class="product-preorder-date-banner" aria-hidden="true">
+                    <span class="preorder-banner-prefix">
+                        {{ "custom-preorder.listing.availableFromPrefix"|trans }}
+                    </span>
+                    <span class="preorder-banner-date">
+                        {{ releaseDate|date('d.m.Y') }}
+                    </span>
+                </div>
+            {% endif %}
+
+            {# Scarcity-Badge: UWG-konform (ADR-010), config-gesteuert #}
+            {% set scarcityMode = config('CustomPreOrderManager.config.scarcityDisplayMode') %}
+            {% if scarcityMode == 'listing_only' or scarcityMode == 'everywhere' %}
+                {% set inboundStock = product.translated.customFields.custom_preorder_inbound_stock
+                    |default(product.customFields.custom_preorder_inbound_stock|default(0)) %}
+                {% set soldCount = product.translated.customFields.custom_preorder_sold_count
+                    |default(product.customFields.custom_preorder_sold_count|default(0)) %}
+                {% set remaining = inboundStock - soldCount %}
+                {% set rawThreshold = config('CustomPreOrderManager.config.lowStockThreshold') %}
+                {% set threshold = (rawThreshold is not empty and rawThreshold > 0) ? rawThreshold : 5 %}
+
+                {% if remaining > 0 and remaining <= threshold %}
+                    <span class="preorder-scarcity-listing"
+                          aria-label="{{ 'custom-preorder.listing.scarcityPrefix'|trans }} {{ 'custom-preorder.listing.scarcityCount'|trans({'%count%': remaining})|striptags }}">
+                        <span class="scarcity-listing-prefix">
+                            {{ "custom-preorder.listing.scarcityPrefix"|trans }}
+                        </span>
+                        <span class="scarcity-listing-count">
+                            {{ "custom-preorder.listing.scarcityCount"|trans({'%count%': remaining}) }}
+                        </span>
+                    </span>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

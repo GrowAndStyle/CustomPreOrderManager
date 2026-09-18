@@ -258,6 +258,248 @@ Kein ADR nötig — die Architekturentscheidung (LineItem Payload Enrichment sta
    - Aktueller Scope v1.2.0
    - Backlog-Eintrag: Dediziertes Flow Builder Mail-Template (P2)
 
+
 ### Subagent-Governance
 - Keine Subagents eingesetzt.
 
+---
+
+## Phase 7: Payment-Aware Counter, Storefront-Fixes & Test-Hygiene (`v1.3.0`)
+
+### Kontext & Entscheidung
+
+Bei der Analyse des Bluelab EC-Pen (Zulauf 10, `sold_count` 7, alle unbezahlt) wurde festgestellt, dass der `OrderPlacedSubscriber` den `sold_count` bei Bestelleingang erhöht — unabhängig vom Zahlungsstatus. Unbezahlte/stornierte Bestellungen blockieren dauerhaft das Kontingent. Zusätzlich wurde das Scarcity-Badge nicht auf der PDP angezeigt (Snippet-Key-Inkonsistenz) und der Mischwarenkorb-Hinweis fehlte im Checkout.
+
+**ADR-009:** Counter-Logik von `CheckoutOrderPlacedEvent` auf Shopware State Machine Events verschoben:
+- `paid` → Inkrement
+- `cancelled` / `refunded` → Dekrement mit `GREATEST(..., 0)` Guard
+- Tag und Event bleiben bei Bestelleingang (Klassifikation, nicht Buchung)
+
+### Änderungen
+
+#### A. Payment-Aware Counter (ADR-009)
+1. **[`ADR-009-payment-aware-sold-counter.md`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/adr/ADR-009-payment-aware-sold-counter.md):** Architekturentscheidung dokumentiert.
+2. **[`PaymentStateSubscriber.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Core/Checkout/Subscriber/PaymentStateSubscriber.php):** Neuer Subscriber für State Machine Events. Atomares DBAL-Inkrement bei `paid`, Dekrement bei `cancelled`/`refunded`.
+3. **[`OrderPlacedSubscriber.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Core/Checkout/Subscriber/OrderPlacedSubscriber.php):** DBAL-Counter und `Connection`-Dependency entfernt. Tagging, Logging und Event-Dispatch bleiben.
+4. **[`services.xml`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/config/services.xml):** `PaymentStateSubscriber` registriert, `Connection` aus `OrderPlacedSubscriber` entfernt.
+
+#### B. Scarcity-Badge Fix
+5. **[`buy-widget.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/page/product-detail/buy-widget.html.twig):** Snippet-Key von `preOrder.scarcity.fewLeft` auf `custom-preorder.badge.urgentFewLeft` korrigiert.
+
+#### C. Mischwarenkorb im Checkout
+6. **[`mixed-cart-notice.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/component/preorder/mixed-cart-notice.html.twig):** Shared Twig-Partial mit Mischwarenkorb-Detection und -Anzeige.
+7. **[`offcanvas-cart.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig):** Refactored auf `{% sw_include %}` des Partials.
+8. **[`cart/index.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/page/checkout/cart/index.html.twig):** Neues Template-Override für `/checkout/cart`.
+9. **[`confirm/index.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/page/checkout/confirm/index.html.twig):** Neues Template-Override für `/checkout/confirm`.
+
+#### D. Snippet-Bereinigung
+10. **[`storefront.de-DE.json`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/snippet/de_DE/storefront.de-DE.json):** Verwaiste Root-Level-Keys (`preOrder.*`, Duplikate) entfernt.
+11. **[`storefront.en-GB.json`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/snippet/en_GB/storefront.en-GB.json):** Analog bereinigt.
+
+#### E. Test-Hygiene
+12. **`tests/Unit/Core/Checkout/Subscriber/OrderPlacedSubscriberTest.php`:** Defekte Duplikat-Datei gelöscht.
+13. **[`OrderPlacedSubscriberTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Unit/Subscriber/OrderPlacedSubscriberTest.php):** Komplett überarbeitet — Counter-Asserts entfernt, alle 4 Dependencies korrekt gemockt, neuer Mischwarenkorb-Test.
+14. **[`PaymentStateSubscriberTest.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/tests/Unit/Subscriber/PaymentStateSubscriberTest.php):** Neue Test-Suite mit 10 Tests: Events, Inkrement, Dekrement, GREATEST-Guard, Multi-Product, Mixed Cart, Null-ReferencedId, Order-Not-Found.
+
+### Subagent-Governance
+- 1 Subagent (`storefront-worker`) für Template-Erstellung (Aufgaben B6–B9).
+
+---
+
+## Phase 8: Scarcity-Badge Card & Listing Integration (ADR-010, UWG-konform)
+
+### Kontext & Entscheidung
+- **ADR-010:** Scarcity-Badge („Fast vergriffen: Nur noch X Stück!") wird auf der PDP in die Delivery-Information-Card integriert und auf Listing-Karten am unteren Rand des Produktbildes als Overlay gerendert.
+- **Listing-Architektur:** Inline in `badges.html.twig` (Interim-Lösung, durch ADR-011 ersetzt).
+- **SCSS-Positionierung:** Temporär via Pixel-Hack `top: calc(var(--bs-card-spacer-y, 1rem) + 200px); transform: translateY(-100%)` — in Phase 9 behoben.
+- **Verifikation & Test-Hygiene:** `DeliveryInformationTemplateTest.php` validiert `badges.html.twig` und das Fehlen veralteter Buy-Widget Badges.
+
+---
+
+## Phase 9: ADR-011 — Listing-Overlay Structural Refactor & Coverage-Fix (`v1.4.0`)
+
+### Kontext & Entscheidung
+
+ADR-010 hatte die Listing-Overlays (Date-Banner, Scarcity-Badge) inline in `badges.html.twig` implementiert und per Pixel-Hack positioniert. Dieser Ansatz war:
+- Fragil (geschätzte Bildhöhe 200px)
+- Falsch verankert (Containing Block war der Card-Body, nicht der Bild-Container)
+- Config-gekoppelt (Scarcity nutzte `--custom-preorder-card-accent` statt eigener Variablen)
+
+**ADR-011** löst das strukturell korrekt durch Nutzung des Blocks `component_product_box_image` in `box-standard.html.twig` — verifiziert gegen Shopware `v6.5.8.19` offizielle GitHub-Quelle.
+
+> 🔗 [`docs/adr/ADR-011-listing-overlay-anchor-box-standard-vs-badges.md`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/adr/ADR-011-listing-overlay-anchor-box-standard-vs-badges.md)
+
+---
+
+### A. Shopware 6.5.8.19 Block-Verifikation
+
+Vor der Implementierung: offizielle Quelle auf GitHub geprüft.
+
+**Kritische Erkenntnisse:**
+- `component_product_box_image` → existiert ✅ (umschließt `<div class="product-image-wrapper">`)
+- `component_product_box_image_inner` → existiert **NICHT** in 6.5.x (nur trunk/6.7+) ❌
+- Erster ADR-011-Versuch nutzte `component_product_box_image_inner` → revertiert (Commit `af76dd2` → Revert `411da08`)
+
+---
+
+### B. Implementierung (Commit `8641b26`)
+
+#### 1. `src/Resources/views/storefront/component/product/card/box-standard.html.twig` [NEU]
+
+Überschreibt `component_product_box_image`. Rendert `parent()` (originaler Bildblock) innerhalb eines `<div class="preorder-image-overlay-root">` (Containing Block):
+
+```html
+<div class="preorder-image-overlay-root">         ← position: relative
+    <div class="product-image-wrapper">            ← parent()
+        <a href="..."><img ...></a>
+    </div>
+    <div class="product-preorder-date-banner">     ← top: 0
+    <span class="preorder-scarcity-listing">       ← bottom: 0
+</div>
+```
+
+#### 2. `src/Resources/views/storefront/component/product/card/badges.html.twig` [BEREINIGT]
+
+Nur noch `{{ parent() }}` — keine Overlay-Logik mehr.
+
+#### 3. `src/Resources/app/storefront/src/scss/base.scss` [ANGEPASST]
+
+- `preorder-image-overlay-root { position: relative }` hinzugefügt
+- `top: 0` auf `.product-preorder-date-banner` gesetzt
+- Pixel-Hack (`top: calc(...)`, `transform: translateY(-100%)`) durch `bottom: 0` ersetzt
+
+#### 4. Tests [AKTUALISIERT]
+
+- `testListingBadgesContainsInlineScarcityLogic` → `testListingBadgesStrippedToMinimumAfterAdr011`
+- `testBoxStandardContainsListingOverlaysAdr011` (neu)
+- `testBaseScssHasCorrectOverlayPositioningAdr011` (neu)
+
+---
+
+### C. DROP TABLE Entfernung & Coverage-Fix (Commit `dfbd5ac`)
+
+**Problem:** `CustomPreOrderManager.php::uninstall()` enthielt `DROP TABLE IF EXISTS custom_preorder_waitlist`. Da das Plugin nie live war, existiert diese Tabelle auf keinem Produktivsystem. Das DDL-Statement verursachte einen impliziten MySQL-Commit, der `IntegrationTestBehaviour`-Rollback brach → `keepUserData=false`-Pfad war nicht per Integration-Test testbar → Coverage-Lücke.
+
+**Lösung:**
+- `DROP TABLE` ersatzlos entfernt
+- `testUninstallRemoveUserDataExecutesCleanup` in `PluginLifecycleTest.php` hinzugefügt
+- `exactly(9)` → `exactly(8)` in `PluginUninstallTest.php`
+
+**Resultat:** `CustomPreOrderManager` Klasse: **100% Methods, 100% Lines**
+
+---
+
+### D. Listing-Scarcity-Badge: eigene Config & Zweizeiligkeit (Commits `bada830`, `42218d5`)
+
+**Problem:** Scarcity-Badge nutzte `--custom-preorder-card-accent` (Card/PDP-Design) — keine unabhängige Konfiguration möglich.
+
+**Lösung — 3 neue Config-Felder** in der Karte „Listing-Banner — Design & Transparenz":
+
+| Config-Key | Typ | Default | CSS Custom Property |
+|---|---|---|---|
+| `listingScarcityBackgroundColor` | colorpicker | `#b45309` | `--custom-preorder-listing-scarcity-bg` |
+| `listingScarcityTextColor` | colorpicker | `#ffffff` | `--custom-preorder-listing-scarcity-color` |
+| `listingScarcityOpacity` | int (0–100) | `65` | `--custom-preorder-listing-scarcity-opacity` |
+
+**Zweizeiliges Badge** mit neuen Snippet-Keys (unabhängig von `badge.urgentFewLeft`):
+
+| Key | de-DE | en-GB |
+|---|---|---|
+| `custom-preorder.listing.scarcityPrefix` | `Fast vergriffen:` | `Almost gone:` |
+| `custom-preorder.listing.scarcityCount` | `Nur noch %count% Stück verfügbar!` | `Only %count% left in stock!` |
+
+**SCSS:** `flex-direction: column`, Child-Klassen `.scarcity-listing-prefix` und `.scarcity-listing-count` analog zur Date-Banner-Structure.
+
+**ConfigXmlTest:** `assertCount(22)` → `assertCount(25)`, 2 neue colorpicker-Einträge in `$colorFields`.
+
+---
+
+### Finaler Test-Stand (Phase 9)
+
+```text
+PHPUnit 9.6.35
+
+OK (104 tests, 741 assertions)
+
+Code Coverage Report:
+  Classes: 100.00% (9/9)
+  Methods: 100.00% (41/41)
+  Lines:   100.00% (220/220)
+```
+
+---
+
+## Phase 10: Listing-Overlay Visuelles Goldstandard-Finish (`v1.4.1`)
+
+### Kontext
+
+Nach der strukturellen ADR-011-Implementierung (Phase 9) zeigten die Overlays in der Praxis zwei Schwächen:
+1. `top: 0` / `bottom: 0` flush mit dem Bildrand — `border-radius` kaum wahrnehmbar, wirkte „angegossen"
+2. Kein visuelles Gewicht — kein Shadow, kein Border, keine Tiefe
+
+### A. Optische Modernisierung — gleiche Design-Sprache wie PDP-Card
+
+#### Date-Banner (`.product-preorder-date-banner`)
+
+| Property | Vorher | Nachher | Begründung |
+|---|---|---|---|
+| `top` | `0` | `calc(-1 * var(--bs-card-spacer-y, 1rem))` | Bootstrap-Variable — theme-aware, kein Magic Number. `1rem` = Standard `--bs-card-spacer-y` = exakt der empirisch korrekte Wert |
+| `border-radius` | `0 0 8px 8px` | unverändert | Untere Ecken abgerundet, schwebt über der Karte |
+| `border` | — | `1px solid rgba(255,255,255,0.15)` | Glassmorphism Micro-Border |
+| `box-shadow` | — | `0 4px 12px rgba(15,23,42,0.18)` | Soft Elevation, konsistent mit PDP-Card |
+| `backdrop-filter` | `blur(6px)` | `blur(8px)` | Stärkeres Frosted-Glass |
+
+#### Scarcity-Badge (`.preorder-scarcity-listing`)
+
+| Property | Vorher | Nachher | Begründung |
+|---|---|---|---|
+| `border-radius` | `8px 8px 0 0` | `8px` | Alle Ecken abgerundet — bei `bottom: 0` flush wirkten eckige Unterkanten angegossen |
+| `border` | — | `1px solid rgba(255,255,255,0.18)` | Glassmorphism Micro-Border |
+| `box-shadow` | — | `0 4px 12px rgba(15,23,42,0.15)` | Soft Elevation |
+| `backdrop-filter` | `blur(6px)` | `blur(8px)` | Stärkeres Frosted-Glass |
+| Font-Size Prefix | `0.625rem` / `0.5625rem` | `0.75rem` überall | 9px auf Mobile war unleserlich |
+
+### B. Rabatt-% Badge Unterdrückung (`badges.html.twig`)
+
+Bei Produkten mit gleichzeitig aktivem Preorder-Overlay und gesetztem Listenpreis kollidierte der rote `%`-Badge (oben links) visuell mit dem Date-Banner (oben). Der Rabattwert ist als durchgestrichener Preis + rote Schrift unterhalb der Kachel vollständig sichtbar.
+
+**Lösung:** `component_product_badges_discount` Block in `badges.html.twig` überschrieben.
+- Wenn `isPreOrder && !hasStock && enableListingBadge` → `parent()` wird nicht gerendert
+- In allen anderen Fällen → normales Verhalten, `parent()` greift
+
+Block-Name verifiziert gegen Shopware `v6.5.8.19` GitHub-Quelle.
+
+### C. Neue Tests (Commit `faa6fb9`)
+
+- `testBaseScssHasCorrectOverlayPositioningAdr011` erweitert: `border-radius: 0 0 8px 8px`, `border-radius: 8px 8px 0 0`, `overflow: hidden` auf beiden Elementen
+- `testBadgesTemplateSupressesDiscountBadgeForPreorder` (neu): prüft `component_product_badges_discount` Override, Preorder-Logik und `parent()` Fallback
+
+### Finaler Test-Stand (Phase 10)
+
+```text
+PHPUnit 9.6.35
+
+OK (104 tests, 741 assertions)
+
+Code Coverage Report:
+  Classes: 100.00% (9/9)
+  Methods: 100.00% (41/41)
+  Lines:   100.00% (220/220)
+```
+
+---
+
+## Index aller Walkthrough-Dokumente (`docs/walkthrough/`)
+
+| Datum | Thema | Pfad |
+|---|---|---|
+| 18.09.2026 | Listing-Bild-Overlay Banner & Core-Alignment (ADR-010, Interim) | [`docs/walkthrough/walkthrough-listing-banner-and-core-alignment.md`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/walkthrough/walkthrough-listing-banner-and-core-alignment.md) |
+
+---
+
+## Aktueller Status
+- Branch: `feat/payment-aware-counter-and-storefront-fixes`
+- Letzter Commit: `47449da` (`feat(scss): listing overlay depth — shadow, micro-border, smart top offset`)
+- Release-Artefakt: `dist/CustomPreOrderManager.zip`
+- **104 tests, 741 assertions, 100% Coverage (9/9 Classes, 41/41 Methods, 220/220 Lines)**
+- Visuell verifiziert auf Teststation (`192.168.2.222:8080/freizeit-elektro/`)

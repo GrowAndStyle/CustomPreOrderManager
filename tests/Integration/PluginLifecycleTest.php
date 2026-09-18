@@ -14,7 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * Integrationstest für die Plugin-Hauptklasse.
  *
- * Testet Lifecycle-Hooks und saubere Initialisierung im Test-Container.
+ * Testet alle Lifecycle-Hooks im echten Shopware Test-Container.
+ * uninstall(keepUserData=false) ist seit Entfernung des DROP TABLE vollständig
+ * per IntegrationTestBehaviour testbar — kein DDL mehr, kein impliziter Commit.
  */
 class PluginLifecycleTest extends TestCase
 {
@@ -74,6 +76,9 @@ class PluginLifecycleTest extends TestCase
 
     public function testUninstallRemoveUserDataExecutesCleanup(): void
     {
+        // Kein DDL (DROP TABLE entfernt) → IntegrationTestBehaviour-Rollback funktioniert.
+        // DELETEs und UPDATEs treffen keine Zeilen (keine Preorder-Daten in Test-DB) — kein Fehler.
+        // try/catch im Uninstaller schützt vor fehlender product.custom_fields-Spalte.
         $context = $this->createMock(UninstallContext::class);
         $context->method('keepUserData')->willReturn(false);
 

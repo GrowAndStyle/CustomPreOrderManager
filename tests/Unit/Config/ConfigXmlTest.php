@@ -55,7 +55,7 @@ class ConfigXmlTest extends TestCase
     {
         $expectedKeys = [
             'enableListingBadge' => 'bool',
-            'enableScarcityCounter' => 'bool',
+            'scarcityDisplayMode' => 'single-select',
             'lowStockThreshold' => 'int',
             'buttonBackgroundColor' => 'colorpicker',
             'buttonHoverBackgroundColor' => 'colorpicker',
@@ -73,6 +73,12 @@ class ConfigXmlTest extends TestCase
             'enableMixedCartNotice' => 'bool',
             'mixedCartNoticeMode' => 'single-select',
             'mixedCartCustomNoticeText' => 'text',
+            'listingBannerBackgroundColor' => 'colorpicker',
+            'listingBannerTextColor' => 'colorpicker',
+            'listingBannerOpacity' => 'int',
+            'listingScarcityBackgroundColor' => 'colorpicker',
+            'listingScarcityTextColor' => 'colorpicker',
+            'listingScarcityOpacity' => 'int',
         ];
 
         $foundKeys = [];
@@ -87,7 +93,7 @@ class ConfigXmlTest extends TestCase
             static::assertSame($expectedType, $foundKeys[$key], sprintf('Feld "%s" muss Typ "%s" besitzen', $key, $expectedType));
         }
 
-        static::assertCount(19, $foundKeys, 'config.xml muss exakt 19 Konfigurationsfelder enthalten');
+        static::assertCount(25, $foundKeys, 'config.xml muss exakt 25 Konfigurationsfelder enthalten');
     }
 
     public function testAllFieldsHaveBilingualLabelsAndHelpTexts(): void
@@ -136,6 +142,10 @@ class ConfigXmlTest extends TestCase
             'cardBorderColor',
             'cardAccentColor',
             'cardTextColor',
+            'listingBannerBackgroundColor',
+            'listingBannerTextColor',
+            'listingScarcityBackgroundColor',
+            'listingScarcityTextColor',
         ];
 
         foreach ($this->xml->xpath('//input-field[@type="colorpicker"]') as $field) {

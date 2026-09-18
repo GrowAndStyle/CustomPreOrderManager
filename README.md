@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/Shopware-6.5%20|%206.6%20|%206.7-189eff?style=flat-square&logo=shopware&logoColor=white" alt="Shopware">
   <img src="https://img.shields.io/badge/Version-v1.0.0-0f62fe?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/PHP-8.1+-777bb4?style=flat-square&logo=php&logoColor=white" alt="PHP">
-  <img src="https://img.shields.io/badge/Tests-42%20passed-2ea44f?style=flat-square&logo=githubactions&logoColor=white" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-104%20passed-2ea44f?style=flat-square&logo=githubactions&logoColor=white" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-100%25-2ea44f?style=flat-square" alt="Coverage">
   <img src="https://img.shields.io/badge/Architecture-Enterprise%20Tier--1-blueviolet?style=flat-square" alt="Architecture">
   <img src="https://img.shields.io/badge/Security-Zero--Trust%20%7C%20XSS--Proof-success?style=flat-square" alt="Security">
@@ -197,7 +197,7 @@ Pflegbar im Shopware Administration Panel unter *Einstellungen → Erweiterungen
 | Konfigurations-Schlüssel | Typ | Standard | Beschreibung (DE) | Description (EN) |
 |---|:---:|:---:|---|---|
 | `CustomPreOrderManager.config.enableListingBadge` | `bool` | `true` | Zeigt das Vorbestellungs-Badge auf Kategorieseiten und in der Suche an. | Display pre-order badge on category and search listing cards. |
-| `CustomPreOrderManager.config.enableScarcityCounter` | `bool` | `true` | Aktiviert den Restmengen-Zähler auf der Produktdetailseite. | Enable remaining quota counter on the product detail page. |
+| `CustomPreOrderManager.config.scarcityDisplayMode` | `select` | `disabled` | Steuert Restmengen-Anzeige: `disabled`, `detail_only`, `listing_only`, `everywhere`. | Controls scarcity badge visibility: `disabled`, `detail_only`, `listing_only`, `everywhere`. |
 | `CustomPreOrderManager.config.lowStockThreshold` | `int` | `5` | Schwellenwert für das Dringlichkeits-Badge (*„Fast vergriffen“*). | Remaining stock threshold to trigger urgency badge. |
 | `CustomPreOrderManager.config.buttonBackgroundColor` | `colorpicker` | `#1a1a2e` | Button Hintergrundfarbe (Normalzustand). | Button background color (default state). |
 | `CustomPreOrderManager.config.buttonHoverBackgroundColor` | `colorpicker` | `#2b2b48` | Button Hintergrundfarbe (Hover / Fokus). | Button background color (hover / focus). |
@@ -215,6 +215,12 @@ Pflegbar im Shopware Administration Panel unter *Einstellungen → Erweiterungen
 | `CustomPreOrderManager.config.enableMixedCartNotice` | `bool` | `true` | Mischwarenkorb-Hinweis im Offcanvas & Checkout aktivieren. | Enable mixed cart notice in offcanvas & checkout. |
 | `CustomPreOrderManager.config.mixedCartNoticeMode` | `select` | `flexible` | Fulfillment-Modus für Mischwarenkörbe (`flexible`, `split`, `consolidated`, `custom`). | Fulfillment mode for mixed carts (`flexible`, `split`, `consolidated`, `custom`). |
 | `CustomPreOrderManager.config.mixedCartCustomNoticeText` | `text` | `""` | Individueller Hinweistext bei Modus `custom`. | Custom notice text when mode is set to `custom`. |
+| `CustomPreOrderManager.config.listingBannerBackgroundColor` | `colorpicker` | `#0f172a` | Datum-Banner Hintergrundfarbe (Kategorielisting). | Date banner background color (category listing). |
+| `CustomPreOrderManager.config.listingBannerTextColor` | `colorpicker` | `#ffffff` | Datum-Banner Textfarbe. | Date banner text color. |
+| `CustomPreOrderManager.config.listingBannerOpacity` | `int` | `55` | Datum-Banner Deckkraft in % (20–100). | Date banner opacity in % (20–100). |
+| `CustomPreOrderManager.config.listingScarcityBackgroundColor` | `colorpicker` | `#b45309` | Scarcity-Badge Hintergrundfarbe (Kategorielisting). | Scarcity badge background color (category listing). |
+| `CustomPreOrderManager.config.listingScarcityTextColor` | `colorpicker` | `#ffffff` | Scarcity-Badge Textfarbe. | Scarcity badge text color. |
+| `CustomPreOrderManager.config.listingScarcityOpacity` | `int` | `65` | Scarcity-Badge Deckkraft in % (20–100). | Scarcity badge opacity in % (20–100). |
 
 ---
 
@@ -244,6 +250,8 @@ Available Payload:
 2. **ERP- & WWS-Routing:** Übertragung von Vorbestellungs-Aufträgen in einen separaten Clearing-Status im ERP-System.
 3. **VIP-Kundenbetreuung:** Benachrichtigung des Kundenservice bei Großbestellungen von limitierten Vorbestellartikeln.
 
+> **Hinweis zur Kontingent-Zählung (ADR-009):** Das Event `preorder.order.placed` feuert bei **Bestelleingang**, unabhängig vom Zahlungsstatus. Die Reservierung des Vorbestellkontingents (`sold_count`) erfolgt hingegen erst bei **Zahlungseingang** (`paid`). Bei Stornierung oder Rückerstattung wird das Kontingent automatisch freigegeben.
+
 ---
 
 ## 🏗️ Architektur & Verzeichnisstruktur
@@ -252,46 +260,69 @@ Available Payload:
 CustomPreOrderManager/
 ├── .agent/                                      # Agent Governance & Quality Skill Blueprints
 ├── docs/
-│   └── adr/                                     # Architecture Decision Records (ADR-001 bis ADR-006)
+│   └── adr/                                     # Architecture Decision Records (ADR-001 bis ADR-010)
 ├── src/
 │   ├── CustomPreOrderManager.php                # Plugin-Hauptklasse (Lifecycle & Container-Extension)
 │   ├── Core/Checkout/
 │   │   ├── Cart/
-│   │   │   └── PreOrderCartCollector.php        # LineItem Payload Enrichment (Priority 4100)
+│   │   │   ├── PreOrderCartCollector.php        # LineItem Payload Enrichment (Priority 4100)
+│   │   │   ├── PreOrderCartValidator.php        # High-Concurrency Quota Guard
+│   │   │   └── Error/
+│   │   │       ├── PreOrderQuantityAdjustedError.php
+│   │   │       └── PreOrderQuotaExhaustedError.php
 │   │   ├── Subscriber/
-│   │   │   └── OrderPlacedSubscriber.php        # Auto-Tagging & atomarer DBAL Counter
+│   │   │   ├── OrderPlacedSubscriber.php        # Auto-Tagging & Event-Dispatch bei Bestelleingang
+│   │   │   └── PaymentStateSubscriber.php       # Counter Inkrement/Dekrement bei Zahlungsstatus (ADR-009)
 │   │   └── Event/
 │   │       └── PreOrderPlacedEvent.php           # Flow Builder Business Event
+│   ├── Core/Content/PreOrderWaitlist/
+│   │   ├── PreOrderWaitlistDefinition.php       # DAL Entity Definition
+│   │   ├── PreOrderWaitlistEntity.php           # Entity Klasse
+│   │   └── PreOrderWaitlistCollection.php       # Collection
 │   ├── DependencyInjection/
 │   │   └── CustomPreOrderManagerExtension.php   # DI Extension & Rate Limiter Prepend
 │   ├── Migration/
-│   │   └── Migration1726200000AddPreOrderCustomFields.php # CustomFields auf Entity product
+│   │   └── Migration1726200000AddPreOrderCustomFields.php
 │   └── Resources/
 │       ├── config/
-│       │   ├── config.xml                       # System-Konfiguration
+│       │   ├── config.xml                       # 25 Konfigurationsfelder (5 Cards)
 │       │   ├── services.xml                     # Symfony DI Service-Definitionen
 │       │   └── plugin.png                       # Plugin-Icon (128x128)
-│       ├── Snippet/
-│       │   ├── de_DE/custom_pre_order_manager.de-DE.json # Deutsche Textbausteine
-│       │   └── en_GB/custom_pre_order_manager.en-GB.json # Englische Textbausteine
-│       ├── views/storefront/                    # Twig-Template-Erweiterungen mit Stock-Guards
-│       │   ├── component/buy-widget/buy-widget-form.html.twig
-│       │   ├── page/product-detail/buy-widget-form.html.twig
-│       │   └── component/product/card/badges.html.twig
+│       ├── snippet/
+│       │   ├── de_DE/storefront.de-DE.json      # Deutsche Snippets (custom-preorder.*)
+│       │   └── en_GB/storefront.en-GB.json      # Englische Snippets (custom-preorder.*)
+│       ├── views/storefront/
+│       │   ├── base.html.twig                   # CSS Custom Properties Injection
+│       │   ├── component/
+│       │   │   ├── buy-widget/buy-widget-form.html.twig
+│       │   │   ├── checkout/offcanvas-cart.html.twig   # Mischwarenkorb (via Partial)
+│       │   │   ├── delivery-information.html.twig       # PDP Delivery Card
+│       │   │   ├── line-item/element/label.html.twig    # Warenkorb LineItem
+│       │   │   ├── preorder/mixed-cart-notice.html.twig # Shared Mischwarenkorb-Partial
+│       │   │   └── product/card/action.html.twig        # Listing Button
+│       │   └── page/
+│       │       ├── product-detail/
+│       │       │   ├── buy-widget.html.twig             # Scarcity-Badge
+│       │       │   └── buy-widget-form.html.twig        # Pre-Order Button
+│       │       ├── checkout/
+│       │       │   ├── cart/index.html.twig              # Mischwarenkorb auf /checkout/cart
+│       │       │   └── confirm/index.html.twig           # Mischwarenkorb auf /checkout/confirm
+│       │       └── account/order-history/               # Bestellhistorie Pre-Order-Badge
 │       └── app/
 │           ├── storefront/                      # Vanilla JS Plugin & Mobile-First SCSS
-│           └── administration/                  # Vue.js 3 Admin-Modul (Dashboard & Order-Tabs)
+│           └── administration/                  # Vue.js 3 Admin-Modul
 ├── tests/
 │   ├── TestBootstrap.php                        # Shopware 6 Kernel Test-Bootstrapper
-│   ├── Unit/                                    # Isolierte Unit-Tests mit Mocks (28 Tests)
-│   │   ├── Cart/PreOrderCartCollectorTest.php
-│   │   ├── Subscriber/OrderPlacedSubscriberTest.php
-│   │   ├── Event/PreOrderPlacedEventTest.php
-│   │   ├── DependencyInjection/CustomPreOrderManagerExtensionTest.php
-│   │   └── Plugin/PluginUninstallTest.php
-│   └── Integration/                             # Integration-Tests mit echtem Container (6 Tests)
-│       ├── Subscriber/OrderPlacedSubscriberTest.php
-│       └── PluginLifecycleTest.php
+│   ├── Unit/                                    # Isolierte Unit-Tests (101 Tests)
+│   │   ├── Subscriber/
+│   │   │   ├── OrderPlacedSubscriberTest.php    # 7 Tests — Tagging, Event, Edge Cases
+│   │   │   └── PaymentStateSubscriberTest.php   # 10 Tests — Paid/Cancel/Refund/Guard
+│   │   ├── Core/Checkout/Cart/PreOrderCartCollectorTest.php
+│   │   ├── Config/ConfigXmlTest.php
+│   │   ├── Storefront/DeliveryInformationTemplateTest.php
+│   │   └── PluginLifecycleTest.php
+│   └── Integration/                             # Integration-Tests mit echtem Container (3 Tests)
+│       └── Subscriber/OrderPlacedSubscriberTest.php
 ├── composer.json                                # Plugin-Metadaten & Namespace-Autoloading
 ├── phpunit.xml.dist                             # PHPUnit-Konfiguration & Coverage-Filter
 └── BUILD.md                                     # Enterprise Release-Build Dokumentation (lokal)
@@ -477,6 +508,9 @@ Grundlegende Architekturentscheidungen sind nach dem Michael Nygard ADR-Standard
 | **[ADR-006](docs/adr/ADR-006-admin-preorder-dashboard-listing.md)** | Admin Vorbestellungs-Dashboard | `AKZEPTIERT` | Expliziter `created()`-Hook, Assoziationen (`stateMachineState`, `currency`) und Scoped Slots mit Deep-Linking. |
 | **[ADR-007](docs/adr/ADR-007-storefront-delivery-information-and-clean-cta.md)** | Storefront Lieferinformation & Clean CTA | `AKZEPTIERT` | Semantische 2-Ebenen-Hierarchie (Termin + Hinweistext), 'Voraussichtlich'-Rechtssicherheit und Icon-Entfall am CTA-Button. |
 | **[ADR-008](docs/adr/ADR-008-end-to-end-preorder-delivery-information.md)** | Full-Funnel Vorbestellungs-Architektur, Quota Guard & Mischwarenkorb | `AKZEPTIERT` | Durchgängige Begleitung (Listing bis Kundenkonto), aktiver Cart-Quota-Guard mit Shopware-Alerts und flexibler Mischwarenkorb-Versandhinweis. |
+| **[ADR-009](docs/adr/ADR-009-payment-aware-sold-counter.md)** | Payment-Aware Sold Counter | `AKZEPTIERT` | `sold_count` erst bei Zahlungseingang (`paid`), automatischer Rollback bei Storno/Refund, GREATEST-Guard gegen negative Werte. |
+| **[ADR-010](docs/adr/ADR-010-scarcity-badge-card-integration-uwg.md)** | Scarcity-Badge Card-Integration (UWG-konform) | `AKZEPTIERT` | Badge in Delivery-Card integriert, Listing-Support, granulare Config (`scarcityDisplayMode`), UWG §5 / Omnibus-RL konform. |
+| **[ADR-011](docs/adr/ADR-011-listing-overlay-anchor-box-standard-vs-badges.md)** | Listing-Overlay Anker — box-standard.html.twig | `AKZEPTIERT` | Overlays in `component_product_box_image` (verifiziert 6.5.8.19), Containing Block `preorder-image-overlay-root`, kein Pixel-Hack, eigene Listing-Scarcity-Config-Felder. |
 
 ---
 
