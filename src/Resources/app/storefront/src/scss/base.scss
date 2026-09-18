@@ -362,11 +362,18 @@ a.btn-preorder,
     margin-top: 0.35rem;
 }
 
-// Vorbestelldatum-Banner auf Kategorie-Listing-Cards (via badges.html.twig)
+// Korrekter Containing Block für Listing-Overlays (ADR-011)
+// Ermöglicht position: absolute; top/bottom: 0 ohne Pixel-Hack
+.product-image-wrapper {
+    position: relative;
+}
+
+// Vorbestelldatum-Banner auf Kategorie-Listing-Cards (via box-standard.html.twig, ADR-011)
 // Farben und Deckkraft konfigurierbar über Plugin-Config → CSS Custom Properties
 // Opacity liegt auf ::before (Hintergrund), Text bleibt 100 % deckend
 .product-preorder-date-banner {
     position: absolute;
+    top: 0;
     left: 0;
     right: 0;
     z-index: 2;
@@ -445,13 +452,13 @@ a.btn-preorder,
 }
 
 // Scarcity-Badge auf Listing-Karten als Overlay (ADR-010)
-// Via badges.html.twig — absolut über dem unteren Bildrand positioniert
+// Via box-standard.html.twig — position: absolute relativ zu .product-image-wrapper (ADR-011)
+// Kein Pixel-Hack mehr: bottom: 0 funktioniert korrekt dank position: relative auf Wrapper
 .preorder-scarcity-listing {
     position: absolute;
+    bottom: 0;
     left: 0;
     right: 0;
-    top: calc(var(--bs-card-spacer-y, 1rem) + 200px);
-    transform: translateY(-100%);
     z-index: 2;
     display: flex;
     align-items: center;

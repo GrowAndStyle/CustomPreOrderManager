@@ -1,5 +1,10 @@
 {% sw_extends '@Storefront/storefront/component/product/card/badges.html.twig' %}
 
+{#
+ # Nur semantisches Text-Badge (§1.C Skill) — kein Bild-Overlay mehr.
+ # Date-Banner + Scarcity-Badge liegen in box-standard.html.twig (ADR-011).
+ # Gate: enableListingBadge — ein Toggle für alle Listing-Pre-Order-UI
+ #}
 {% block component_product_badges %}
     {{ parent() }}
 
@@ -8,38 +13,9 @@
          product.translated.customFields.custom_preorder_release_date is not empty) %}
     {% set hasStock = product.stock > 0 %}
 
-    {% if isPreOrder and not hasStock %}
-        {% set releaseDate = product.translated.customFields.custom_preorder_release_date
-            |default(product.customFields.custom_preorder_release_date) %}
-
-        {% if releaseDate %}
-            <div class="product-preorder-date-banner">
-                <span class="preorder-banner-prefix">
-                    {{ "custom-preorder.listing.availableFromPrefix"|trans }}
-                </span>
-                <span class="preorder-banner-date">
-                    {{ releaseDate|date('d.m.Y') }}
-                </span>
-            </div>
-        {% endif %}
-
-        {# Scarcity-Badge: UWG-konform, direkt inline (ADR-010) — kein sw_include,
-           da @CustomPreOrderManager-Namespace nicht in der @Storefront Theme-Chain liegt #}
-        {% set scarcityMode = config('CustomPreOrderManager.config.scarcityDisplayMode') %}
-        {% if scarcityMode == 'listing_only' or scarcityMode == 'everywhere' %}
-            {% set inboundStock = product.translated.customFields.custom_preorder_inbound_stock
-                |default(product.customFields.custom_preorder_inbound_stock|default(0)) %}
-            {% set soldCount = product.translated.customFields.custom_preorder_sold_count
-                |default(product.customFields.custom_preorder_sold_count|default(0)) %}
-            {% set remaining = inboundStock - soldCount %}
-            {% set rawThreshold = config('CustomPreOrderManager.config.lowStockThreshold') %}
-            {% set threshold = (rawThreshold is not empty and rawThreshold > 0) ? rawThreshold : 5 %}
-
-            {% if remaining > 0 and remaining <= threshold %}
-                <span class="preorder-scarcity-listing">
-                    {{ "custom-preorder.badge.urgentFewLeft"|trans({'%count%': remaining}) }}
-                </span>
-            {% endif %}
-        {% endif %}
+    {% if isPreOrder and not hasStock and config('CustomPreOrderManager.config.enableListingBadge') %}
+        <span class="badge badge-preorder">
+            {{ "custom-preorder.badge.preOrder"|trans }}
+        </span>
     {% endif %}
 {% endblock %}

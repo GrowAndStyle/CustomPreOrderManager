@@ -235,20 +235,27 @@ class DeliveryInformationTemplateTest extends TestCase
         $partialPath = $this->viewsPath . '/component/preorder/scarcity-badge.html.twig';
         $content = (string) file_get_contents($partialPath);
 
-        // Card-Variante: SVG-Icon + preorder-scarcity-line Klasse
+        // Card-Variante: SVG-Icon + preorder-scarcity-line Klasse (einzige Variante nach ADR-011)
         static::assertStringContainsString('preorder-scarcity-line', $content);
         static::assertStringContainsString('preorder-scarcity-icon', $content);
         static::assertStringContainsString('preorder-scarcity-text', $content);
-        static::assertStringContainsString("variant|default('card') == 'card'", $content);
+
+        // Kein Varianten-Switch mehr — Partial ist nach ADR-011 Card-only
+        static::assertStringNotContainsString("variant|default('card')", $content, 'Partial darf keinen Varianten-Switch mehr enthalten — listing ist nach ADR-011 in box-standard.html.twig');
     }
 
-    public function testScarcityPartialSupportsListingVariant(): void
+    public function testScarcityPartialListingVariantRemovedAfterAdr011(): void
     {
         $partialPath = $this->viewsPath . '/component/preorder/scarcity-badge.html.twig';
         $content = (string) file_get_contents($partialPath);
 
-        // Listing-Variante: kompakter Badge ohne Icon
-        static::assertStringContainsString('preorder-scarcity-listing', $content);
+        // Listing-Variante ist Dead Code nach ADR-011 — muss aus dem Partial entfernt sein
+        // Die Logik lebt jetzt inline in box-standard.html.twig
+        static::assertStringNotContainsString(
+            'preorder-scarcity-listing',
+            $content,
+            'preorder-scarcity-listing darf nicht mehr im Partial stehen — nach ADR-011 in box-standard.html.twig'
+        );
     }
 
     public function testDeliveryCardIncludesScarcityPartial(): void
@@ -263,23 +270,80 @@ class DeliveryInformationTemplateTest extends TestCase
         static::assertStringContainsString("variant: 'card'", $content);
     }
 
-    public function testListingBadgesContainsInlineScarcityLogic(): void
+    public function testListingBadgesContainsOnlyTextBadgeWithGate(): void
     {
-        // Scarcity-Badge ist direkt inline in badges.html.twig (ADR-010).
-        // sw_include '@CustomPreOrderManager/...' funktioniert nicht, da das Partial
-        // nicht in der @Storefront Theme-Chain liegt und silently nichts rendert.
+        // Nach ADR-011: badges.html.twig enthält ausschließlich das semantische Text-Badge.
+        // Date-Banner + Scarcity-Badge sind in box-standard.html.twig (korrekter Containing Block).
         $templatePath = $this->viewsPath . '/component/product/card/badges.html.twig';
         static::assertFileExists($templatePath);
 
         $content = (string) file_get_contents($templatePath);
 
-        static::assertStringContainsString('scarcityDisplayMode', $content);
+        // Gate: enableListingBadge muss vorhanden sein
+        static::assertStringContainsString('enableListingBadge', $content);
+
+        // Text-Badge muss vorhanden sein
+        static::assertStringContainsString('badge-preorder', $content);
+
+        // Overlay-Logik darf NICHT mehr in badges.html.twig stehen (ADR-011)
+        static::assertStringNotContainsString('preorder-date-banner', $content, 'Date-Banner darf nicht mehr in badges.html.twig stehen');
+        static::assertStringNotContainsString('preorder-scarcity-listing', $content, 'Scarcity-Badge darf nicht mehr in badges.html.twig stehen');
+        static::assertStringNotContainsString('custom_preorder_inbound_stock', $content, 'Scarcity-Logik darf nicht mehr in badges.html.twig stehen');
+    }
+
+    public function testBoxStandardContainsListingOverlays(): void
+    {
+        // Nach ADR-011: Date-Banner + Scarcity-Badge sind in box-standard.html.twig.
+        // component_product_box_image_inner ist der korrekte Extension-Point (Shopware Core, verifiziert).
+        $templatePath = $this->viewsPath . '/component/product/card/box-standard.html.twig';
+        static::assertFileExists($templatePath, 'box-standard.html.twig muss nach ADR-011 vorhanden sein');
+
+        $content = (string) file_get_contents($templatePath);
+
+        // Korrekter Block-Name (verifiziert gegen Shopware Core Source)
+        static::assertStringContainsString('component_product_box_image_inner', $content);
+
+        // enableListingBadge-Gate für alle Listing-Overlays
+        static::assertStringContainsString('enableListingBadge', $content);
+
+        // Date-Banner
+        static::assertStringContainsString('product-preorder-date-banner', $content);
+        static::assertStringContainsString('preorder-banner-prefix', $content);
+        static::assertStringContainsString('preorder-banner-date', $content);
+        static::assertStringContainsString('custom-preorder.listing.availableFromPrefix', $content);
+
+        // Scarcity-Badge inline mit korrekten Config-Gates
+        static::assertStringContainsString('preorder-scarcity-listing', $content);
         static::assertStringContainsString('custom_preorder_inbound_stock', $content);
         static::assertStringContainsString('custom_preorder_sold_count', $content);
-        static::assertStringContainsString('preorder-scarcity-listing', $content);
         static::assertStringContainsString('custom-preorder.badge.urgentFewLeft', $content);
         static::assertStringContainsString("'listing_only'", $content);
         static::assertStringContainsString("'everywhere'", $content);
+    }
+
+    public function testBaseScssDefinesPositionRelativeForImageWrapper(): void
+    {
+        // Nach ADR-011: .product-image-wrapper muss position: relative haben
+        // als korrekter CSS-Containing-Block für Overlays (kein Pixel-Hack mehr)
+        $scssPath = dirname(__DIR__, 3) . '/src/Resources/app/storefront/src/scss/base.scss';
+        static::assertFileExists($scssPath);
+
+        $content = (string) file_get_contents($scssPath);
+
+        static::assertStringContainsString('.product-image-wrapper', $content);
+        static::assertStringContainsString('position: relative', $content);
+
+        // Pixel-Hack darf nicht mehr existieren
+        static::assertStringNotContainsString(
+            'top: calc(var(--bs-card-spacer-y',
+            $content,
+            'Pixel-Hack top: calc() darf nach ADR-011 nicht mehr im SCSS stehen'
+        );
+        static::assertStringNotContainsString(
+            'translateY(-100%)',
+            $content,
+            'translateY(-100%)-Hack darf nach ADR-011 nicht mehr im SCSS stehen'
+        );
     }
 
     public function testBuyWidgetTemplatesRemovedAfterCardIntegration(): void
