@@ -419,7 +419,67 @@ Nur noch `{{ parent() }}` — keine Overlay-Logik mehr.
 ```text
 PHPUnit 9.6.35
 
-OK (103 tests, 732 assertions)
+OK (104 tests, 741 assertions)
+
+Code Coverage Report:
+  Classes: 100.00% (9/9)
+  Methods: 100.00% (41/41)
+  Lines:   100.00% (220/220)
+```
+
+---
+
+## Phase 10: Listing-Overlay Visuelles Goldstandard-Finish (`v1.4.1`)
+
+### Kontext
+
+Nach der strukturellen ADR-011-Implementierung (Phase 9) zeigten die Overlays in der Praxis zwei Schwächen:
+1. `top: 0` / `bottom: 0` flush mit dem Bildrand — `border-radius` kaum wahrnehmbar, wirkte „angegossen"
+2. Kein visuelles Gewicht — kein Shadow, kein Border, keine Tiefe
+
+### A. Optische Modernisierung — gleiche Design-Sprache wie PDP-Card
+
+#### Date-Banner (`.product-preorder-date-banner`)
+
+| Property | Vorher | Nachher | Begründung |
+|---|---|---|---|
+| `top` | `0` | `calc(-1 * var(--bs-card-spacer-y, 1rem))` | Bootstrap-Variable — theme-aware, kein Magic Number. `1rem` = Standard `--bs-card-spacer-y` = exakt der empirisch korrekte Wert |
+| `border-radius` | `0 0 8px 8px` | unverändert | Untere Ecken abgerundet, schwebt über der Karte |
+| `border` | — | `1px solid rgba(255,255,255,0.15)` | Glassmorphism Micro-Border |
+| `box-shadow` | — | `0 4px 12px rgba(15,23,42,0.18)` | Soft Elevation, konsistent mit PDP-Card |
+| `backdrop-filter` | `blur(6px)` | `blur(8px)` | Stärkeres Frosted-Glass |
+
+#### Scarcity-Badge (`.preorder-scarcity-listing`)
+
+| Property | Vorher | Nachher | Begründung |
+|---|---|---|---|
+| `border-radius` | `8px 8px 0 0` | `8px` | Alle Ecken abgerundet — bei `bottom: 0` flush wirkten eckige Unterkanten angegossen |
+| `border` | — | `1px solid rgba(255,255,255,0.18)` | Glassmorphism Micro-Border |
+| `box-shadow` | — | `0 4px 12px rgba(15,23,42,0.15)` | Soft Elevation |
+| `backdrop-filter` | `blur(6px)` | `blur(8px)` | Stärkeres Frosted-Glass |
+| Font-Size Prefix | `0.625rem` / `0.5625rem` | `0.75rem` überall | 9px auf Mobile war unleserlich |
+
+### B. Rabatt-% Badge Unterdrückung (`badges.html.twig`)
+
+Bei Produkten mit gleichzeitig aktivem Preorder-Overlay und gesetztem Listenpreis kollidierte der rote `%`-Badge (oben links) visuell mit dem Date-Banner (oben). Der Rabattwert ist als durchgestrichener Preis + rote Schrift unterhalb der Kachel vollständig sichtbar.
+
+**Lösung:** `component_product_badges_discount` Block in `badges.html.twig` überschrieben.
+- Wenn `isPreOrder && !hasStock && enableListingBadge` → `parent()` wird nicht gerendert
+- In allen anderen Fällen → normales Verhalten, `parent()` greift
+
+Block-Name verifiziert gegen Shopware `v6.5.8.19` GitHub-Quelle.
+
+### C. Neue Tests (Commit `faa6fb9`)
+
+- `testBaseScssHasCorrectOverlayPositioningAdr011` erweitert: `border-radius: 0 0 8px 8px`, `border-radius: 8px 8px 0 0`, `overflow: hidden` auf beiden Elementen
+- `testBadgesTemplateSupressesDiscountBadgeForPreorder` (neu): prüft `component_product_badges_discount` Override, Preorder-Logik und `parent()` Fallback
+
+### Finaler Test-Stand (Phase 10)
+
+```text
+PHPUnit 9.6.35
+
+OK (104 tests, 741 assertions)
 
 Code Coverage Report:
   Classes: 100.00% (9/9)
@@ -439,7 +499,7 @@ Code Coverage Report:
 
 ## Aktueller Status
 - Branch: `feat/payment-aware-counter-and-storefront-fixes`
-- Letzter Commit: `42218d5` (`test(config): update ConfigXmlTest for 3 new listing scarcity fields`)
+- Letzter Commit: `47449da` (`feat(scss): listing overlay depth — shadow, micro-border, smart top offset`)
 - Release-Artefakt: `dist/CustomPreOrderManager.zip`
-- **103 tests, 732 assertions, 100% Coverage (9/9 Classes, 41/41 Methods, 220/220 Lines)**
+- **104 tests, 741 assertions, 100% Coverage (9/9 Classes, 41/41 Methods, 220/220 Lines)**
 - Visuell verifiziert auf Teststation (`192.168.2.222:8080/freizeit-elektro/`)
