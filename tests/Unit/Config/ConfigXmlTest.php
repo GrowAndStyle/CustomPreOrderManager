@@ -31,7 +31,7 @@ class ConfigXmlTest extends TestCase
 
     public function testConfigXmlHasCards(): void
     {
-        static::assertGreaterThanOrEqual(2, count($this->xml->card), 'config.xml muss mindestens 2 Cards besitzen');
+        static::assertGreaterThanOrEqual(4, count($this->xml->card), 'config.xml muss mindestens 4 Cards besitzen');
     }
 
     public function testAllCardsHaveBilingualTitles(): void
@@ -57,13 +57,22 @@ class ConfigXmlTest extends TestCase
             'enableListingBadge' => 'bool',
             'enableScarcityCounter' => 'bool',
             'lowStockThreshold' => 'int',
-            'showButtonIcon' => 'bool',
             'buttonBackgroundColor' => 'colorpicker',
             'buttonHoverBackgroundColor' => 'colorpicker',
             'buttonTextColor' => 'colorpicker',
             'buttonHoverTextColor' => 'colorpicker',
             'buttonBorderColor' => 'colorpicker',
             'buttonHoverBorderColor' => 'colorpicker',
+            'cardBorderRadius' => 'int',
+            'cardBackgroundColor' => 'colorpicker',
+            'cardBorderColor' => 'colorpicker',
+            'cardAccentColor' => 'colorpicker',
+            'cardTextColor' => 'colorpicker',
+            'cardEnableShadow' => 'bool',
+            'cardEnableGradient' => 'bool',
+            'enableMixedCartNotice' => 'bool',
+            'mixedCartNoticeMode' => 'single-select',
+            'mixedCartCustomNoticeText' => 'text',
         ];
 
         $foundKeys = [];
@@ -78,7 +87,7 @@ class ConfigXmlTest extends TestCase
             static::assertSame($expectedType, $foundKeys[$key], sprintf('Feld "%s" muss Typ "%s" besitzen', $key, $expectedType));
         }
 
-        static::assertCount(10, $foundKeys, 'config.xml muss exakt 10 Konfigurationsfelder enthalten');
+        static::assertCount(19, $foundKeys, 'config.xml muss exakt 19 Konfigurationsfelder enthalten');
     }
 
     public function testAllFieldsHaveBilingualLabelsAndHelpTexts(): void
@@ -123,6 +132,10 @@ class ConfigXmlTest extends TestCase
             'buttonHoverTextColor',
             'buttonBorderColor',
             'buttonHoverBorderColor',
+            'cardBackgroundColor',
+            'cardBorderColor',
+            'cardAccentColor',
+            'cardTextColor',
         ];
 
         foreach ($this->xml->xpath('//input-field[@type="colorpicker"]') as $field) {
@@ -161,6 +174,15 @@ class ConfigXmlTest extends TestCase
                 $default,
                 sprintf('Integer-Feld "%s" muss einen positiven Default-Wert besitzen', $name)
             );
+        }
+    }
+
+    public function testSingleSelectFieldsHaveOptions(): void
+    {
+        foreach ($this->xml->xpath('//input-field[@type="single-select"]') as $field) {
+            $name = (string) $field->name;
+            static::assertTrue(isset($field->options), sprintf('Feld "%s" muss options besitzen', $name));
+            static::assertGreaterThan(0, count($field->options->option), sprintf('Feld "%s" muss mindestens eine option besitzen', $name));
         }
     }
 }

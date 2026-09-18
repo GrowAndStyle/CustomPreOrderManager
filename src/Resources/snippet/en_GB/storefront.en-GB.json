@@ -7,21 +7,38 @@
         "badge": {
             "preOrder": "Pre-Order",
             "preOrderImage": "Pre-Order",
-            "availableFrom": "Available from %date%",
+            "availableFrom": "Expected to be available from %date%",
             "urgentFewLeft": "Almost gone: Only %count% left!",
             "quotaExhausted": "Quota exhausted"
         },
+        "listing": {
+            "availableFromPrefix": "Expected from"
+        },
         "cart": {
-            "lineItemNotice": "Pre-order — %releaseText%"
+            "lineItemNotice": "Pre-order — %releaseText%",
+            "mixedCartBadge": "Mixed Order",
+            "mixedCartFlexible": "Your order contains in-stock items and pre-orders. Delivery may be split based on availability.",
+            "mixedCartSplit": "In-stock items will be shipped immediately. Your pre-order will follow separately at no extra cost upon release.",
+            "mixedCartConsolidated": "Your order will be shipped together once all pre-ordered items are available."
         },
         "scarcity": {
             "remaining": "%remaining% of %total% available",
             "fewLeft": "Only %remaining% left for %releaseText%"
+        },
+        "error": {
+            "quantityAdjusted": "The requested quantity for \"%productName%\" was adjusted to %maxQuantity% as the remaining pre-order quota is limited.",
+            "quotaExhausted": "The product \"%productName%\" had to be removed from your cart because the pre-order quota is now fully exhausted."
         }
     },
     "preOrder": {
         "scarcity": {
             "fewLeft": "Almost gone: Only %count% left!"
         }
+    },
+    "custom-preorder-quantity-adjusted": "The requested quantity for \"%productName%\" was adjusted to %maxQuantity% as the remaining pre-order quota is limited.",
+    "custom-preorder-quota-exhausted": "The product \"%productName%\" had to be removed from your cart because the pre-order quota is now fully exhausted.",
+    "checkout": {
+        "custom-preorder-quantity-adjusted": "The requested quantity for \"%productName%\" was adjusted to %maxQuantity% as the remaining pre-order quota is limited.",
+        "custom-preorder-quota-exhausted": "The product \"%productName%\" had to be removed from your cart because the pre-order quota is now fully exhausted."
     }
 }

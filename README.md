@@ -198,13 +198,22 @@ Pflegbar im Shopware Administration Panel unter *Einstellungen → Erweiterungen
 | `CustomPreOrderManager.config.enableListingBadge` | `bool` | `true` | Zeigt das Vorbestellungs-Badge auf Kategorieseiten und in der Suche an. | Display pre-order badge on category and search listing cards. |
 | `CustomPreOrderManager.config.enableScarcityCounter` | `bool` | `true` | Aktiviert den Restmengen-Zähler auf der Produktdetailseite. | Enable remaining quota counter on the product detail page. |
 | `CustomPreOrderManager.config.lowStockThreshold` | `int` | `5` | Schwellenwert für das Dringlichkeits-Badge (*„Fast vergriffen“*). | Remaining stock threshold to trigger urgency badge. |
-| `CustomPreOrderManager.config.showButtonIcon` | `bool` | `true` | Kalender-Icon im Vorbestell-Button anzeigen. | Display calendar icon in pre-order button. |
 | `CustomPreOrderManager.config.buttonBackgroundColor` | `colorpicker` | `#1a1a2e` | Button Hintergrundfarbe (Normalzustand). | Button background color (default state). |
 | `CustomPreOrderManager.config.buttonHoverBackgroundColor` | `colorpicker` | `#2b2b48` | Button Hintergrundfarbe (Hover / Fokus). | Button background color (hover / focus). |
 | `CustomPreOrderManager.config.buttonTextColor` | `colorpicker` | `#ffffff` | Button Text- und Icon-Farbe (Normalzustand). | Button text and icon color (default state). |
 | `CustomPreOrderManager.config.buttonHoverTextColor` | `colorpicker` | `#ffffff` | Button Text- und Icon-Farbe (Hover / Fokus). | Button text and icon color (hover / focus). |
 | `CustomPreOrderManager.config.buttonBorderColor` | `colorpicker` | `#1a1a2e` | Button Rahmenfarbe (Normalzustand). | Button border color (default state). |
 | `CustomPreOrderManager.config.buttonHoverBorderColor` | `colorpicker` | `#2b2b48` | Button Rahmenfarbe (Hover / Fokus). | Button border color (hover / focus). |
+| `CustomPreOrderManager.config.cardBorderRadius` | `int` | `12` | Eckenrundung der Card in Pixeln (Squircle). | Corner radius of the card in pixels (squircle). |
+| `CustomPreOrderManager.config.cardBackgroundColor` | `colorpicker` | `#f8fafc` | Card Hintergrundfarbe (Fläche / Gradient). | Card background color (surface / gradient). |
+| `CustomPreOrderManager.config.cardBorderColor` | `colorpicker` | `#e2e8f0` | Card Rahmenfarbe (Micro-Border). | Card border color (micro-border). |
+| `CustomPreOrderManager.config.cardAccentColor` | `colorpicker` | `#e67e22` | Card Akzentfarbe (Icon-Badge, Pill-Tag, Puls-Dot). | Card accent color (icon badge, pill tag, pulse dot). |
+| `CustomPreOrderManager.config.cardTextColor` | `colorpicker` | `#0f172a` | Card Headline-Textfarbe. | Card headline text color. |
+| `CustomPreOrderManager.config.cardEnableShadow` | `bool` | `true` | Soft Elevation (Schatten) aktivieren. | Enable soft elevation (layered shadow). |
+| `CustomPreOrderManager.config.cardEnableGradient` | `bool` | `true` | Sanften Hintergrund-Farbverlauf aktivieren. | Enable subtle background gradient. |
+| `CustomPreOrderManager.config.enableMixedCartNotice` | `bool` | `true` | Mischwarenkorb-Hinweis im Offcanvas & Checkout aktivieren. | Enable mixed cart notice in offcanvas & checkout. |
+| `CustomPreOrderManager.config.mixedCartNoticeMode` | `select` | `flexible` | Fulfillment-Modus für Mischwarenkörbe (`flexible`, `split`, `consolidated`, `custom`). | Fulfillment mode for mixed carts (`flexible`, `split`, `consolidated`, `custom`). |
+| `CustomPreOrderManager.config.mixedCartCustomNoticeText` | `text` | `""` | Individueller Hinweistext bei Modus `custom`. | Custom notice text when mode is set to `custom`. |
 
 ---
 
@@ -414,6 +423,8 @@ Grundlegende Architekturentscheidungen sind nach dem Michael Nygard ADR-Standard
 | **[ADR-004](docs/adr/ADR-004-autarkic-scarcity-no-waitlist.md)** | Autarkes Scarcity-System vs. externe Warteliste | `AKZEPTIERT` | Verknappungsanzeige mit Button-Sperre schützt Kontingente ohne DSGVO- und DOI-Risiken externer E-Mail-Listen. |
 | **[ADR-005](docs/adr/ADR-005-native-button-theming-color-picker.md)** | Natives Button-Theming & Color-Picker | `AKZEPTIERT` | Bereinigung harter Maße zugunsten nativer Theme-Klassen und dynamischer Farb-Injektion via CSS-Variablen. |
 | **[ADR-006](docs/adr/ADR-006-admin-preorder-dashboard-listing.md)** | Admin Vorbestellungs-Dashboard | `AKZEPTIERT` | Expliziter `created()`-Hook, Assoziationen (`stateMachineState`, `currency`) und Scoped Slots mit Deep-Linking. |
+| **[ADR-007](docs/adr/ADR-007-storefront-delivery-information-and-clean-cta.md)** | Storefront Lieferinformation & Clean CTA | `AKZEPTIERT` | Semantische 2-Ebenen-Hierarchie (Termin + Hinweistext), 'Voraussichtlich'-Rechtssicherheit und Icon-Entfall am CTA-Button. |
+| **[ADR-008](docs/adr/ADR-008-end-to-end-preorder-delivery-information.md)** | Full-Funnel Vorbestellungs-Architektur, Quota Guard & Mischwarenkorb | `AKZEPTIERT` | Durchgängige Begleitung (Listing bis Kundenkonto), aktiver Cart-Quota-Guard mit Shopware-Alerts und flexibler Mischwarenkorb-Versandhinweis. |
 
 ---
 

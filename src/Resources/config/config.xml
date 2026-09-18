@@ -37,15 +37,6 @@
         <title lang="de-DE">Vorbestell-Button — Design &amp; Farben</title>
         <title lang="en-GB">Pre-Order Button — Design &amp; Colors</title>
 
-        <input-field type="bool">
-            <name>showButtonIcon</name>
-            <label lang="de-DE">Kalender-Icon im Vorbestell-Button anzeigen</label>
-            <label lang="en-GB">Display calendar icon in pre-order button</label>
-            <helpText lang="de-DE">Blendet ein dezentes Kalender-Icon links neben dem Button-Text ein.</helpText>
-            <helpText lang="en-GB">Displays a subtle calendar icon to the left of the button text.</helpText>
-            <defaultValue>true</defaultValue>
-        </input-field>
-
         <input-field type="colorpicker">
             <name>buttonBackgroundColor</name>
             <label lang="de-DE">Button Hintergrundfarbe</label>
@@ -98,6 +89,160 @@
             <helpText lang="de-DE">Rahmenfarbe bei Mouseover oder Tastatur-Fokus.</helpText>
             <helpText lang="en-GB">Border color on mouseover or keyboard focus.</helpText>
             <defaultValue>#2b2b48</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title lang="de-DE">Lieferhinweis-Card — Design &amp; Styling</title>
+        <title lang="en-GB">Delivery Notice Card — Design &amp; Styling</title>
+
+        <input-field type="int">
+            <name>cardBorderRadius</name>
+            <label lang="de-DE">Eckenrundung der Card (in Pixel)</label>
+            <label lang="en-GB">Corner radius of the card (in pixels)</label>
+            <helpText lang="de-DE">Bestimmt die Eckenabrundung der Lieferhinweis-Box (z. B. 12 für moderne Squircle-Rundung, 0 für eckig).</helpText>
+            <helpText lang="en-GB">Determines the corner radius of the delivery notice box (e.g. 12 for modern squircle rounding, 0 for sharp corners).</helpText>
+            <defaultValue>12</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>cardBackgroundColor</name>
+            <label lang="de-DE">Card Hintergrundfarbe</label>
+            <label lang="en-GB">Card background color</label>
+            <helpText lang="de-DE">Hintergrundfarbe der Lieferhinweis-Box bzw. Endfarbe des Verlaufs.</helpText>
+            <helpText lang="en-GB">Background color of the delivery notice box or end color of the gradient.</helpText>
+            <defaultValue>#f8fafc</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>cardBorderColor</name>
+            <label lang="de-DE">Card Rahmenfarbe</label>
+            <label lang="en-GB">Card border color</label>
+            <helpText lang="de-DE">Farbe des feinen Rahmens um die Lieferhinweis-Box.</helpText>
+            <helpText lang="en-GB">Color of the subtle border around the delivery notice box.</helpText>
+            <defaultValue>#e2e8f0</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>cardAccentColor</name>
+            <label lang="de-DE">Card Akzentfarbe (Icon &amp; Badge)</label>
+            <label lang="en-GB">Card accent color (icon &amp; badge)</label>
+            <helpText lang="de-DE">Farbe für das Icon-Badge, den Puls-Indikator und das Pill-Tag.</helpText>
+            <helpText lang="en-GB">Color for the icon badge, pulse indicator, and pill tag.</helpText>
+            <defaultValue>#e67e22</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>cardTextColor</name>
+            <label lang="de-DE">Card Textfarbe (Headline)</label>
+            <label lang="en-GB">Card text color (headline)</label>
+            <helpText lang="de-DE">Schriftfarbe für die Datums- und Hauptanzeige.</helpText>
+            <helpText lang="en-GB">Text color for the date and primary headline.</helpText>
+            <defaultValue>#0f172a</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>cardEnableShadow</name>
+            <label lang="de-DE">Sanften Schatten (Soft Elevation) aktivieren</label>
+            <label lang="en-GB">Enable subtle shadow (soft elevation)</label>
+            <helpText lang="de-DE">Aktiviert einen modernen, tiefenwirksamen Soft-Schatten gem. Design 2026.</helpText>
+            <helpText lang="en-GB">Enables a modern layered soft shadow following Design 2026 standards.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>cardEnableGradient</name>
+            <label lang="de-DE">Sanften Hintergrund-Verlauf aktivieren</label>
+            <label lang="en-GB">Enable subtle background gradient</label>
+            <helpText lang="de-DE">Aktiviert einen dezenten Farbverlauf von Weiß zur Hintergrundfarbe.</helpText>
+            <helpText lang="en-GB">Enables a subtle gradient from white to the background color.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title lang="de-DE">Listing-Banner — Design &amp; Transparenz</title>
+        <title lang="en-GB">Listing Banner — Design &amp; Transparency</title>
+
+        <input-field type="colorpicker">
+            <name>listingBannerBackgroundColor</name>
+            <label lang="de-DE">Banner Hintergrundfarbe</label>
+            <label lang="en-GB">Banner background color</label>
+            <helpText lang="de-DE">Hintergrundfarbe des Vorbestell-Banners auf dem Produktbild in der Kategorieübersicht.</helpText>
+            <helpText lang="en-GB">Background color of the pre-order banner on the product image in category listings.</helpText>
+            <defaultValue>#0f172a</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>listingBannerTextColor</name>
+            <label lang="de-DE">Banner Textfarbe</label>
+            <label lang="en-GB">Banner text color</label>
+            <helpText lang="de-DE">Schriftfarbe für Präfix und Datum im Listing-Banner.</helpText>
+            <helpText lang="en-GB">Font color for prefix and date in the listing banner.</helpText>
+            <defaultValue>#ffffff</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>listingBannerOpacity</name>
+            <label lang="de-DE">Banner Deckkraft (in %)</label>
+            <label lang="en-GB">Banner opacity (in %)</label>
+            <helpText lang="de-DE">Transparenz des Banners: 100 = vollständig deckend, 20 = stark durchscheinend. Empfohlen: 50–60 %.</helpText>
+            <helpText lang="en-GB">Banner transparency: 100 = fully opaque, 20 = highly translucent. Recommended: 50–60 %.</helpText>
+            <defaultValue>55</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title lang="de-DE">Mischwarenkorb — Versandhinweis &amp; Fulfillment</title>
+        <title lang="en-GB">Mixed Cart — Shipping Notice &amp; Fulfillment</title>
+
+        <input-field type="bool">
+            <name>enableMixedCartNotice</name>
+            <label lang="de-DE">Mischwarenkorb-Hinweis aktivieren</label>
+            <label lang="en-GB">Enable mixed cart notice</label>
+            <helpText lang="de-DE">Blendet im Offcanvas-Warenkorb und Checkout einen Hinweis ein, wenn Lagerartikel und Vorbestellungen kombiniert sind.</helpText>
+            <helpText lang="en-GB">Displays a notice in offcanvas cart and checkout when in-stock items and pre-orders are combined.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>mixedCartNoticeMode</name>
+            <label lang="de-DE">Fulfillment-Modus für Mischwarenkörbe</label>
+            <label lang="en-GB">Fulfillment mode for mixed carts</label>
+            <helpText lang="de-DE">Steuert den angezeigten Hinweis, wenn sofort lieferbare Artikel und Vorbestellungen gemeinsam im Warenkorb liegen.</helpText>
+            <helpText lang="en-GB">Controls the notice shown when in-stock items and pre-orders are mixed in the cart.</helpText>
+            <options>
+                <option>
+                    <id>flexible</id>
+                    <name lang="de-DE">Fall-zu-Fall / Teillieferung nach Verfügbarkeit (Standard)</name>
+                    <name lang="en-GB">Case-by-case / Split delivery based on availability (Default)</name>
+                </option>
+                <option>
+                    <id>split</id>
+                    <name lang="de-DE">Feste Teillieferung (Sofortversand der Lagerware)</name>
+                    <name lang="en-GB">Fixed split delivery (Immediate shipping of stock items)</name>
+                </option>
+                <option>
+                    <id>consolidated</id>
+                    <name lang="de-DE">Feste Komplettlieferung (Gemeinsamer Versand zum Release)</name>
+                    <name lang="en-GB">Fixed consolidated delivery (Ship together on release)</name>
+                </option>
+                <option>
+                    <id>custom</id>
+                    <name lang="de-DE">Eigener Hinweistext (Textfeld unten)</name>
+                    <name lang="en-GB">Custom notice text (Text field below)</name>
+                </option>
+            </options>
+            <defaultValue>flexible</defaultValue>
+        </input-field>
+
+        <input-field type="text">
+            <name>mixedCartCustomNoticeText</name>
+            <label lang="de-DE">Eigener Mischwarenkorb-Hinweistext</label>
+            <label lang="en-GB">Custom mixed cart notice text</label>
+            <helpText lang="de-DE">Individueller Text, der angezeigt wird, wenn als Modus 'Eigener Hinweistext' gewählt wurde.</helpText>
+            <helpText lang="en-GB">Custom text displayed when 'Custom notice text' mode is selected.</helpText>
+            <defaultValue>Deine Bestellung enthält sofort lieferbare Artikel und Vorbestellungen. Die Auslieferung erfolgt ggf. in Teillieferungen.</defaultValue>
         </input-field>
     </card>
 </config>

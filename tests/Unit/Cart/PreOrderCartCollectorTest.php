@@ -110,7 +110,7 @@ class PreOrderCartCollectorTest extends TestCase
         $this->collector->collect($data, $cart, $context, $behavior);
 
         static::assertTrue($lineItem->getPayloadValue('isPreOrder'));
-        static::assertSame('Lieferbar ab 15.10.2026', $lineItem->getPayloadValue('preOrderReleaseText'));
+        static::assertSame('Voraussichtlich lieferbar ab 15.10.2026', $lineItem->getPayloadValue('preOrderReleaseText'));
     }
 
     public function testCollectHandlesInvalidReleaseDateGracefully(): void
@@ -169,6 +169,39 @@ class PreOrderCartCollectorTest extends TestCase
         $this->collector->collect($data, $cart, $context, $behavior);
 
         static::assertTrue($lineItem->getPayloadValue('isPreOrder'));
-        static::assertSame('Lieferbar ab 01.12.2026', $lineItem->getPayloadValue('preOrderReleaseText'));
+        static::assertSame('01.12.2026', $lineItem->getPayloadValue('preOrderReleaseDate'));
+        static::assertSame('Voraussichtlich lieferbar ab 01.12.2026', $lineItem->getPayloadValue('preOrderAvailableFrom'));
+        static::assertSame('Voraussichtlich lieferbar ab 01.12.2026', $lineItem->getPayloadValue('preOrderReleaseText'));
+        static::assertNull($lineItem->getPayloadValue('preOrderNotice'));
+    }
+
+    public function testCollectEnrichesBothDateAndNoticeWithoutOverwriting(): void
+    {
+        $cart = new Cart('test-token');
+        $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $lineItem->setPayloadValue('customFields', [
+            'custom_preorder_active' => true,
+            'custom_preorder_release_date' => '2026-10-30',
+            'custom_preorder_release_text' => 'Herstellerhinweis: Limitierte Erstauflage',
+            'custom_preorder_inbound_stock' => 15,
+            'custom_preorder_sold_count' => 5,
+        ]);
+        $cart->add($lineItem);
+
+        $data = new CartDataCollection();
+        $context = $this->createMock(SalesChannelContext::class);
+        $behavior = new CartBehavior();
+
+        $this->collector->collect($data, $cart, $context, $behavior);
+
+        static::assertTrue($lineItem->getPayloadValue('isPreOrder'));
+        // Beide Informationen müssen sauber parallel im Payload existieren
+        static::assertSame('30.10.2026', $lineItem->getPayloadValue('preOrderReleaseDate'));
+        static::assertSame('Herstellerhinweis: Limitierte Erstauflage', $lineItem->getPayloadValue('preOrderNotice'));
+        static::assertSame('Voraussichtlich lieferbar ab 30.10.2026', $lineItem->getPayloadValue('preOrderAvailableFrom'));
+        static::assertSame('Voraussichtlich lieferbar ab 30.10.2026 — Herstellerhinweis: Limitierte Erstauflage', $lineItem->getPayloadValue('preOrderReleaseText'));
+        static::assertSame(15, $lineItem->getPayloadValue('preOrderInboundStock'));
+        static::assertSame(5, $lineItem->getPayloadValue('preOrderSoldCount'));
+        static::assertSame(10, $lineItem->getPayloadValue('preOrderRemainingQuota'));
     }
 }

@@ -179,11 +179,49 @@ CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
 
 ---
 
+### Phase 5: Kategorieseite Lieferdatum-Banner & Listing-Banner-Config (`TASK-021`)
+
+> Ausführlicher Walkthrough & Root-Cause-Dokumentation:  
+> 🔗 [`docs/walkthrough/walkthrough-listing-banner-and-core-alignment.md`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/walkthrough/walkthrough-listing-banner-and-core-alignment.md)
+
+### 1. Root-Cause-Analyse
+
+- **Problem:** Auf der Kategorieseite fehlte das Vorbestellungs-Lieferdatum auf dem Produktbild. Der Button „Jetzt vorbestellen" wurde korrekt gerendert, das Bild-Banner aber nicht.
+- **Fehlgeschlagener Ansatz (Vorgänger-Agent):** Block-Override `component_product_box_image` in `box-standard.html.twig` — greift nicht, weil Shopware im `sw_include`-Kontext Block-Overrides aus `sw_extends`-Dateien nicht zuverlässig auflöst.
+- **Beweis:** `curl`-Analyse zeigte 0 Treffer für `position-relative` bei 24 Produktkarten, obwohl `action.html.twig` (separate Datei per `sw_include`) einwandfrei funktionierte.
+- **Schlüsselerkenntnis:** Rabatt-Badges (`%`) nutzen `badges.html.twig` per `sw_include` als eigenständige Datei — Plugin-Override greift nachweislich.
+
+### 2. Technische Lösung
+
+- **Template:** `badges.html.twig` erweitert `component_product_badges` via `sw_extends` + `{{ parent() }}`.
+- **Positionierung:** `position: absolute` im `.card-body` (gleicher Mechanismus wie Core-Rabatt-Badges).
+- **Nur Datum, kein Hinweistext** — Präfix + Datum (`dd.mm.YYYY`).
+- **`::before` Pseudo-Element:** Hintergrund + Opacity auf `::before`, Text bleibt 100% deckend.
+
+### 3. Plugin-Config (3 neue Felder)
+
+| Feld | Typ | Default | CSS Custom Property |
+|---|---|---|---|
+| `listingBannerBackgroundColor` | Colorpicker | `#0f172a` | `--custom-preorder-banner-bg` |
+| `listingBannerTextColor` | Colorpicker | `#ffffff` | `--custom-preorder-banner-color` |
+| `listingBannerOpacity` | Int (20–100) | `55` | `--custom-preorder-banner-opacity` |
+
+### 4. Bereinigte Altlasten
+
+- `box-standard.html.twig` und `box-image.html.twig` gelöscht (toter Code)
+- `.product-image-preorder-banner` SCSS-Klasse entfernt (verwaist)
+
+---
+
+## Index aller Walkthrough-Dokumente (`docs/walkthrough/`)
+
+| Datum | Thema | Pfad |
+|---|---|---|
+| 18.09.2026 | Listing-Bild-Overlay Banner & Core-Alignment | [`docs/walkthrough/walkthrough-listing-banner-and-core-alignment.md`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/docs/walkthrough/walkthrough-listing-banner-and-core-alignment.md) |
+
+---
+
 ## Aktueller Status
-- Feature-Branch `feat/scaffold-and-architecture` um `TASK-017` / `ADR-005` erweitert.
-- `ADR-005` als ENTSCHIEDEN dokumentiert und im Index von `ARCHITECTURE.md` und `README.md` verankert.
-- `config.xml` via `xmllint` validiert (0 Schema-Fehler).
-- SCSS und Twig-Templates 100 % harmonisiert mit Shopware Core & Enterprise Tier-1 Standards.
-- Testsuite: 42 Tests (35 Unit, 7 Integration). Neuer `ConfigXmlTest.php` sichert die Konfiguration vor Regressionen.
-
-
+- Merge `feat/storefront-delivery-styling` → `main`, Tag `v1.1.0`.
+- Release-Artefakt `dist/CustomPreOrderManager.zip` gebaut (Commit `3865801`).
+- Visuell verifiziert auf Teststation (`192.168.2.222:8080/freizeit-elektro/`).
