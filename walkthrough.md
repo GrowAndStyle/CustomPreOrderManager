@@ -225,3 +225,39 @@ CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
 - Merge `feat/storefront-delivery-styling` → `main`, Tag `v1.1.0`.
 - Release-Artefakt `dist/CustomPreOrderManager.zip` gebaut (Commit `3865801`).
 - Visuell verifiziert auf Teststation (`192.168.2.222:8080/freizeit-elektro/`).
+- Branch `docs/post-install-mail-template-guide` für v1.2.0 Dokumentation aktiv.
+
+---
+
+## Phase 6: Post-Install Mail-Template-Dokumentation & ROADMAP (`v1.2.0`)
+
+### Kontext & Entscheidung
+
+Der Kunde erhält nach einer Vorbestellung dieselbe Standard-Bestellbestätigung wie bei einem regulären Kauf — ohne Hinweis auf Vorbestellstatus oder voraussichtliches Lieferdatum. Die Payload-Daten (`isPreOrder`, `preOrderReleaseText`) sind zwar am LineItem vorhanden und im Mail-Template verfügbar, werden vom Shopware-Standard aber nicht gerendert.
+
+**Diskutierte Alternativen:**
+1. ~~Dediziertes Flow Builder Mail-Template~~ — zu oversized für den aktuellen Release, in ROADMAP.md als Backlog-Item dokumentiert.
+2. ~~Zwei separate Mails (Standard + Vorbestellinfo)~~ — kein Enterprise-Standard, verworfen.
+3. **Gewählt: Dokumentation der Payload-Nutzung im bestehenden Template** — Non-Destructive, ADR-003 konform, Händler passt Template selbst an.
+
+Kein ADR nötig — die Architekturentscheidung (LineItem Payload Enrichment statt Mail-Override) ist in ADR-003 dokumentiert. Diese Phase setzt ADR-003 konsequent um.
+
+### Änderungen
+
+1. **[`README.md`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/README.md):** Neue Sektion „Nach der Installation — Bestellbestätigung anpassen (Pflichtschritt)" mit:
+   - Schritt-für-Schritt-Anleitung für die Template-Anpassung im Shopware Admin
+   - Fertiges Twig-Snippet mit `preOrderAvailableFrom` (ohne Hinweistext, nur Datum)
+   - Vollständige Payload-Feldreferenz-Tabelle — alle 8 Felder aus dem aktuellen CartCollector (`isPreOrder`, `preOrderReleaseDate`, `preOrderAvailableFrom`, `preOrderNotice`, `preOrderReleaseText`, `preOrderInboundStock`, `preOrderSoldCount`, `preOrderRemainingQuota`)
+   - Mischwarenkorb-Verhalten dokumentiert
+   - Visuelles Beispiel der Bestellbestätigung mit korrektem Datumsformat (`d.m.Y`)
+   - Inhaltsverzeichnis aktualisiert
+   - **Fix:** Payload-Dokumentation vom Vorgänger-Agenten war unvollständig — nur 2 von 8 Feldern dokumentiert. Korrigiert.
+
+2. **[`ROADMAP.md`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/ROADMAP.md):** Neu erstellt mit:
+   - Abgeschlossene Releases (v1.0.0, v1.1.0)
+   - Aktueller Scope v1.2.0
+   - Backlog-Eintrag: Dediziertes Flow Builder Mail-Template (P2)
+
+### Subagent-Governance
+- Keine Subagents eingesetzt.
+
