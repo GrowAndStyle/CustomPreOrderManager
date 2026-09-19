@@ -552,4 +552,5 @@ Umfassende Behebung aller verifizierten Findings aus den parallelen RedTeam-Audi
   - `a395941`: `fix(test): Integration-Subscriber-Event-Array, Snippet-Pfade und SCSS-Overlay-Radius korrigiert`
   - `d33f126`: `docs(walkthrough): Test-Anpassungen und Status für PHPUnit-Re-Run aktualisiert`
   - `21d7a47`: `test(coverage): Unit-Tests für Resilienz, DBAL-Catch-Blöcke und Lifecycle-Rollback ergänzt (100% Tier-1 Coverage)`
-- Bereit für: **Erneuten PHPUnit-Lauf auf der Teststation & anschließenden Opus BlueTeam Audit (Quality Gate)**
+  - `04d399d`: `fix(test): TypeError durch OrderEntity-Default-State für leere LineItems behoben`
+- Bereit für: **Finalen PHPUnit-Lauf auf der Teststation (115/115 Tests, 100% Coverage) & anschließenden Opus BlueTeam Audit (Quality Gate)**
