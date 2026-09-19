@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Shopware-6.5%20|%206.6%20|%206.7-189eff?style=flat-square&logo=shopware&logoColor=white" alt="Shopware">
+  <img src="https://img.shields.io/badge/Shopware-~6.5.8.x-189eff?style=flat-square&logo=shopware&logoColor=white" alt="Shopware">
   <img src="https://img.shields.io/badge/Version-v1.4.1-0f62fe?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/PHP-8.1+-777bb4?style=flat-square&logo=php&logoColor=white" alt="PHP">
   <img src="https://img.shields.io/badge/Tests-104%20passed-2ea44f?style=flat-square&logo=githubactions&logoColor=white" alt="Tests">
@@ -48,7 +48,6 @@
   - [Test-Architektur & Test-Matrix](#test-architektur--test-matrix)
   - [Offizieller PHPUnit-Prüfbericht (Dockware Teststation)](#offizieller-phpunit-prüfbericht-dockware-teststation)
 - [Sicherheit, Concurrency & DSGVO](#-sicherheit-concurrency--dsgvo)
-- [Architecture Decision Records (ADR-Index)](#️-architecture-decision-records-adr-index)
 - [Lizenz & Support](#-lizenz--support)
 
 ---
@@ -258,9 +257,6 @@ Available Payload:
 
 ```text
 CustomPreOrderManager/
-├── .agent/                                      # Agent Governance & Quality Skill Blueprints
-├── docs/
-│   └── adr/                                     # Architecture Decision Records (ADR-001 bis ADR-010)
 ├── src/
 │   ├── CustomPreOrderManager.php                # Plugin-Hauptklasse (Lifecycle & Container-Extension)
 │   ├── Core/Checkout/
@@ -275,10 +271,6 @@ CustomPreOrderManager/
 │   │   │   └── PaymentStateSubscriber.php       # Counter Inkrement/Dekrement bei Zahlungsstatus (ADR-009)
 │   │   └── Event/
 │   │       └── PreOrderPlacedEvent.php           # Flow Builder Business Event
-│   ├── Core/Content/PreOrderWaitlist/
-│   │   ├── PreOrderWaitlistDefinition.php       # DAL Entity Definition
-│   │   ├── PreOrderWaitlistEntity.php           # Entity Klasse
-│   │   └── PreOrderWaitlistCollection.php       # Collection
 │   ├── DependencyInjection/
 │   │   └── CustomPreOrderManagerExtension.php   # DI Extension & Rate Limiter Prepend
 │   ├── Migration/
@@ -298,11 +290,15 @@ CustomPreOrderManager/
 │       │   │   ├── checkout/offcanvas-cart.html.twig   # Mischwarenkorb (via Partial)
 │       │   │   ├── delivery-information.html.twig       # PDP Delivery Card
 │       │   │   ├── line-item/element/label.html.twig    # Warenkorb LineItem
-│       │   │   ├── preorder/mixed-cart-notice.html.twig # Shared Mischwarenkorb-Partial
-│       │   │   └── product/card/action.html.twig        # Listing Button
+│       │   │   ├── preorder/
+│       │   │   │   ├── mixed-cart-notice.html.twig      # Shared Mischwarenkorb-Partial
+│       │   │   │   └── scarcity-badge.html.twig         # PDP Scarcity Badge (ADR-010)
+│       │   │   └── product/card/
+│       │   │       ├── action.html.twig                 # Listing Button
+│       │   │       ├── badges.html.twig                 # % Badge Unterdrückung bei Preorder
+│       │   │       └── box-standard.html.twig           # Listing-Overlays (ADR-011)
 │       │   └── page/
 │       │       ├── product-detail/
-│       │       │   ├── buy-widget.html.twig             # Scarcity-Badge
 │       │       │   └── buy-widget-form.html.twig        # Pre-Order Button
 │       │       ├── checkout/
 │       │       │   ├── cart/index.html.twig              # Mischwarenkorb auf /checkout/cart
@@ -311,21 +307,7 @@ CustomPreOrderManager/
 │       └── app/
 │           ├── storefront/                      # Vanilla JS Plugin & Mobile-First SCSS
 │           └── administration/                  # Vue.js 3 Admin-Modul
-├── tests/
-│   ├── TestBootstrap.php                        # Shopware 6 Kernel Test-Bootstrapper
-│   ├── Unit/                                    # Isolierte Unit-Tests (101 Tests)
-│   │   ├── Subscriber/
-│   │   │   ├── OrderPlacedSubscriberTest.php    # 7 Tests — Tagging, Event, Edge Cases
-│   │   │   └── PaymentStateSubscriberTest.php   # 10 Tests — Paid/Cancel/Refund/Guard
-│   │   ├── Core/Checkout/Cart/PreOrderCartCollectorTest.php
-│   │   ├── Config/ConfigXmlTest.php
-│   │   ├── Storefront/DeliveryInformationTemplateTest.php
-│   │   └── PluginLifecycleTest.php
-│   └── Integration/                             # Integration-Tests mit echtem Container (3 Tests)
-│       └── Subscriber/OrderPlacedSubscriberTest.php
-├── composer.json                                # Plugin-Metadaten & Namespace-Autoloading
-├── phpunit.xml.dist                             # PHPUnit-Konfiguration & Coverage-Filter
-└── BUILD.md                                     # Enterprise Release-Build Dokumentation (lokal)
+└── composer.json                                # Plugin-Metadaten & Namespace-Autoloading
 ```
 
 ---
@@ -336,7 +318,7 @@ CustomPreOrderManager/
 
 | Anforderung | Unterstützte Versionen |
 |---|---|
-| **Shopware Plattform** | `~6.5.8.0` · `^6.6.0` · `^6.7.0` (Community, Professional, Enterprise) |
+| **Shopware Plattform** | `~6.5.8.0` (getestet auf 6.5.8.19 CE) |
 | **PHP Runtime** | `8.1` · `8.2` · `8.3` |
 | **Datenbank** | MySQL 8.0+ / MariaDB 10.5+ |
 | **Externe Abhängigkeiten**| **Keine** (100 % autark, Zero Dependency Bloat) |
@@ -347,17 +329,17 @@ Releases werden nach Enterprise Tier-1 Standard vollautomatisch über die offizi
 
 ```bash
 # 1. Repository auf Release-Stand bringen
-git checkout feat/scaffold-and-architecture
+git checkout main
 git pull
 
 # 2. Versions-Tag vergeben
-git tag -a v1.0.0 -m "Release v1.0.0: Enterprise Tier-1 Pre-Order Manager"
+git tag -a v1.4.1 -m "Release v1.4.1"
 
 # 3. Distributions-ZIP erstellen (kompiliert Assets & exkludiert Tests/Doku)
 shopware-cli extension zip . --use-git-tag-as-version --output-directory dist/
 ```
 
-Das erzeugte Archiv `dist/CustomPreOrderManager-v1.0.0.zip` ist sofort distributions- und marktplatzfähig.
+Das erzeugte Archiv `dist/CustomPreOrderManager-v1.4.1.zip` ist sofort distributions- und marktplatzfähig.
 
 ### Manuelle Installation im Shop
 
@@ -434,49 +416,56 @@ Die Qualitätssicherung erfolgt nach striktem Enterprise Tier-1 Standard mit vol
 
 ```
 tests/
-├── Unit/ (35 Tests, 100+ Assertions)
-│   ├── Cart/PreOrderCartCollectorTest.php               # 8 Tests: Payload, Sanitizing, Fallbacks, Stock-Priorisierung
-│   ├── Subscriber/OrderPlacedSubscriberTest.php          # 5 Tests: Event-Handling, atomarer Zähler, Auto-Tagging
-│   ├── Event/PreOrderPlacedEventTest.php                # 1 Test:  Flow Builder Datenstrukturen & ScalarValues
-│   ├── DependencyInjection/CustomPreOrderManagerExtTest # 3 Tests: DI Prepend & Symfony Rate-Limiter Config
-│   ├── Plugin/PluginUninstallTest.php                   # 7 Tests: Alle 5 Lifecycle-Hooks & Deinstallations-Cleanup
-│   └── Config/ConfigXmlTest.php                         # 7 Tests: Wohlgeformtheit, bilinguale Labels/HelpTexts & Hex-Defaults
-└── Integration/ (7 Tests, 19 Assertions)
-    ├── Subscriber/OrderPlacedSubscriberTest.php         # Echte Repositories, DBAL & Test-Container ohne Mocks
-    └── PluginLifecycleTest.php                          # Kernel Plugin-Loader, DI Boot & vollständiger Lifecycle-Cleanup
+├── Unit/ (101 Tests)
+│   ├── Subscriber/
+│   │   ├── OrderPlacedSubscriberTest.php          #  7 Tests — Tagging, Event, Edge Cases
+│   │   └── PaymentStateSubscriberTest.php         # 10 Tests — Paid/Cancel/Refund/Guard (ADR-009)
+│   ├── Core/Checkout/Cart/
+│   │   ├── PreOrderCartCollectorTest.php          #  8 Tests — Payload, Sanitizing, Fallbacks
+│   │   └── PreOrderCartValidatorTest.php          #  4 Tests — Quota Guard
+│   ├── Config/ConfigXmlTest.php                   #  7 Tests — Wohlgeformtheit, bilinguale Labels, Hex-Defaults, 25 Felder
+│   ├── Storefront/DeliveryInformationTemplateTest.php # 62 Tests — PDP-Card, Listing-Overlays, ADR-011
+│   └── PluginLifecycleTest.php                    #  3 Tests — Lifecycle, Uninstall, keepUserData
+└── Integration/ (3 Tests)
+    ├── Subscriber/OrderPlacedSubscriberTest.php   #  2 Tests — Echter Container, DBAL, Repositories
+    └── PluginLifecycleTest.php                    #  1 Test  — Kernel Boot & vollständiger Lifecycle
 ```
 
 ### Offizieller PHPUnit-Prüfbericht (Dockware Teststation)
 
-Verifiziert auf Dockware Teststation (PHP 8.1.33 / Shopware 6.5.8.12):
+Verifiziert auf Dockware Teststation (PHP 8.1 / Shopware 6.5.8.19):
 
 ```text
 PHPUnit 9.6.35 by Sebastian Bergmann and contributors.
 
-...................................                               35 / 35 (100%)
+OK (104 tests, 741 assertions)
 
-Time: 00:00.362, Memory: 124.00 MB
+Code Coverage Report:
+  2026-09-18 23:18:18
 
-OK (35 tests, 83 assertions)
+ Summary:
+  Classes: 100.00% (9/9)
+  Methods: 100.00% (41/41)
+  Lines:   100.00% (220/220)
 
-Code Coverage Report:     
-  2026-09-15 10:17:04     
-                          
- Summary:                 
-  Classes: 100.00% (5/5)  
-  Methods: 100.00% (20/20)
-  Lines:   100.00% (102/102)
-
+CustomPreOrderManager\Core\Checkout\Cart\Error\PreOrderQuantityAdjustedError
+  Methods: 100.00% ( 6/ 6)   Lines: 100.00% ( 16/ 16)
+CustomPreOrderManager\Core\Checkout\Cart\Error\PreOrderQuotaExhaustedError
+  Methods: 100.00% ( 6/ 6)   Lines: 100.00% ( 12/ 12)
 CustomPreOrderManager\Core\Checkout\Cart\PreOrderCartCollector
-  Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 16/ 16)
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 37/ 37)
+CustomPreOrderManager\Core\Checkout\Cart\PreOrderCartValidator
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 24/ 24)
 CustomPreOrderManager\Core\Checkout\Event\PreOrderPlacedEvent
   Methods: 100.00% ( 7/ 7)   Lines: 100.00% (  9/  9)
 CustomPreOrderManager\Core\Checkout\Subscriber\OrderPlacedSubscriber
-  Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 41/ 41)
+  Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 30/ 30)
+CustomPreOrderManager\Core\Checkout\Subscriber\PaymentStateSubscriber
+  Methods: 100.00% ( 6/ 6)   Lines: 100.00% ( 51/ 51)
 CustomPreOrderManager\CustomPreOrderManager
   Methods: 100.00% ( 6/ 6)   Lines: 100.00% ( 24/ 24)
 CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
-  Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 12/ 12)
+  Methods: 100.00% ( 5/ 5)   Lines: 100.00% ( 17/ 17)
 ```
 
 ---
@@ -492,27 +481,6 @@ CustomPreOrderManager\DependencyInjection\CustomPreOrderManagerExtension
 | **DSGVO / GDPR Compliance** | Keine unbestellten personenbezogenen Daten (PII), keine Drittanbieter-Tracker, keine Cookie-Pflicht. Autarke Kontingentsperre statt externer Warteliste. | DSGVO Art. 5, 25 |
 | **Sauberer Deinstallations-Lifecycle** | Bei Deinstallation mit `keepUserData === false` werden alle CustomFields und Konfigurationen rückstandslos bereinigt – ohne fremde Daten zu gefährden. | Shopware Extension Guide |
 
----
-
-## 🏛️ Architecture Decision Records (ADR-Index)
-
-Grundlegende Architekturentscheidungen sind nach dem Michael Nygard ADR-Standard unter [`docs/adr/`](docs/adr/) dokumentiert:
-
-| ADR | Titel | Status | Kernentscheidung |
-|:---:|---|:---:|---|
-| **[ADR-001](docs/adr/ADR-001-customfield-set-vs-dedicated-table.md)** | CustomField-Set vs. eigene Entity-Tabelle | `AKZEPTIERT` | Nutzung von `custom_preorder_set` auf `product` verhindert Schema-Locks und sichert automatische Variantenvererbung. |
-| **[ADR-002](docs/adr/ADR-002-atomic-dbal-counter.md)** | Atomarer DBAL Counter vs. DAL Entity Write | `AKZEPTIERT` | Direktes DBAL-Update mit `Defaults::LIVE_VERSION` garantiert Race-Condition-Freiheit bei simultanen Checkouts. |
-| **[ADR-003](docs/adr/ADR-003-lineitem-payload-enrichment.md)** | LineItem Payload Enrichment vs. Mail-Override | `AKZEPTIERT` | Priorität 4100 im CartCollector schleust Vorbestell-Flags konfliktfrei durch Core-Mails und PDF-Belege. |
-| **[ADR-004](docs/adr/ADR-004-autarkic-scarcity-no-waitlist.md)** | Autarkes Scarcity-System vs. externe Warteliste | `AKZEPTIERT` | Verknappungsanzeige mit Button-Sperre schützt Kontingente ohne DSGVO- und DOI-Risiken externer E-Mail-Listen. |
-| **[ADR-005](docs/adr/ADR-005-native-button-theming-color-picker.md)** | Natives Button-Theming & Color-Picker | `AKZEPTIERT` | Bereinigung harter Maße zugunsten nativer Theme-Klassen und dynamischer Farb-Injektion via CSS-Variablen. |
-| **[ADR-006](docs/adr/ADR-006-admin-preorder-dashboard-listing.md)** | Admin Vorbestellungs-Dashboard | `AKZEPTIERT` | Expliziter `created()`-Hook, Assoziationen (`stateMachineState`, `currency`) und Scoped Slots mit Deep-Linking. |
-| **[ADR-007](docs/adr/ADR-007-storefront-delivery-information-and-clean-cta.md)** | Storefront Lieferinformation & Clean CTA | `AKZEPTIERT` | Semantische 2-Ebenen-Hierarchie (Termin + Hinweistext), 'Voraussichtlich'-Rechtssicherheit und Icon-Entfall am CTA-Button. |
-| **[ADR-008](docs/adr/ADR-008-end-to-end-preorder-delivery-information.md)** | Full-Funnel Vorbestellungs-Architektur, Quota Guard & Mischwarenkorb | `AKZEPTIERT` | Durchgängige Begleitung (Listing bis Kundenkonto), aktiver Cart-Quota-Guard mit Shopware-Alerts und flexibler Mischwarenkorb-Versandhinweis. |
-| **[ADR-009](docs/adr/ADR-009-payment-aware-sold-counter.md)** | Payment-Aware Sold Counter | `AKZEPTIERT` | `sold_count` erst bei Zahlungseingang (`paid`), automatischer Rollback bei Storno/Refund, GREATEST-Guard gegen negative Werte. |
-| **[ADR-010](docs/adr/ADR-010-scarcity-badge-card-integration-uwg.md)** | Scarcity-Badge Card-Integration (UWG-konform) | `AKZEPTIERT` | Badge in Delivery-Card integriert, Listing-Support, granulare Config (`scarcityDisplayMode`), UWG §5 / Omnibus-RL konform. |
-| **[ADR-011](docs/adr/ADR-011-listing-overlay-anchor-box-standard-vs-badges.md)** | Listing-Overlay Anker — box-standard.html.twig | `AKZEPTIERT` | Overlays in `component_product_box_image` (verifiziert 6.5.8.19), Containing Block `preorder-image-overlay-root`, kein Pixel-Hack, eigene Listing-Scarcity-Config-Felder. |
-
----
 
 ## 📄 Lizenz & Support
 
