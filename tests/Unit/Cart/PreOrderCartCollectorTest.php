@@ -204,4 +204,30 @@ class PreOrderCartCollectorTest extends TestCase
         static::assertSame(5, $lineItem->getPayloadValue('preOrderSoldCount'));
         static::assertSame(10, $lineItem->getPayloadValue('preOrderRemainingQuota'));
     }
+
+    public function testCollectProcessesMultipleMixedLineItems(): void
+    {
+        $cart = new Cart('test-token');
+        $normalItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $normalItem->setPayloadValue('customFields', ['custom_preorder_active' => false]);
+
+        $preOrderItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $preOrderItem->setPayloadValue('customFields', [
+            'custom_preorder_active' => true,
+            'custom_preorder_release_text' => 'Herbst 2026',
+        ]);
+
+        $cart->add($normalItem);
+        $cart->add($preOrderItem);
+
+        $data = new CartDataCollection();
+        $context = $this->createMock(SalesChannelContext::class);
+        $behavior = new CartBehavior();
+
+        $this->collector->collect($data, $cart, $context, $behavior);
+
+        static::assertNull($normalItem->getPayloadValue('isPreOrder'));
+        static::assertTrue($preOrderItem->getPayloadValue('isPreOrder'));
+        static::assertSame('Herbst 2026', $preOrderItem->getPayloadValue('preOrderReleaseText'));
+    }
 }
