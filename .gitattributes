@@ -22,4 +22,7 @@
 /BUILD.md        export-ignore
 /docs            export-ignore
 /architecture.md export-ignore
+/ROADMAP.md      export-ignore
+/walkthrough.md  export-ignore
+/.env.example    export-ignore
 
