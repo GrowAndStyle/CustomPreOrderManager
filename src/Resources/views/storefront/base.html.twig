@@ -10,7 +10,7 @@
     {% set btnBorder = config('CustomPreOrderManager.config.buttonBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#1a1a2e') %}
     {% set btnHoverBorder = config('CustomPreOrderManager.config.buttonHoverBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#2b2b48') %}
 
-    {% set cardRadius = config('CustomPreOrderManager.config.cardBorderRadius')|default(12) %}
+    {% set cardRadius = max(0, min(100, config('CustomPreOrderManager.config.cardBorderRadius')|default(12)|abs)) %}
     {% set cardBg = config('CustomPreOrderManager.config.cardBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#f8fafc') %}
     {% set cardBorder = config('CustomPreOrderManager.config.cardBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#e2e8f0') %}
     {% set cardAccent = config('CustomPreOrderManager.config.cardAccentColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''})|default('#e67e22') %}

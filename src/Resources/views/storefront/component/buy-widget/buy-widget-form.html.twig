@@ -39,12 +39,12 @@
                    value="frontend.cart.offcanvas">
 
             {% set preorderBtnStyle = '' %}
-            {% set cBg = config('CustomPreOrderManager.config.buttonBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
-            {% set cHoverBg = config('CustomPreOrderManager.config.buttonHoverBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
-            {% set cText = config('CustomPreOrderManager.config.buttonTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
-            {% set cHoverText = config('CustomPreOrderManager.config.buttonHoverTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
-            {% set cBorder = config('CustomPreOrderManager.config.buttonBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
-            {% set cHoverBorder = config('CustomPreOrderManager.config.buttonHoverBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': ''}) %}
+            {% set cBg = config('CustomPreOrderManager.config.buttonBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''}) %}
+            {% set cHoverBg = config('CustomPreOrderManager.config.buttonHoverBackgroundColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''}) %}
+            {% set cText = config('CustomPreOrderManager.config.buttonTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''}) %}
+            {% set cHoverText = config('CustomPreOrderManager.config.buttonHoverTextColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''}) %}
+            {% set cBorder = config('CustomPreOrderManager.config.buttonBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''}) %}
+            {% set cHoverBorder = config('CustomPreOrderManager.config.buttonHoverBorderColor')|trim|replace({';': '', '"': '', "'": '', '<': '', '>': '', '{': '', '}': ''}) %}
 
             {% if cBg is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-bg: ' ~ cBg ~ ';' %}{% endif %}
             {% if cHoverBg is not empty %}{% set preorderBtnStyle = preorderBtnStyle ~ '--custom-preorder-btn-hover-bg: ' ~ cHoverBg ~ ';' %}{% endif %}

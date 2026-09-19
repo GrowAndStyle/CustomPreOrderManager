@@ -23,6 +23,7 @@ Module.register('custom-preorder-manager', {
             path: 'list',
             meta: {
                 parentPath: 'sw.order.index',
+                privilege: 'order.viewer',
             },
         },
     },
@@ -33,6 +34,7 @@ Module.register('custom-preorder-manager', {
         path: 'custom.preorder.manager.list',
         icon: 'regular-shopping-bag',
         parent: 'sw-order',
+        privilege: 'order.viewer',
         position: 100,
     }],
 });

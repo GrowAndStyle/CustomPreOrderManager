@@ -53,62 +53,72 @@ class CustomPreOrderManager extends Plugin
         /** @var Connection $connection */
         $connection = $this->container->get(Connection::class);
 
-        // 1. Custom-Field-Set, Relationen und Felder in korrekter FK-Reihenfolge entfernen
-        $connection->executeStatement("
-            DELETE cf FROM `custom_field` cf
-            INNER JOIN `custom_field_set` cfs ON cf.set_id = cfs.id
-            WHERE cfs.name = 'custom_preorder_set'
-        ");
-        $connection->executeStatement("
-            DELETE cfsr FROM `custom_field_set_relation` cfsr
-            INNER JOIN `custom_field_set` cfs ON cfsr.set_id = cfs.id
-            WHERE cfs.name = 'custom_preorder_set'
-        ");
-        $connection->executeStatement("
-            DELETE FROM `custom_field_set` WHERE name = 'custom_preorder_set'
-        ");
-
-        $jsonRemoveSql = "JSON_REMOVE(
-            `custom_fields`,
-            '$.custom_preorder_active',
-            '$.custom_preorder_release_date',
-            '$.custom_preorder_release_text',
-            '$.custom_preorder_inbound_stock',
-            '$.custom_preorder_sold_count'
-        )";
-
-        // 2. Custom-Fields an allen Produkt-Übersetzungen entfernen
-        $connection->executeStatement("
-            UPDATE `product_translation`
-            SET `custom_fields` = {$jsonRemoveSql}
-            WHERE `custom_fields` IS NOT NULL
-        ");
-
-        // 3. Fallback: Custom-Fields an Produkten entfernen (falls Tabelle custom_fields Spalte besitzt)
+        $connection->beginTransaction();
         try {
+            // 1. Custom-Field-Set, Relationen und Felder in korrekter FK-Reihenfolge entfernen
             $connection->executeStatement("
-                UPDATE `product`
+                DELETE cf FROM `custom_field` cf
+                INNER JOIN `custom_field_set` cfs ON cf.set_id = cfs.id
+                WHERE cfs.name = 'custom_preorder_set'
+            ");
+            $connection->executeStatement("
+                DELETE cfsr FROM `custom_field_set_relation` cfsr
+                INNER JOIN `custom_field_set` cfs ON cfsr.set_id = cfs.id
+                WHERE cfs.name = 'custom_preorder_set'
+            ");
+            $connection->executeStatement("
+                DELETE FROM `custom_field_set` WHERE name = 'custom_preorder_set'
+            ");
+
+            $jsonRemoveSql = "JSON_REMOVE(
+                `custom_fields`,
+                '$.custom_preorder_active',
+                '$.custom_preorder_release_date',
+                '$.custom_preorder_release_text',
+                '$.custom_preorder_inbound_stock',
+                '$.custom_preorder_sold_count'
+            )";
+
+            // 2. Custom-Fields an betroffenen Produkt-Übersetzungen entfernen (Scope-Filter gegen Table-Locks)
+            $connection->executeStatement("
+                UPDATE `product_translation`
                 SET `custom_fields` = {$jsonRemoveSql}
                 WHERE `custom_fields` IS NOT NULL
+                  AND JSON_CONTAINS_PATH(`custom_fields`, 'one', '$.custom_preorder_active', '$.custom_preorder_release_date') = 1
             ");
-        } catch (\Throwable) {
-            // Tabelle product besitzt in Shopware 6.5+ keine custom_fields Spalte (liegt auf product_translation)
+
+            // 3. Fallback: Custom-Fields an Produkten entfernen (falls Tabelle custom_fields Spalte besitzt)
+            try {
+                $connection->executeStatement("
+                    UPDATE `product`
+                    SET `custom_fields` = {$jsonRemoveSql}
+                    WHERE `custom_fields` IS NOT NULL
+                      AND JSON_CONTAINS_PATH(`custom_fields`, 'one', '$.custom_preorder_active') = 1
+                ");
+            } catch (\Throwable) {
+                // Tabelle product besitzt in Shopware 6.5+ keine custom_fields Spalte (liegt auf product_translation)
+            }
+
+            // 4. Tag "Vorbestellung" und Order-Tag-Verknüpfungen vollständig entfernen
+            $connection->executeStatement("
+                DELETE ot FROM `order_tag` ot
+                INNER JOIN `tag` t ON ot.tag_id = t.id
+                WHERE t.name = 'Vorbestellung'
+            ");
+            $connection->executeStatement("
+                DELETE FROM `tag` WHERE name = 'Vorbestellung'
+            ");
+
+            // 5. Gespeicherte Plugin-Konfigurationen bereinigen
+            $connection->executeStatement("
+                DELETE FROM system_config
+                WHERE configuration_key LIKE 'CustomPreOrderManager.config.%'
+            ");
+
+            $connection->commit();
+        } catch (\Throwable $e) {
+            $connection->rollBack();
+            throw $e;
         }
-
-        // 5. Tag "Vorbestellung" und Order-Tag-Verknüpfungen vollständig entfernen
-        $connection->executeStatement("
-            DELETE ot FROM `order_tag` ot
-            INNER JOIN `tag` t ON ot.tag_id = t.id
-            WHERE t.name = 'Vorbestellung'
-        ");
-        $connection->executeStatement("
-            DELETE FROM `tag` WHERE name = 'Vorbestellung'
-        ");
-
-        // 6. Gespeicherte Plugin-Konfigurationen bereinigen
-        $connection->executeStatement("
-            DELETE FROM system_config
-            WHERE configuration_key LIKE 'CustomPreOrderManager.config.%'
-        ");
     }
 }
