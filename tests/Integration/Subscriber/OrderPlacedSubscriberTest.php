@@ -31,7 +31,7 @@ class OrderPlacedSubscriberTest extends TestCase
     {
         $events = OrderPlacedSubscriber::getSubscribedEvents();
         static::assertArrayHasKey(CheckoutOrderPlacedEvent::class, $events);
-        static::assertSame('onOrderPlaced', $events[CheckoutOrderPlacedEvent::class]);
+        static::assertSame(['onOrderPlaced', 100], $events[CheckoutOrderPlacedEvent::class]);
     }
 
     public function testSubscriberInstantiationWithContainerServices(): void

@@ -101,8 +101,8 @@ class DeliveryInformationTemplateTest extends TestCase
 
     public function testSnippetsContainVoraussichtlichWording(): void
     {
-        $deSnippet = $this->snippetPath . '/custom-preorder.de-DE.json';
-        $enSnippet = $this->snippetPath . '/custom-preorder.en-GB.json';
+        $deSnippet = $this->snippetPath . '/de_DE/storefront.de-DE.json';
+        $enSnippet = $this->snippetPath . '/en_GB/storefront.en-GB.json';
 
         static::assertFileExists($deSnippet);
         static::assertFileExists($enSnippet);
