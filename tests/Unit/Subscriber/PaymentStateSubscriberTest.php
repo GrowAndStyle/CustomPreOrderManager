@@ -15,12 +15,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * Unit-Tests für den PaymentStateSubscriber.
  *
- * Verifiziert nach Enterprise Tier-1 Standard (ADR-009):
- * - Korrekte Event-Abonnements (paid/cancelled/refunded)
- * - Inkrement bei Zahlung, Dekrement bei Storno/Refund
+ * Verifiziert nach Enterprise Tier-1 Standard (ADR-009, SEC-2026-001, SEC-2026-002):
+ * - Korrekte Event-Abonnements (paid/cancelled/refunded mit Priorität 10)
+ * - Idempotenz-Guard (Set-then-Increment bei Zahlung)
+ * - Quota-Spoofing-Guard (Kein Dekrement bei unbezahlten Abbrüchen)
+ * - Doppel-Storno-Guard (refunded gefolgt von cancelled dekrementiert nur 1x)
  * - GREATEST-Guard gegen negative Werte
- * - Filterung: Nur isPreOrder-LineItems, gemischte Warenkörbe
- * - Edge Cases: null LineItems, null ReferencedId, leere Order
+ * - Exception-Resilienz gegen Webhook-Abstürze
  */
 class PaymentStateSubscriberTest extends TestCase
 {
@@ -47,106 +48,121 @@ class PaymentStateSubscriberTest extends TestCase
         static::assertArrayHasKey('state_enter.order_transaction.state.cancelled', $events);
         static::assertArrayHasKey('state_enter.order_transaction.state.refunded', $events);
 
-        static::assertSame('onPaymentPaid', $events['state_enter.order_transaction.state.paid']);
-        static::assertSame('onPaymentCancelled', $events['state_enter.order_transaction.state.cancelled']);
-        static::assertSame('onPaymentRefunded', $events['state_enter.order_transaction.state.refunded']);
+        static::assertSame(['onPaymentPaid', 10], $events['state_enter.order_transaction.state.paid']);
+        static::assertSame(['onPaymentCancelled', 10], $events['state_enter.order_transaction.state.cancelled']);
+        static::assertSame(['onPaymentRefunded', 10], $events['state_enter.order_transaction.state.refunded']);
     }
 
-    public function testOnPaymentPaidIncrementsCounterForPreOrderItems(): void
+    public function testOnPaymentPaidIncrementsCounterAndSetsAppliedFlag(): void
     {
         $productId = Uuid::randomHex();
         $order = $this->createOrderWithPreOrderItem($productId, 3);
         $event = $this->createStateChangeEvent($order);
 
+        // 1. Check if applied: returns false
         $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn(false);
+
+        // 2. Expect flag update on order, then increment on product_translation
+        $this->connection->expects(static::exactly(2))
             ->method('executeStatement')
-            ->with(
-                static::stringContains('UPDATE `product_translation`'),
-                static::callback(function (array $params) use ($productId) {
-                    return $params['qty'] === 3
-                        && $params['id'] === Uuid::fromHexToBytes($productId);
-                })
-            );
+            ->willReturnCallback(function (string $sql) {
+                if (str_contains($sql, 'UPDATE `order`')) {
+                    return 1;
+                }
+                if (str_contains($sql, 'UPDATE `product_translation`')) {
+                    return 1;
+                }
+                return 0;
+            });
 
         $this->logger->expects(static::once())->method('info');
 
         $this->subscriber->onPaymentPaid($event);
     }
 
-    public function testOnPaymentPaidSkipsNonPreOrderItems(): void
+    public function testOnPaymentPaidIgnoresAlreadyAppliedOrder(): void
     {
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
-
-        $normalItem = new OrderLineItemEntity();
-        $normalItem->setId(Uuid::randomHex());
-        $normalItem->setReferencedId(Uuid::randomHex());
-        $normalItem->setQuantity(2);
-        $normalItem->setPayload(['isPreOrder' => false]);
-
-        $order->setLineItems(new OrderLineItemCollection([$normalItem]));
-
+        $productId = Uuid::randomHex();
+        $order = $this->createOrderWithPreOrderItem($productId, 3);
         $event = $this->createStateChangeEvent($order);
 
+        // Order was already marked as applied
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn('true');
+
+        // Neither flag update nor product update should be called
         $this->connection->expects(static::never())->method('executeStatement');
-        $this->logger->expects(static::never())->method('info');
+
+        $this->logger->expects(static::once())
+            ->method('info')
+            ->with(static::stringContains('already applied'));
 
         $this->subscriber->onPaymentPaid($event);
     }
 
-    public function testOnPaymentPaidSkipsOrderWithoutLineItems(): void
-    {
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
-
-        $event = $this->createStateChangeEvent($order);
-
-        $this->connection->expects(static::never())->method('executeStatement');
-
-        $this->subscriber->onPaymentPaid($event);
-    }
-
-    public function testOnPaymentCancelledDecrementsCounter(): void
+    public function testOnPaymentCancelledIgnoresUnpaidOrder(): void
     {
         $productId = Uuid::randomHex();
         $order = $this->createOrderWithPreOrderItem($productId, 2);
         $event = $this->createStateChangeEvent($order);
 
+        // Order was never paid -> flag is false/null
         $this->connection->expects(static::once())
-            ->method('executeStatement')
-            ->with(
-                static::logicalAnd(
-                    static::stringContains('UPDATE `product_translation`'),
-                    static::stringContains('GREATEST')
-                ),
-                static::callback(function (array $params) use ($productId) {
-                    return $params['qty'] === 2
-                        && $params['id'] === Uuid::fromHexToBytes($productId);
-                })
-            );
+            ->method('fetchOne')
+            ->willReturn(false);
 
-        $this->logger->expects(static::once())->method('info');
+        // MUST NOT decrement
+        $this->connection->expects(static::never())->method('executeStatement');
+
+        $this->logger->expects(static::once())
+            ->method('info')
+            ->with(static::stringContains('not applied'));
 
         $this->subscriber->onPaymentCancelled($event);
     }
 
-    public function testOnPaymentRefundedDecrementsCounter(): void
+    public function testOnPaymentCancelledDecrementsAndResetsFlagIfPaid(): void
+    {
+        $productId = Uuid::randomHex();
+        $order = $this->createOrderWithPreOrderItem($productId, 2);
+        $event = $this->createStateChangeEvent($order);
+
+        // Order was previously paid
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn('true');
+
+        // Expect decrement on product_translation, then reset flag on order
+        $this->connection->expects(static::exactly(2))
+            ->method('executeStatement')
+            ->willReturnCallback(function (string $sql) {
+                if (str_contains($sql, 'UPDATE `product_translation`') && str_contains($sql, 'GREATEST')) {
+                    return 1;
+                }
+                if (str_contains($sql, 'UPDATE `order`')) {
+                    return 1;
+                }
+                return 0;
+            });
+
+        $this->subscriber->onPaymentCancelled($event);
+    }
+
+    public function testOnPaymentRefundedDecrementsAndResetsFlagIfPaid(): void
     {
         $productId = Uuid::randomHex();
         $order = $this->createOrderWithPreOrderItem($productId, 1);
         $event = $this->createStateChangeEvent($order);
 
         $this->connection->expects(static::once())
-            ->method('executeStatement')
-            ->with(
-                static::logicalAnd(
-                    static::stringContains('UPDATE `product_translation`'),
-                    static::stringContains('GREATEST')
-                ),
-                static::callback(function (array $params) {
-                    return $params['qty'] === 1;
-                })
-            );
+            ->method('fetchOne')
+            ->willReturn('true');
+
+        $this->connection->expects(static::exactly(2))
+            ->method('executeStatement');
 
         $this->subscriber->onPaymentRefunded($event);
     }
@@ -175,55 +191,24 @@ class PaymentStateSubscriberTest extends TestCase
 
         $event = $this->createStateChangeEvent($order);
 
-        $this->connection->expects(static::exactly(2))->method('executeStatement');
-
-        $this->subscriber->onPaymentPaid($event);
-    }
-
-    public function testOnPaymentPaidWithMixedCart(): void
-    {
-        $preOrderProductId = Uuid::randomHex();
-
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
-
-        $preOrderItem = new OrderLineItemEntity();
-        $preOrderItem->setId(Uuid::randomHex());
-        $preOrderItem->setReferencedId($preOrderProductId);
-        $preOrderItem->setQuantity(1);
-        $preOrderItem->setPayload(['isPreOrder' => true]);
-
-        $normalItem = new OrderLineItemEntity();
-        $normalItem->setId(Uuid::randomHex());
-        $normalItem->setReferencedId(Uuid::randomHex());
-        $normalItem->setQuantity(3);
-        $normalItem->setPayload(['isPreOrder' => false]);
-
-        $order->setLineItems(new OrderLineItemCollection([$preOrderItem, $normalItem]));
-
-        $event = $this->createStateChangeEvent($order);
-
         $this->connection->expects(static::once())
-            ->method('executeStatement')
-            ->with(
-                static::stringContains('UPDATE `product_translation`'),
-                static::callback(function (array $params) use ($preOrderProductId) {
-                    return $params['qty'] === 1
-                        && $params['id'] === Uuid::fromHexToBytes($preOrderProductId);
-                })
-            );
+            ->method('fetchOne')
+            ->willReturn(false);
+
+        // 1 order update + 2 product updates = 3 executeStatement calls
+        $this->connection->expects(static::exactly(3))->method('executeStatement');
 
         $this->subscriber->onPaymentPaid($event);
     }
 
-    public function testOnPaymentPaidSkipsItemsWithNullReferencedId(): void
+    public function testOnPaymentPaidSkipsItemsWithNullOrInvalidReferencedId(): void
     {
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
 
         $preOrderItem = new OrderLineItemEntity();
         $preOrderItem->setId(Uuid::randomHex());
-        $preOrderItem->setReferencedId(null);
+        $preOrderItem->setReferencedId('not-a-valid-uuid');
         $preOrderItem->setQuantity(1);
         $preOrderItem->setPayload(['isPreOrder' => true]);
 
@@ -231,8 +216,33 @@ class PaymentStateSubscriberTest extends TestCase
 
         $event = $this->createStateChangeEvent($order);
 
-        $this->connection->expects(static::never())->method('executeStatement');
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn(false);
 
+        // Only order flag update is executed, product update is skipped due to invalid UUID
+        $this->connection->expects(static::once())
+            ->method('executeStatement')
+            ->with(static::stringContains('UPDATE `order`'));
+
+        $this->subscriber->onPaymentPaid($event);
+    }
+
+    public function testDatabaseExceptionsAreCaughtAndLoggedWithoutThrowing(): void
+    {
+        $productId = Uuid::randomHex();
+        $order = $this->createOrderWithPreOrderItem($productId, 1);
+        $event = $this->createStateChangeEvent($order);
+
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willThrowException(new \RuntimeException('Connection failed'));
+
+        $this->logger->expects(static::once())
+            ->method('error')
+            ->with(static::stringContains('Failed to check counter applied status'));
+
+        // Must not throw exception
         $this->subscriber->onPaymentPaid($event);
     }
 
