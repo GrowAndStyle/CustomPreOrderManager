@@ -8,9 +8,10 @@
  # Overlays: top: 0 (Date-Banner) und bottom: 0 (Scarcity) — kein Pixel-Hack.
  #}
 {% block component_product_box_image %}
-    {% set isPreOrder = product.customFields.custom_preorder_active|default(false) or
-        (product.translated.customFields.custom_preorder_release_date is defined and
-         product.translated.customFields.custom_preorder_release_date is not empty) %}
+    {% set customFields = product.translated.customFields|default(product.customFields)|default({}) %}
+    {% set isPreOrder = customFields.custom_preorder_active is defined
+        ? (customFields.custom_preorder_active == true)
+        : (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
     {% set hasStock = product.stock > 0 %}
     {% set enableBadge = config('CustomPreOrderManager.config.enableListingBadge') %}
 
@@ -18,8 +19,7 @@
         <div class="preorder-image-overlay-root">
             {{- parent() -}}
 
-            {% set releaseDate = product.translated.customFields.custom_preorder_release_date
-                |default(product.customFields.custom_preorder_release_date) %}
+            {% set releaseDate = customFields.custom_preorder_release_date|default(null) %}
 
             {% if releaseDate %}
                 <div class="product-preorder-date-banner" aria-hidden="true">
@@ -35,10 +35,8 @@
             {# Scarcity-Badge: UWG-konform (ADR-010), config-gesteuert #}
             {% set scarcityMode = config('CustomPreOrderManager.config.scarcityDisplayMode') %}
             {% if scarcityMode == 'listing_only' or scarcityMode == 'everywhere' %}
-                {% set inboundStock = product.translated.customFields.custom_preorder_inbound_stock
-                    |default(product.customFields.custom_preorder_inbound_stock|default(0)) %}
-                {% set soldCount = product.translated.customFields.custom_preorder_sold_count
-                    |default(product.customFields.custom_preorder_sold_count|default(0)) %}
+                {% set inboundStock = customFields.custom_preorder_inbound_stock|default(0) %}
+                {% set soldCount = customFields.custom_preorder_sold_count|default(0) %}
                 {% set remaining = inboundStock - soldCount %}
                 {% set rawThreshold = config('CustomPreOrderManager.config.lowStockThreshold') %}
                 {% set threshold = (rawThreshold is not empty and rawThreshold > 0) ? rawThreshold : 5 %}

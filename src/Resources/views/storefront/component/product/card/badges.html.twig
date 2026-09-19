@@ -14,9 +14,9 @@
 
 {% block component_product_badges_discount %}
     {% set customFields = product.translated.customFields|default(product.customFields)|default({}) %}
-    {% set isPreOrder = customFields.custom_preorder_active|default(false)
-        or (customFields.custom_preorder_release_date is defined
-            and customFields.custom_preorder_release_date is not empty) %}
+    {% set isPreOrder = customFields.custom_preorder_active is defined
+        ? (customFields.custom_preorder_active == true)
+        : (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
     {% set hasStock = product.stock > 0 %}
     {% set listingBadgeEnabled = config('CustomPreOrderManager.config.enableListingBadge')|default(true) %}
 

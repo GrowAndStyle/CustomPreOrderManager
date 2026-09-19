@@ -3,7 +3,9 @@
 {% block buy_widget_buy_container %}
     {% set currentProduct = product|default(page.product) %}
     {% set customFields = currentProduct.translated.customFields|default(currentProduct.customFields)|default({}) %}
-    {% set isPreOrder = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
+    {% set isPreOrder = customFields.custom_preorder_active is defined
+        ? (customFields.custom_preorder_active == true)
+        : (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
     {% set hasStock = currentProduct.stock > 0 %}
     {% set inboundStock = customFields.custom_preorder_inbound_stock|default(0) %}
     {% set soldCount = customFields.custom_preorder_sold_count|default(0) %}

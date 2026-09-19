@@ -5,7 +5,9 @@
     {% set baseCustomFields = currentProduct.customFields|default({}) %}
     {% set transCustomFields = currentProduct.translated.customFields|default({}) %}
     {% set customFields = baseCustomFields|merge(transCustomFields) %}
-    {% set isPreOrder = customFields.custom_preorder_active|default(false) or (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
+    {% set isPreOrder = customFields.custom_preorder_active is defined
+        ? (customFields.custom_preorder_active == true)
+        : (customFields.custom_preorder_release_date is defined and customFields.custom_preorder_release_date is not empty) %}
     {% set hasStock = currentProduct.stock > 0 %}
 
     {% if isPreOrder and not hasStock %}
