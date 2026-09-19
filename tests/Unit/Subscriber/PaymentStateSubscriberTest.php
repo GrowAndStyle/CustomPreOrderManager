@@ -59,12 +59,8 @@ class PaymentStateSubscriberTest extends TestCase
         $order = $this->createOrderWithPreOrderItem($productId, 3);
         $event = $this->createStateChangeEvent($order);
 
-        // 1. Check if applied: returns false
-        $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn(false);
-
-        // 2. Expect flag update on order, then increment on product_translation
+        // 1. UPDATE order sets flag (returns 1 affected row)
+        // 2. UPDATE product_translation increments sold_count
         $this->connection->expects(static::exactly(2))
             ->method('executeStatement')
             ->willReturnCallback(function (string $sql) {
@@ -88,13 +84,11 @@ class PaymentStateSubscriberTest extends TestCase
         $order = $this->createOrderWithPreOrderItem($productId, 3);
         $event = $this->createStateChangeEvent($order);
 
-        // Order was already marked as applied
+        // Atomic UPDATE returns 0 (condition matched 0 rows because flag was already true)
         $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn('true');
-
-        // Neither flag update nor product update should be called
-        $this->connection->expects(static::never())->method('executeStatement');
+            ->method('executeStatement')
+            ->with(static::stringContains('UPDATE `order`'))
+            ->willReturn(0);
 
         $this->logger->expects(static::once())
             ->method('info')
@@ -109,13 +103,11 @@ class PaymentStateSubscriberTest extends TestCase
         $order = $this->createOrderWithPreOrderItem($productId, 2);
         $event = $this->createStateChangeEvent($order);
 
-        // Order was never paid -> flag is false/null
+        // Atomic UPDATE returns 0 (order was never paid, condition matched 0 rows)
         $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn(false);
-
-        // MUST NOT decrement
-        $this->connection->expects(static::never())->method('executeStatement');
+            ->method('executeStatement')
+            ->with(static::stringContains('UPDATE `order`'))
+            ->willReturn(0);
 
         $this->logger->expects(static::once())
             ->method('info')
@@ -130,19 +122,15 @@ class PaymentStateSubscriberTest extends TestCase
         $order = $this->createOrderWithPreOrderItem($productId, 2);
         $event = $this->createStateChangeEvent($order);
 
-        // Order was previously paid
-        $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn('true');
-
-        // Expect decrement on product_translation, then reset flag on order
+        // 1. UPDATE order resets flag (returns 1 affected row)
+        // 2. UPDATE product_translation decrements counter
         $this->connection->expects(static::exactly(2))
             ->method('executeStatement')
             ->willReturnCallback(function (string $sql) {
-                if (str_contains($sql, 'UPDATE `product_translation`') && str_contains($sql, 'GREATEST')) {
+                if (str_contains($sql, 'UPDATE `order`')) {
                     return 1;
                 }
-                if (str_contains($sql, 'UPDATE `order`')) {
+                if (str_contains($sql, 'UPDATE `product_translation`') && str_contains($sql, 'GREATEST')) {
                     return 1;
                 }
                 return 0;
@@ -157,12 +145,9 @@ class PaymentStateSubscriberTest extends TestCase
         $order = $this->createOrderWithPreOrderItem($productId, 1);
         $event = $this->createStateChangeEvent($order);
 
-        $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn('true');
-
         $this->connection->expects(static::exactly(2))
-            ->method('executeStatement');
+            ->method('executeStatement')
+            ->willReturn(1);
 
         $this->subscriber->onPaymentRefunded($event);
     }
@@ -191,12 +176,10 @@ class PaymentStateSubscriberTest extends TestCase
 
         $event = $this->createStateChangeEvent($order);
 
-        $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn(false);
-
-        // 1 order update + 2 product updates = 3 executeStatement calls
-        $this->connection->expects(static::exactly(3))->method('executeStatement');
+        // 1 order update (atomic flag set) + 2 product updates = 3 executeStatement calls
+        $this->connection->expects(static::exactly(3))
+            ->method('executeStatement')
+            ->willReturn(1);
 
         $this->subscriber->onPaymentPaid($event);
     }
@@ -216,14 +199,11 @@ class PaymentStateSubscriberTest extends TestCase
 
         $event = $this->createStateChangeEvent($order);
 
-        $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn(false);
-
         // Only order flag update is executed, product update is skipped due to invalid UUID
         $this->connection->expects(static::once())
             ->method('executeStatement')
-            ->with(static::stringContains('UPDATE `order`'));
+            ->with(static::stringContains('UPDATE `order`'))
+            ->willReturn(1);
 
         $this->subscriber->onPaymentPaid($event);
     }
@@ -235,44 +215,23 @@ class PaymentStateSubscriberTest extends TestCase
         $event = $this->createStateChangeEvent($order);
 
         $this->connection->expects(static::once())
-            ->method('fetchOne')
+            ->method('executeStatement')
             ->willThrowException(new \RuntimeException('Connection failed'));
 
         $this->logger->expects(static::once())
             ->method('error')
-            ->with(static::stringContains('Failed to check counter applied status'));
+            ->with(static::stringContains('Failed to set counter applied flag on order'));
 
         // Must not throw exception
         $this->subscriber->onPaymentPaid($event);
     }
 
-    public function testIsCounterAppliedReturnsTrueForNumericOne(): void
-    {
-        $order = $this->createOrderWithPreOrderItem(Uuid::randomHex(), 1);
-        $event = $this->createStateChangeEvent($order);
-
-        $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn('1');
-
-        $this->connection->expects(static::never())->method('executeStatement');
-
-        $this->logger->expects(static::once())
-            ->method('info')
-            ->with(static::stringContains('already applied'));
-
-        $this->subscriber->onPaymentPaid($event);
-    }
 
     public function testSetCounterAppliedLogsErrorOnExceptionWithoutThrowing(): void
     {
         $productId = Uuid::randomHex();
         $order = $this->createOrderWithPreOrderItem($productId, 1);
         $event = $this->createStateChangeEvent($order);
-
-        $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn(false);
 
         $this->connection->method('executeStatement')
             ->willReturnCallback(function (string $sql) {
@@ -284,9 +243,30 @@ class PaymentStateSubscriberTest extends TestCase
 
         $this->logger->expects(static::once())
             ->method('error')
-            ->with(static::stringContains('Failed to update counter applied flag on order'));
+            ->with(static::stringContains('Failed to set counter applied flag on order'));
 
         $this->subscriber->onPaymentPaid($event);
+    }
+
+    public function testRevokeCounterAppliedLogsErrorOnExceptionWithoutThrowing(): void
+    {
+        $productId = Uuid::randomHex();
+        $order = $this->createOrderWithPreOrderItem($productId, 1);
+        $event = $this->createStateChangeEvent($order);
+
+        $this->connection->method('executeStatement')
+            ->willReturnCallback(function (string $sql) {
+                if (str_contains($sql, 'UPDATE `order`')) {
+                    throw new \RuntimeException('Lock wait timeout on revoke');
+                }
+                return 1;
+            });
+
+        $this->logger->expects(static::once())
+            ->method('error')
+            ->with(static::stringContains('Failed to revoke counter applied flag on order'));
+
+        $this->subscriber->onPaymentCancelled($event);
     }
 
     public function testIncrementSoldCountLogsErrorOnExceptionWithoutThrowing(): void
@@ -295,12 +275,11 @@ class PaymentStateSubscriberTest extends TestCase
         $order = $this->createOrderWithPreOrderItem($productId, 1);
         $event = $this->createStateChangeEvent($order);
 
-        $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn(false);
-
         $this->connection->method('executeStatement')
             ->willReturnCallback(function (string $sql) {
+                if (str_contains($sql, 'UPDATE `order`')) {
+                    return 1;
+                }
                 if (str_contains($sql, 'UPDATE `product_translation`')) {
                     throw new \RuntimeException('Deadlock on product_translation');
                 }
@@ -320,12 +299,11 @@ class PaymentStateSubscriberTest extends TestCase
         $order = $this->createOrderWithPreOrderItem($productId, 1);
         $event = $this->createStateChangeEvent($order);
 
-        $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn('true');
-
         $this->connection->method('executeStatement')
             ->willReturnCallback(function (string $sql) {
+                if (str_contains($sql, 'UPDATE `order`')) {
+                    return 1;
+                }
                 if (str_contains($sql, 'UPDATE `product_translation`')) {
                     throw new \RuntimeException('Deadlock on decrement');
                 }
@@ -353,12 +331,9 @@ class PaymentStateSubscriberTest extends TestCase
         $eventEmpty = $this->createStateChangeEvent($orderWithEmpty);
 
         $this->connection->expects(static::exactly(2))
-            ->method('fetchOne')
-            ->willReturn(false);
-
-        $this->connection->expects(static::exactly(2))
             ->method('executeStatement')
-            ->with(static::stringContains('UPDATE `order`'));
+            ->with(static::stringContains('UPDATE `order`'))
+            ->willReturn(1);
 
         $this->subscriber->onPaymentPaid($eventNull);
         $this->subscriber->onPaymentPaid($eventEmpty);
@@ -385,14 +360,11 @@ class PaymentStateSubscriberTest extends TestCase
 
         $event = $this->createStateChangeEvent($order);
 
-        $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn(false);
-
         // Only order update, no product update
         $this->connection->expects(static::once())
             ->method('executeStatement')
-            ->with(static::stringContains('UPDATE `order`'));
+            ->with(static::stringContains('UPDATE `order`'))
+            ->willReturn(1);
 
         $this->subscriber->onPaymentPaid($event);
     }
@@ -403,10 +375,9 @@ class PaymentStateSubscriberTest extends TestCase
         $event = $this->createStateChangeEvent($order);
 
         $this->connection->expects(static::once())
-            ->method('fetchOne')
-            ->willReturn(false);
-
-        $this->connection->expects(static::never())->method('executeStatement');
+            ->method('executeStatement')
+            ->with(static::stringContains('UPDATE `order`'))
+            ->willReturn(0);
 
         $this->logger->expects(static::once())
             ->method('info')

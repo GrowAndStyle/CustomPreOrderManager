@@ -12,14 +12,16 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderPlacedSubscriberTest extends TestCase
 {
-    private EntityRepository $orderRepository;
-    private EntityRepository $tagRepository;
+    private StaticTestEntityRepository $orderRepository;
+    private StaticTestEntityRepository $tagRepository;
     private EventDispatcherInterface $dispatcher;
     private LoggerInterface $logger;
     private OrderPlacedSubscriber $subscriber;
@@ -27,8 +29,8 @@ class OrderPlacedSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->orderRepository = $this->createMock(EntityRepository::class);
-        $this->tagRepository = $this->createMock(EntityRepository::class);
+        $this->orderRepository = new StaticTestEntityRepository();
+        $this->tagRepository = new StaticTestEntityRepository();
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->context = Context::createDefaultContext();
@@ -57,11 +59,11 @@ class OrderPlacedSubscriberTest extends TestCase
         $event->method('getOrder')->willReturn($order);
         $event->method('getContext')->willReturn($this->context);
 
-        $this->tagRepository->expects(static::never())->method('searchIds');
-        $this->orderRepository->expects(static::never())->method('update');
-        $this->dispatcher->expects(static::never())->method('dispatch');
-
         $this->subscriber->onOrderPlaced($event);
+
+        static::assertSame(0, $this->tagRepository->searchIdsCalls);
+        static::assertSame(0, $this->tagRepository->createCalls);
+        static::assertSame(0, $this->orderRepository->updateCalls);
     }
 
     public function testOnOrderPlacedReturnsEarlyWhenNoPreOrderItems(): void
@@ -81,11 +83,11 @@ class OrderPlacedSubscriberTest extends TestCase
         $event->method('getOrder')->willReturn($order);
         $event->method('getContext')->willReturn($this->context);
 
-        $this->tagRepository->expects(static::never())->method('searchIds');
-        $this->orderRepository->expects(static::never())->method('update');
-        $this->dispatcher->expects(static::never())->method('dispatch');
-
         $this->subscriber->onOrderPlaced($event);
+
+        static::assertSame(0, $this->tagRepository->searchIdsCalls);
+        static::assertSame(0, $this->tagRepository->createCalls);
+        static::assertSame(0, $this->orderRepository->updateCalls);
     }
 
     public function testOnOrderPlacedTagsOrderWithExistingTag(): void
@@ -111,23 +113,7 @@ class OrderPlacedSubscriberTest extends TestCase
         // Tag existiert bereits
         $idSearchResult = $this->createMock(IdSearchResult::class);
         $idSearchResult->method('firstId')->willReturn($tagId);
-        $this->tagRepository->method('searchIds')->willReturn($idSearchResult);
-        $this->tagRepository->expects(static::never())->method('create');
-
-        // Tag an Order verknüpfen
-        $this->orderRepository->expects(static::once())
-            ->method('update')
-            ->with(
-                [
-                    [
-                        'id' => $orderId,
-                        'tags' => [
-                            ['id' => $tagId],
-                        ],
-                    ],
-                ],
-                $this->context
-            );
+        $this->tagRepository->searchIdsCallback = static fn() => $idSearchResult;
 
         // Event wird ausgelöst
         $this->dispatcher->expects(static::once())
@@ -138,6 +124,18 @@ class OrderPlacedSubscriberTest extends TestCase
         $this->logger->expects(static::once())->method('info');
 
         $this->subscriber->onOrderPlaced($event);
+
+        static::assertSame(1, $this->tagRepository->searchIdsCalls);
+        static::assertSame(0, $this->tagRepository->createCalls);
+        static::assertSame(1, $this->orderRepository->updateCalls);
+        static::assertSame([
+            [
+                'id' => $orderId,
+                'tags' => [
+                    ['id' => $tagId],
+                ],
+            ],
+        ], $this->orderRepository->updates[0]);
     }
 
     public function testOnOrderPlacedCreatesTagWhenNotExists(): void
@@ -162,21 +160,7 @@ class OrderPlacedSubscriberTest extends TestCase
         // Tag existiert noch nicht
         $idSearchResult = $this->createMock(IdSearchResult::class);
         $idSearchResult->method('firstId')->willReturn(null);
-        $this->tagRepository->method('searchIds')->willReturn($idSearchResult);
-
-        // Neuer Tag wird erstellt
-        $this->tagRepository->expects(static::once())
-            ->method('create')
-            ->with(
-                static::callback(function (array $data) {
-                    return ($data[0]['name'] ?? null) === 'Vorbestellung'
-                        && !empty($data[0]['id']);
-                }),
-                $this->context
-            );
-
-        // Order wird getaggt
-        $this->orderRepository->expects(static::once())->method('update');
+        $this->tagRepository->searchIdsCallback = static fn() => $idSearchResult;
 
         // Event wird ausgelöst
         $this->dispatcher->expects(static::once())
@@ -186,6 +170,12 @@ class OrderPlacedSubscriberTest extends TestCase
         $this->logger->expects(static::once())->method('info');
 
         $this->subscriber->onOrderPlaced($event);
+
+        static::assertSame(1, $this->tagRepository->searchIdsCalls);
+        static::assertSame(1, $this->tagRepository->createCalls);
+        static::assertSame('Vorbestellung', $this->tagRepository->creates[0][0]['name'] ?? null);
+        static::assertNotEmpty($this->tagRepository->creates[0][0]['id'] ?? null);
+        static::assertSame(1, $this->orderRepository->updateCalls);
     }
 
     public function testOnOrderPlacedHandlesMultiplePreOrderItems(): void
@@ -216,9 +206,7 @@ class OrderPlacedSubscriberTest extends TestCase
 
         $idSearchResult = $this->createMock(IdSearchResult::class);
         $idSearchResult->method('firstId')->willReturn($tagId);
-        $this->tagRepository->method('searchIds')->willReturn($idSearchResult);
-
-        $this->orderRepository->expects(static::once())->method('update');
+        $this->tagRepository->searchIdsCallback = static fn() => $idSearchResult;
 
         // Event mit preOrderItemCount = 2
         $this->dispatcher->expects(static::once())
@@ -233,6 +221,8 @@ class OrderPlacedSubscriberTest extends TestCase
         $this->logger->expects(static::once())->method('info');
 
         $this->subscriber->onOrderPlaced($event);
+
+        static::assertSame(1, $this->orderRepository->updateCalls);
     }
 
     public function testOnOrderPlacedCountsOnlyPreOrderItems(): void
@@ -263,9 +253,7 @@ class OrderPlacedSubscriberTest extends TestCase
 
         $idSearchResult = $this->createMock(IdSearchResult::class);
         $idSearchResult->method('firstId')->willReturn($tagId);
-        $this->tagRepository->method('searchIds')->willReturn($idSearchResult);
-
-        $this->orderRepository->expects(static::once())->method('update');
+        $this->tagRepository->searchIdsCallback = static fn() => $idSearchResult;
 
         // Event mit preOrderItemCount = 1 (nur die eine Vorbestellposition)
         $this->dispatcher->expects(static::once())
@@ -278,6 +266,8 @@ class OrderPlacedSubscriberTest extends TestCase
             );
 
         $this->subscriber->onOrderPlaced($event);
+
+        static::assertSame(1, $this->orderRepository->updateCalls);
     }
 
     public function testOnOrderPlacedHandlesTagCreationCollisionGracefully(): void
@@ -307,34 +297,34 @@ class OrderPlacedSubscriberTest extends TestCase
         $foundResult = $this->createMock(IdSearchResult::class);
         $foundResult->method('firstId')->willReturn($tagId);
 
-        $this->tagRepository->expects(static::exactly(2))
-            ->method('searchIds')
-            ->willReturnOnConsecutiveCalls($emptyResult, $foundResult);
+        $searchCount = 0;
+        $this->tagRepository->searchIdsCallback = function () use (&$searchCount, $emptyResult, $foundResult) {
+            $searchCount++;
+            return $searchCount === 1 ? $emptyResult : $foundResult;
+        };
 
         // 2. create throws (simulating race condition / unique constraint collision)
-        $this->tagRepository->expects(static::once())
-            ->method('create')
-            ->willThrowException(new \Exception('Duplicate entry'));
-
-        // 3. Order is still tagged with the retrieved tagId
-        $this->orderRepository->expects(static::once())
-            ->method('update')
-            ->with(
-                [
-                    [
-                        'id' => $orderId,
-                        'tags' => [
-                            ['id' => $tagId],
-                        ],
-                    ],
-                ],
-                $this->context
-            );
+        $this->tagRepository->createCallback = static function () {
+            throw new \Exception('Duplicate entry');
+        };
 
         $this->dispatcher->expects(static::once())->method('dispatch');
         $this->logger->expects(static::once())->method('info');
 
         $this->subscriber->onOrderPlaced($event);
+
+        // 3. Order is still tagged with the retrieved tagId
+        static::assertSame(2, $this->tagRepository->searchIdsCalls);
+        static::assertSame(1, $this->tagRepository->createCalls);
+        static::assertSame(1, $this->orderRepository->updateCalls);
+        static::assertSame([
+            [
+                'id' => $orderId,
+                'tags' => [
+                    ['id' => $tagId],
+                ],
+            ],
+        ], $this->orderRepository->updates[0]);
     }
 
     public function testOnOrderPlacedHandlesOrderUpdateExceptionGracefully(): void
@@ -359,12 +349,12 @@ class OrderPlacedSubscriberTest extends TestCase
 
         $idSearchResult = $this->createMock(IdSearchResult::class);
         $idSearchResult->method('firstId')->willReturn($tagId);
-        $this->tagRepository->method('searchIds')->willReturn($idSearchResult);
+        $this->tagRepository->searchIdsCallback = static fn() => $idSearchResult;
 
         // Order update throws exception
-        $this->orderRepository->expects(static::once())
-            ->method('update')
-            ->willThrowException(new \Exception('Deadlock found'));
+        $this->orderRepository->updateCallback = static function () {
+            throw new \Exception('Deadlock found');
+        };
 
         // Error must be logged
         $this->logger->expects(static::once())
@@ -382,5 +372,80 @@ class OrderPlacedSubscriberTest extends TestCase
         $this->dispatcher->expects(static::once())->method('dispatch');
 
         $this->subscriber->onOrderPlaced($event);
+
+        static::assertSame(1, $this->orderRepository->updateCalls);
+    }
+}
+
+/**
+ * Replaces EntityRepository mock with a dedicated test stub (BT-003).
+ * Avoids fragile repository mocking and proxy generator issues,
+ * provides explicit call counting and typed closures for deterministic testing.
+ *
+ * @internal
+ */
+class StaticTestEntityRepository extends EntityRepository
+{
+    /** @var (\Closure(Criteria, Context): IdSearchResult)|null */
+    public ?\Closure $searchIdsCallback = null;
+
+    /** @var (\Closure(array, Context): EntityWrittenContainerEvent)|null */
+    public ?\Closure $createCallback = null;
+
+    /** @var (\Closure(array, Context): EntityWrittenContainerEvent)|null */
+    public ?\Closure $updateCallback = null;
+
+    public int $searchIdsCalls = 0;
+    public int $createCalls = 0;
+    public int $updateCalls = 0;
+
+    /** @var list<array<mixed>> */
+    public array $creates = [];
+
+    /** @var list<array<mixed>> */
+    public array $updates = [];
+
+    public function __construct()
+    {
+        // Parameterless constructor, deliberately does not invoke parent::__construct()
+    }
+
+    public function searchIds(Criteria $criteria, Context $context): IdSearchResult
+    {
+        $this->searchIdsCalls++;
+
+        if ($this->searchIdsCallback !== null) {
+            return ($this->searchIdsCallback)($criteria, $context);
+        }
+
+        return new IdSearchResult(0, [], $criteria, $context);
+    }
+
+    public function create(array $data, Context $context): EntityWrittenContainerEvent
+    {
+        $this->createCalls++;
+        $this->creates[] = $data;
+
+        if ($this->createCallback !== null) {
+            return ($this->createCallback)($data, $context);
+        }
+
+        /** @var EntityWrittenContainerEvent $event */
+        $event = (new \ReflectionClass(EntityWrittenContainerEvent::class))->newInstanceWithoutConstructor();
+        return $event;
+    }
+
+    public function update(array $data, Context $context): EntityWrittenContainerEvent
+    {
+        $this->updateCalls++;
+        $this->updates[] = $data;
+
+        if ($this->updateCallback !== null) {
+            return ($this->updateCallback)($data, $context);
+        }
+
+        /** @var EntityWrittenContainerEvent $event */
+        $event = (new \ReflectionClass(EntityWrittenContainerEvent::class))->newInstanceWithoutConstructor();
+        return $event;
     }
 }

@@ -39,15 +39,14 @@ class PaymentStateSubscriber implements EventSubscriberInterface
     {
         $order = $event->getOrder();
 
-        if ($this->isCounterApplied($order->getId())) {
+        // 100% atomar: Flag wird nur gesetzt wenn noch nicht vorhanden (Race-Free Row-Locking, BT-004)
+        if (!$this->trySetCounterApplied($order->getId())) {
             $this->logger->info('PreOrder: sold_count already applied for order, skipping increment (idempotency)', [
                 'orderId' => $order->getId(),
             ]);
             return;
         }
 
-        // Set-then-Increment (Pessimistic Flagging): Flag VOR Inkrement setzen
-        $this->setCounterApplied($order->getId(), true);
         $this->adjustSoldCount($event, +1);
     }
 
@@ -65,7 +64,8 @@ class PaymentStateSubscriber implements EventSubscriberInterface
     {
         $order = $event->getOrder();
 
-        if (!$this->isCounterApplied($order->getId())) {
+        // 100% atomar: Flag wird nur dekrementiert wenn zuvor gesetzt (Race-Free Quota-Spoofing-Guard, BT-004)
+        if (!$this->tryRevokeCounterApplied($order->getId())) {
             $this->logger->info('PreOrder: sold_count not applied for order, skipping decrement (quota spoofing guard)', [
                 'orderId' => $order->getId(),
             ]);
@@ -73,16 +73,24 @@ class PaymentStateSubscriber implements EventSubscriberInterface
         }
 
         $this->adjustSoldCount($event, -1);
-        $this->setCounterApplied($order->getId(), false);
     }
 
-    private function isCounterApplied(string $orderId): bool
+    private function trySetCounterApplied(string $orderId): bool
     {
         try {
-            $applied = $this->connection->fetchOne(
-                'SELECT JSON_UNQUOTE(JSON_EXTRACT(`custom_fields`, "$.custom_preorder_sold_count_applied"))
-                 FROM `order`
-                 WHERE `id` = :id AND `version_id` = :versionId',
+            $affected = (int) $this->connection->executeStatement(
+                "UPDATE `order`
+                 SET `custom_fields` = JSON_SET(
+                     COALESCE(`custom_fields`, '{}'),
+                     '$.custom_preorder_sold_count_applied',
+                     true
+                 )
+                 WHERE `id` = :id
+                   AND `version_id` = :versionId
+                   AND (
+                       JSON_UNQUOTE(JSON_EXTRACT(`custom_fields`, '$.custom_preorder_sold_count_applied')) IS NULL
+                       OR JSON_UNQUOTE(JSON_EXTRACT(`custom_fields`, '$.custom_preorder_sold_count_applied')) NOT IN ('true', '1')
+                   )",
                 [
                     'id' => Uuid::fromHexToBytes($orderId),
                     'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
@@ -93,9 +101,9 @@ class PaymentStateSubscriber implements EventSubscriberInterface
                 ]
             );
 
-            return $applied === 'true' || $applied === '1';
+            return $affected > 0;
         } catch (\Throwable $e) {
-            $this->logger->error('PreOrder: Failed to check counter applied status', [
+            $this->logger->error('PreOrder: Failed to set counter applied flag on order', [
                 'orderId' => $orderId,
                 'error' => $e->getMessage(),
             ]);
@@ -104,18 +112,19 @@ class PaymentStateSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function setCounterApplied(string $orderId, bool $applied): void
+    private function tryRevokeCounterApplied(string $orderId): bool
     {
         try {
-            $jsonValue = $applied ? 'true' : 'false';
-            $this->connection->executeStatement(
+            $affected = (int) $this->connection->executeStatement(
                 "UPDATE `order`
                  SET `custom_fields` = JSON_SET(
                      COALESCE(`custom_fields`, '{}'),
                      '$.custom_preorder_sold_count_applied',
-                     {$jsonValue}
+                     false
                  )
-                 WHERE `id` = :id AND `version_id` = :versionId",
+                 WHERE `id` = :id
+                   AND `version_id` = :versionId
+                   AND JSON_UNQUOTE(JSON_EXTRACT(`custom_fields`, '$.custom_preorder_sold_count_applied')) IN ('true', '1')",
                 [
                     'id' => Uuid::fromHexToBytes($orderId),
                     'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
@@ -125,12 +134,15 @@ class PaymentStateSubscriber implements EventSubscriberInterface
                     'versionId' => ParameterType::BINARY,
                 ]
             );
+
+            return $affected > 0;
         } catch (\Throwable $e) {
-            $this->logger->error('PreOrder: Failed to update counter applied flag on order', [
+            $this->logger->error('PreOrder: Failed to revoke counter applied flag on order', [
                 'orderId' => $orderId,
-                'applied' => $applied,
                 'error' => $e->getMessage(),
             ]);
+
+            return false;
         }
     }
 
