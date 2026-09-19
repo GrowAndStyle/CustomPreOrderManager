@@ -279,4 +279,108 @@ class OrderPlacedSubscriberTest extends TestCase
 
         $this->subscriber->onOrderPlaced($event);
     }
+
+    public function testOnOrderPlacedHandlesTagCreationCollisionGracefully(): void
+    {
+        $orderId = Uuid::randomHex();
+        $tagId = Uuid::randomHex();
+
+        $order = new OrderEntity();
+        $order->setId($orderId);
+
+        $preOrderItem = new OrderLineItemEntity();
+        $preOrderItem->setId(Uuid::randomHex());
+        $preOrderItem->setReferencedId(Uuid::randomHex());
+        $preOrderItem->setQuantity(1);
+        $preOrderItem->setPayload(['isPreOrder' => true]);
+
+        $order->setLineItems(new OrderLineItemCollection([$preOrderItem]));
+
+        $event = $this->createMock(CheckoutOrderPlacedEvent::class);
+        $event->method('getOrder')->willReturn($order);
+        $event->method('getContext')->willReturn($this->context);
+
+        // 1. searchIds returns null on first query, then returns $tagId on collision retry
+        $emptyResult = $this->createMock(IdSearchResult::class);
+        $emptyResult->method('firstId')->willReturn(null);
+
+        $foundResult = $this->createMock(IdSearchResult::class);
+        $foundResult->method('firstId')->willReturn($tagId);
+
+        $this->tagRepository->expects(static::exactly(2))
+            ->method('searchIds')
+            ->willReturnOnConsecutiveCalls($emptyResult, $foundResult);
+
+        // 2. create throws (simulating race condition / unique constraint collision)
+        $this->tagRepository->expects(static::once())
+            ->method('create')
+            ->willThrowException(new \Exception('Duplicate entry'));
+
+        // 3. Order is still tagged with the retrieved tagId
+        $this->orderRepository->expects(static::once())
+            ->method('update')
+            ->with(
+                [
+                    [
+                        'id' => $orderId,
+                        'tags' => [
+                            ['id' => $tagId],
+                        ],
+                    ],
+                ],
+                $this->context
+            );
+
+        $this->dispatcher->expects(static::once())->method('dispatch');
+        $this->logger->expects(static::once())->method('info');
+
+        $this->subscriber->onOrderPlaced($event);
+    }
+
+    public function testOnOrderPlacedHandlesOrderUpdateExceptionGracefully(): void
+    {
+        $orderId = Uuid::randomHex();
+        $tagId = Uuid::randomHex();
+
+        $order = new OrderEntity();
+        $order->setId($orderId);
+
+        $preOrderItem = new OrderLineItemEntity();
+        $preOrderItem->setId(Uuid::randomHex());
+        $preOrderItem->setReferencedId(Uuid::randomHex());
+        $preOrderItem->setQuantity(1);
+        $preOrderItem->setPayload(['isPreOrder' => true]);
+
+        $order->setLineItems(new OrderLineItemCollection([$preOrderItem]));
+
+        $event = $this->createMock(CheckoutOrderPlacedEvent::class);
+        $event->method('getOrder')->willReturn($order);
+        $event->method('getContext')->willReturn($this->context);
+
+        $idSearchResult = $this->createMock(IdSearchResult::class);
+        $idSearchResult->method('firstId')->willReturn($tagId);
+        $this->tagRepository->method('searchIds')->willReturn($idSearchResult);
+
+        // Order update throws exception
+        $this->orderRepository->expects(static::once())
+            ->method('update')
+            ->willThrowException(new \Exception('Deadlock found'));
+
+        // Error must be logged
+        $this->logger->expects(static::once())
+            ->method('error')
+            ->with(
+                'PreOrder: Failed to assign tag to order',
+                static::callback(function (array $context) use ($orderId) {
+                    return $context['orderId'] === $orderId
+                        && str_contains($context['error'], 'Deadlock found');
+                })
+            );
+
+        // Info log and event dispatch still proceed
+        $this->logger->expects(static::once())->method('info');
+        $this->dispatcher->expects(static::once())->method('dispatch');
+
+        $this->subscriber->onOrderPlaced($event);
+    }
 }

@@ -246,6 +246,174 @@ class PaymentStateSubscriberTest extends TestCase
         $this->subscriber->onPaymentPaid($event);
     }
 
+    public function testIsCounterAppliedReturnsTrueForNumericOne(): void
+    {
+        $order = $this->createOrderWithPreOrderItem(Uuid::randomHex(), 1);
+        $event = $this->createStateChangeEvent($order);
+
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn('1');
+
+        $this->connection->expects(static::never())->method('executeStatement');
+
+        $this->logger->expects(static::once())
+            ->method('info')
+            ->with(static::stringContains('already applied'));
+
+        $this->subscriber->onPaymentPaid($event);
+    }
+
+    public function testSetCounterAppliedLogsErrorOnExceptionWithoutThrowing(): void
+    {
+        $productId = Uuid::randomHex();
+        $order = $this->createOrderWithPreOrderItem($productId, 1);
+        $event = $this->createStateChangeEvent($order);
+
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn(false);
+
+        $this->connection->method('executeStatement')
+            ->willReturnCallback(function (string $sql) {
+                if (str_contains($sql, 'UPDATE `order`')) {
+                    throw new \RuntimeException('Lock wait timeout exceeded');
+                }
+                return 1;
+            });
+
+        $this->logger->expects(static::once())
+            ->method('error')
+            ->with(static::stringContains('Failed to update counter applied flag on order'));
+
+        $this->subscriber->onPaymentPaid($event);
+    }
+
+    public function testIncrementSoldCountLogsErrorOnExceptionWithoutThrowing(): void
+    {
+        $productId = Uuid::randomHex();
+        $order = $this->createOrderWithPreOrderItem($productId, 1);
+        $event = $this->createStateChangeEvent($order);
+
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn(false);
+
+        $this->connection->method('executeStatement')
+            ->willReturnCallback(function (string $sql) {
+                if (str_contains($sql, 'UPDATE `product_translation`')) {
+                    throw new \RuntimeException('Deadlock on product_translation');
+                }
+                return 1;
+            });
+
+        $this->logger->expects(static::once())
+            ->method('error')
+            ->with(static::stringContains('Failed to increment sold_count for product'));
+
+        $this->subscriber->onPaymentPaid($event);
+    }
+
+    public function testDecrementSoldCountLogsErrorOnExceptionWithoutThrowing(): void
+    {
+        $productId = Uuid::randomHex();
+        $order = $this->createOrderWithPreOrderItem($productId, 1);
+        $event = $this->createStateChangeEvent($order);
+
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn('true');
+
+        $this->connection->method('executeStatement')
+            ->willReturnCallback(function (string $sql) {
+                if (str_contains($sql, 'UPDATE `product_translation`')) {
+                    throw new \RuntimeException('Deadlock on decrement');
+                }
+                return 1;
+            });
+
+        $this->logger->expects(static::once())
+            ->method('error')
+            ->with(static::stringContains('Failed to decrement sold_count for product'));
+
+        $this->subscriber->onPaymentCancelled($event);
+    }
+
+    public function testAdjustSoldCountHandlesNullAndEmptyLineItems(): void
+    {
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setLineItems(null);
+
+        $event = $this->createStateChangeEvent($order);
+
+        $this->connection->expects(static::exactly(2))
+            ->method('fetchOne')
+            ->willReturn(false);
+
+        $this->connection->expects(static::exactly(2))
+            ->method('executeStatement')
+            ->with(static::stringContains('UPDATE `order`'));
+
+        // 1. With null line items
+        $this->subscriber->onPaymentPaid($event);
+
+        // 2. With empty line items collection
+        $order->setLineItems(new OrderLineItemCollection());
+        $this->subscriber->onPaymentPaid($event);
+    }
+
+    public function testAdjustSoldCountSkipsNonPreOrderItemsAndNullReferencedId(): void
+    {
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+
+        $itemNonPreOrder = new OrderLineItemEntity();
+        $itemNonPreOrder->setId(Uuid::randomHex());
+        $itemNonPreOrder->setReferencedId(Uuid::randomHex());
+        $itemNonPreOrder->setQuantity(1);
+        $itemNonPreOrder->setPayload(['isPreOrder' => false]);
+
+        $itemNullRefId = new OrderLineItemEntity();
+        $itemNullRefId->setId(Uuid::randomHex());
+        $itemNullRefId->setReferencedId(null);
+        $itemNullRefId->setQuantity(1);
+        $itemNullRefId->setPayload(['isPreOrder' => true]);
+
+        $order->setLineItems(new OrderLineItemCollection([$itemNonPreOrder, $itemNullRefId]));
+
+        $event = $this->createStateChangeEvent($order);
+
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn(false);
+
+        // Only order update, no product update
+        $this->connection->expects(static::once())
+            ->method('executeStatement')
+            ->with(static::stringContains('UPDATE `order`'));
+
+        $this->subscriber->onPaymentPaid($event);
+    }
+
+    public function testOnPaymentRefundedIgnoresUnpaidOrder(): void
+    {
+        $order = $this->createOrderWithPreOrderItem(Uuid::randomHex(), 2);
+        $event = $this->createStateChangeEvent($order);
+
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn(false);
+
+        $this->connection->expects(static::never())->method('executeStatement');
+
+        $this->logger->expects(static::once())
+            ->method('info')
+            ->with(static::stringContains('not applied'));
+
+        $this->subscriber->onPaymentRefunded($event);
+    }
+
     // --- Helpers ---
 
     private function createOrderWithPreOrderItem(string $productId, int $qty): OrderEntity

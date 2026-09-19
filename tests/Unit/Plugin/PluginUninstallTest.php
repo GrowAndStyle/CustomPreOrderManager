@@ -106,4 +106,58 @@ class PluginUninstallTest extends TestCase
         $this->plugin->setContainer($container);
         $this->plugin->uninstall($context);
     }
+
+    public function testUninstallToleratesMissingProductCustomFieldsColumn(): void
+    {
+        $context = $this->createMock(UninstallContext::class);
+        $context->method('keepUserData')->willReturn(false);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::once())->method('beginTransaction');
+        $connection->expects(static::once())->method('commit');
+        $connection->expects(static::never())->method('rollBack');
+
+        // Simuliert Shopware 6.5+, wo die Tabelle product keine custom_fields Spalte besitzt
+        $connection->method('executeStatement')
+            ->willReturnCallback(function (string $sql) {
+                if (str_contains($sql, 'UPDATE `product`')) {
+                    throw new \RuntimeException("Unknown column 'custom_fields' in 'field list'");
+                }
+                return 1;
+            });
+
+        $container = $this->createMock(ContainerInterface::class);
+        $container->method('get')
+            ->with(Connection::class)
+            ->willReturn($connection);
+
+        $this->plugin->setContainer($container);
+        $this->plugin->uninstall($context);
+    }
+
+    public function testUninstallRollsBackTransactionOnError(): void
+    {
+        $context = $this->createMock(UninstallContext::class);
+        $context->method('keepUserData')->willReturn(false);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::once())->method('beginTransaction');
+        $connection->expects(static::never())->method('commit');
+        $connection->expects(static::once())->method('rollBack');
+
+        $connection->method('executeStatement')
+            ->willThrowException(new \RuntimeException('Database error during cleanup'));
+
+        $container = $this->createMock(ContainerInterface::class);
+        $container->method('get')
+            ->with(Connection::class)
+            ->willReturn($connection);
+
+        $this->plugin->setContainer($container);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Database error during cleanup');
+
+        $this->plugin->uninstall($context);
+    }
 }
