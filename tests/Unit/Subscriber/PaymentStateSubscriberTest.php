@@ -341,11 +341,16 @@ class PaymentStateSubscriberTest extends TestCase
 
     public function testAdjustSoldCountHandlesNullAndEmptyLineItems(): void
     {
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
-        $order->setLineItems(null);
+        // 1. With null line items (OrderEntity default is null without calling setLineItems)
+        $orderWithNull = new OrderEntity();
+        $orderWithNull->setId(Uuid::randomHex());
+        $eventNull = $this->createStateChangeEvent($orderWithNull);
 
-        $event = $this->createStateChangeEvent($order);
+        // 2. With empty line items collection
+        $orderWithEmpty = new OrderEntity();
+        $orderWithEmpty->setId(Uuid::randomHex());
+        $orderWithEmpty->setLineItems(new OrderLineItemCollection());
+        $eventEmpty = $this->createStateChangeEvent($orderWithEmpty);
 
         $this->connection->expects(static::exactly(2))
             ->method('fetchOne')
@@ -355,12 +360,8 @@ class PaymentStateSubscriberTest extends TestCase
             ->method('executeStatement')
             ->with(static::stringContains('UPDATE `order`'));
 
-        // 1. With null line items
-        $this->subscriber->onPaymentPaid($event);
-
-        // 2. With empty line items collection
-        $order->setLineItems(new OrderLineItemCollection());
-        $this->subscriber->onPaymentPaid($event);
+        $this->subscriber->onPaymentPaid($eventNull);
+        $this->subscriber->onPaymentPaid($eventEmpty);
     }
 
     public function testAdjustSoldCountSkipsNonPreOrderItemsAndNullReferencedId(): void
