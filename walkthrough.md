@@ -497,9 +497,55 @@ Code Coverage Report:
 
 ---
 
+## Phase 11: Konsolidierte RedTeam-Security-Fixes (v1.4.2)
+
+Umfassende Behebung aller verifizierten Findings aus den parallelen RedTeam-Audits (Flash & Opus).
+
+### 1. Checkout & Payment Concurrency (Release-Blocker)
+- **[`PaymentStateSubscriber.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Core/Checkout/Subscriber/PaymentStateSubscriber.php):**
+  - **Idempotenz- und Quota-Spoofing-Guard:** Atomarer Check auf das Order-CustomField `custom_preorder_sold_count_applied`.
+  - **Set-then-Increment (Pessimistic Flagging):** Flag wird bei `paid` VOR dem DBAL-Inkrement auf `true` gesetzt, um Doppelbuchungen bei Webhook-Timeouts/Retries auszuschließen.
+  - **Revocation-Guard:** `onPaymentCancelled` und `onPaymentRefunded` dekrementieren nur, wenn die Order nachweislich als bezahlt markiert war (`custom_preorder_sold_count_applied === true`). Unbezahlte Abbrüche (`open -> cancelled`) dekrementieren nicht mehr (Quota-Spoofing behoben). Doppelte Stornierungen (`refunded -> cancelled`) werden abgefangen.
+  - **Webhook-Resilienz:** Kapselung der DBAL-Updates in `try/catch (\Throwable)` mit Fehler-Logging (`logger->error`), wodurch externe Payment-Webhooks nicht mehr mit HTTP 500 abstürzen.
+  - **DBAL-Typisierung & Event-Priority:** Parameter `[ParameterType::BINARY, ParameterType::BINARY, ParameterType::INTEGER]` explizit übergeben; Event-Priority auf 10 gesetzt.
+- **[`Migration1726200000AddPreOrderCustomFields.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Migration/Migration1726200000AddPreOrderCustomFields.php):**
+  - Tag `Vorbestellung` wird einmalig und idempotent in der Migration angelegt.
+- **[`OrderPlacedSubscriber.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Core/Checkout/Subscriber/OrderPlacedSubscriber.php):**
+  - Tag-Erstellung mit `try/catch (\Throwable)` abgesichert (TOCTOU-Resilienz bei simultanen Erst-Checkouts).
+  - Event-Priority auf 100 gesetzt.
+
+### 2. Storefront-Security & CSRF
+- **[`action.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/component/product/card/action.html.twig):**
+  - `{{ sw_csrf('frontend.checkout.line-item.add') }}` im Kaufen-Formular ergänzt (verhindert HTTP 403 im `twig`-CSRF-Modus).
+  - `{ }` in `replace`-Maps der CSS-Farbvariablen ergänzt.
+- **[`buy-widget-form.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/component/buy-widget/buy-widget-form.html.twig) (Component & PDP):**
+  - `{ }` in `replace`-Maps ergänzt.
+- **[`base.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/base.html.twig):**
+  - `cardRadius` mit `max(0, min(100, cardRadius|abs))` gehärtet (Standard-Twig ohne ungültige Filter).
+
+### 3. Business-Logic & Switch-Dilemma
+- **Switch-Dilemma behoben:** Wenn `custom_preorder_active` explizit `false` ist, ist der Vorbestellmodus inaktiv – selbst wenn ein historisches `release_date` hinterlegt ist. Konsistent implementiert in:
+  - [`PreOrderCartCollector.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Core/Checkout/Cart/PreOrderCartCollector.php)
+  - [`delivery-information.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/component/delivery-information.html.twig)
+  - [`badges.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/component/product/card/badges.html.twig)
+  - [`box-standard.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/component/product/card/box-standard.html.twig) (inkl. sauberer Translation-Auflösung)
+  - [`scarcity-badge.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/component/preorder/scarcity-badge.html.twig)
+  - [`buy-widget-form.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/component/buy-widget/buy-widget-form.html.twig)
+  - [`action.html.twig`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/views/storefront/component/product/card/action.html.twig)
+
+### 4. Admin-UI, Lifecycle & Metadaten
+- **[`index.js`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/Resources/app/administration/src/module/custom-preorder-manager/index.js):** `privilege: 'order.viewer'` an Route-Meta und Navigation registriert.
+- **[`CustomPreOrderManager.php`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/src/CustomPreOrderManager.php):** Deinstallation mit `beginTransaction`/`commit`/`rollBack` transaktionssicher gekapselt; `product_translation` Update mit `JSON_CONTAINS_PATH` gefiltert.
+- **Verwaiste Snippets entfernt:** 4 inaktive JSON-Dateien in `src/Resources/snippet/` gelöscht.
+- **[`composer.json`](file:///Users/nicoschultz/Documents/CustomPreOrderManager/composer.json):** `"php": "^8.1"` ergänzt und Shopware-Constraint auf `"~6.5.8.0 || ^6.6.0 || ^6.7.0"` erweitert.
+
+---
+
 ## Aktueller Status
-- Branch: `feat/payment-aware-counter-and-storefront-fixes`
-- Letzter Commit: `47449da` (`feat(scss): listing overlay depth — shadow, micro-border, smart top offset`)
-- Release-Artefakt: `dist/CustomPreOrderManager.zip`
-- **104 tests, 741 assertions, 100% Coverage (9/9 Classes, 41/41 Methods, 220/220 Lines)**
-- Visuell verifiziert auf Teststation (`192.168.2.222:8080/freizeit-elektro/`)
+- Branch: `fix/redteam-audit-fixes`
+- Commits:
+  - `30bc5b2`: `fix(checkout): Quota-Spoofing-Guard, Idempotenz-Flag und TOCTOU-Tag-Absicherung`
+  - `1dd73cc`: `fix(storefront): CSRF-Schutz im Listing, Admin-ACL und Deinstallations-Transaktionen`
+  - `06b2c6a`: `fix(core): Switch-Dilemma behoben, verwaiste Snippets entfernt und Composer-Constraints erweitert`
+  - `f8b8903`: `test(subscriber): Unit-Tests für Idempotenz-Guard, Quota-Spoofing und Exception-Handling aktualisiert`
+- Bereit für: **Opus BlueTeam Audit (Quality Gate)**
