@@ -550,4 +550,6 @@ Umfassende Behebung aller verifizierten Findings aus den parallelen RedTeam-Audi
   - `f8b8903`: `test(subscriber): Unit-Tests für Idempotenz-Guard, Quota-Spoofing und Exception-Handling aktualisiert`
   - `d8832f2`: `docs(walkthrough): Phase 11 RedTeam Security Fixes v1.4.2 dokumentiert`
   - `a395941`: `fix(test): Integration-Subscriber-Event-Array, Snippet-Pfade und SCSS-Overlay-Radius korrigiert`
+  - `d33f126`: `docs(walkthrough): Test-Anpassungen und Status für PHPUnit-Re-Run aktualisiert`
+  - `21d7a47`: `test(coverage): Unit-Tests für Resilienz, DBAL-Catch-Blöcke und Lifecycle-Rollback ergänzt (100% Tier-1 Coverage)`
 - Bereit für: **Erneuten PHPUnit-Lauf auf der Teststation & anschließenden Opus BlueTeam Audit (Quality Gate)**
