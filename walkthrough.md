@@ -548,4 +548,6 @@ Umfassende Behebung aller verifizierten Findings aus den parallelen RedTeam-Audi
   - `1dd73cc`: `fix(storefront): CSRF-Schutz im Listing, Admin-ACL und Deinstallations-Transaktionen`
   - `06b2c6a`: `fix(core): Switch-Dilemma behoben, verwaiste Snippets entfernt und Composer-Constraints erweitert`
   - `f8b8903`: `test(subscriber): Unit-Tests für Idempotenz-Guard, Quota-Spoofing und Exception-Handling aktualisiert`
-- Bereit für: **Opus BlueTeam Audit (Quality Gate)**
+  - `d8832f2`: `docs(walkthrough): Phase 11 RedTeam Security Fixes v1.4.2 dokumentiert`
+  - `a395941`: `fix(test): Integration-Subscriber-Event-Array, Snippet-Pfade und SCSS-Overlay-Radius korrigiert`
+- Bereit für: **Erneuten PHPUnit-Lauf auf der Teststation & anschließenden Opus BlueTeam Audit (Quality Gate)**
