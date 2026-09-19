@@ -3,8 +3,8 @@
 **Datum:** 19.09.2026  
 **Betroffene Komponenten:** Checkout, Payment-Pipeline, Storefront Twig & SCSS, Administration ACL, Plugin-Lifecycle, Testsuite  
 **Branch:** `fix/redteam-audit-fixes`  
-**Letzter Commit:** `04d399d` (`fix(test): TypeError durch OrderEntity-Default-State fuer leere LineItems behoben`)  
-**Test-Status:** 115 Tests, 765 Assertions, 100% Coverage (Classes: 9/9, Methods: 44/44, Lines: 313/313)  
+**Letzter Commit:** `fc109d4` (`fix(storefront): Scarcity-Default-Bedingung vereinfacht und redundante Testsuite bereinigt`)  
+**Test-Status:** 106 Tests, 751 Assertions, 100% Coverage (Classes: 9/9, Methods: 44/44, Lines: 313/313)  
 
 ---
 
@@ -116,16 +116,19 @@ Alle Änderungen wurden als atomare Conventional Commits auf dem Branch `fix/red
 7. `d33f126` – `docs(walkthrough): Test-Anpassungen und Status für PHPUnit-Re-Run aktualisiert`
 8. `21d7a47` – `test(coverage): Unit-Tests fuer Resilienz, DBAL-Catch-Bloecke und Lifecycle-Rollback ergaenzt`
 9. `04d399d` – `fix(test): TypeError durch OrderEntity-Default-State fuer leere LineItems behoben`
+10. `17cb4db` – `docs(walkthrough): Commit 04d399d fuer TypeError-Fix in Walkthrough erfasst`
+11. `96cc9ec` – `docs(walkthrough): Phase 11 Walkthrough nach docs/walkthrough modularisiert und im Root-Index verlinkt`
+12. `fc109d4` – `fix(storefront): Scarcity-Default-Bedingung vereinfacht und redundante Testsuite bereinigt`
 
 ---
 
 ## 5. Verifikations-Ergebnis auf Teststation
 
 ```text
-OK (115 tests, 765 assertions)
+OK (106 tests, 751 assertions)
 
 Code Coverage Report:       
-  2026-09-19 13:22:20       
+  2026-09-19 13:47:42       
                             
  Summary:                   
   Classes: 100.00% (9/9)    
