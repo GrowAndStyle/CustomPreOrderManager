@@ -85,6 +85,18 @@ class Migration1726200000AddPreOrderCustomFields extends MigrationStep
                 ]);
             }
         }
+
+        // Tag "Vorbestellung" idempotent anlegen (verhindert TOCTOU-Race im Checkout)
+        $tagExists = $connection->fetchOne(
+            "SELECT `id` FROM `tag` WHERE `name` = 'Vorbestellung'"
+        );
+        if (!$tagExists) {
+            $connection->insert('tag', [
+                'id' => Uuid::randomBytes(),
+                'name' => 'Vorbestellung',
+                'created_at' => (new \DateTime())->format('Y-m-d H:i:s.v'),
+            ]);
+        }
     }
 
     public function updateDestructive(Connection $connection): void

@@ -23,7 +23,9 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        return [CheckoutOrderPlacedEvent::class => 'onOrderPlaced'];
+        return [
+            CheckoutOrderPlacedEvent::class => ['onOrderPlaced', 100],
+        ];
     }
 
     public function onOrderPlaced(CheckoutOrderPlacedEvent $event): void
@@ -49,18 +51,32 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Tag "Vorbestellung" idempotent finden oder anlegen
+        // Tag "Vorbestellung" idempotent finden oder anlegen (TOCTOU-resilient)
         $tagCriteria = (new Criteria())->addFilter(new EqualsFilter('name', 'Vorbestellung'));
         $tagId = $this->tagRepository->searchIds($tagCriteria, $context)->firstId();
 
         if (!$tagId) {
             $tagId = Uuid::randomHex();
-            $this->tagRepository->create([['id' => $tagId, 'name' => 'Vorbestellung']], $context);
+            try {
+                $this->tagRepository->create([['id' => $tagId, 'name' => 'Vorbestellung']], $context);
+            } catch (\Throwable) {
+                // Bei parallelen Erst-Checkouts greift der andere Prozess: Tag erneut abfragen
+                $tagId = $this->tagRepository->searchIds($tagCriteria, $context)->firstId();
+            }
         }
 
-        $this->orderRepository->update([
-            ['id' => $order->getId(), 'tags' => [['id' => $tagId]]],
-        ], $context);
+        if ($tagId) {
+            try {
+                $this->orderRepository->update([
+                    ['id' => $order->getId(), 'tags' => [['id' => $tagId]]],
+                ], $context);
+            } catch (\Throwable $e) {
+                $this->logger->error('PreOrder: Failed to assign tag to order', [
+                    'orderId' => $order->getId(),
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
 
         $this->logger->info('PreOrder: Tag assigned to order', [
             'orderId' => $order->getId(),
